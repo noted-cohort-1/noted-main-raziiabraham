@@ -15,18 +15,7 @@ export const metadata: Metadata = {
   description:
     "The seamless platform where creative and productive work happens.",
   icons: {
-    icon: [
-      {
-        media: "(prefers-color-scheme: light)",
-        url: "/logo.svg",
-        href: "/logo.svg",
-      },
-      {
-        media: "(prefers-color-scheme: dark)",
-        url: "/logo-dark.svg",
-        href: "/logo-dark.svg",
-      },
-    ],
+    icon: "/favicon.svg",
   },
 };
 
