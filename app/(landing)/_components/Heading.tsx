@@ -16,12 +16,12 @@ export const Heading = () => {
       <h1 className="text-center text-4xl font-bold tracking-tight text-neutral-900 sm:text-5xl lg:text-7xl dark:text-white">
         Write, plan, and
         <br />
-        get organized.
+        create with AI.
       </h1>
 
       {/* Subtitle */}
       <p className="max-w-2xl text-center text-lg text-neutral-600 sm:text-xl dark:text-neutral-400">
-        A simple, powerful workspace for your notes, tasks, and ideas.
+        A simple, powerful workspace with <span className="font-semibold text-blue-600 dark:text-blue-400">built-in AI</span> for your notes, tasks, and ideas.
       </p>
 
       {/* CTA Buttons */}

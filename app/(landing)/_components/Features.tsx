@@ -60,6 +60,52 @@ const features = [
     ),
   },
   {
+    title: "Write faster with AI",
+    subtitle: "Your creative superpower",
+    description:
+      "Generate content, brainstorm ideas, and improve your writing directly in your documents. Bring your own API key for complete control and privacy.",
+    highlights: ["BYOK (OpenAI)", "Inline generation", "Chat with page"],
+    mockup: (
+      <div className="relative overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xl dark:border-neutral-700 dark:bg-neutral-800">
+        {/* Editor with AI Menu */}
+        <div className="p-6">
+          <div className="mb-4 space-y-2">
+            <div className="h-4 w-2/3 rounded bg-neutral-100 dark:bg-neutral-800" />
+            <div className="h-4 w-full rounded bg-neutral-100 dark:bg-neutral-800" />
+            <div className="h-4 w-5/6 rounded bg-neutral-100 dark:bg-neutral-800" />
+          </div>
+
+          {/* AI Command Menu Mockup */}
+          <div className="relative z-10 mx-auto w-full max-w-sm overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg dark:border-neutral-700 dark:bg-neutral-900">
+            <div className="border-b border-neutral-100 bg-neutral-50 px-3 py-2 text-xs font-medium text-neutral-500 dark:border-neutral-800 dark:bg-neutral-800/50">
+              Ask AI to...
+            </div>
+            <div className="p-1">
+              <div className="flex items-center gap-2 rounded-md bg-blue-50 px-2 py-1.5 text-sm text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
+                <span className="text-lg">✨</span>
+                <span>Continue writing</span>
+                <span className="ml-auto flex h-1.5 w-1.5 animate-pulse rounded-full bg-blue-500" />
+              </div>
+              <div className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-800">
+                <span className="text-lg">📝</span>
+                <span>Summarize</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-800">
+                <span className="text-lg">🔄</span>
+                <span>Fix grammar</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 space-y-2 opacity-50">
+            <div className="h-4 w-3/4 rounded bg-neutral-100 dark:bg-neutral-800" />
+            <div className="h-4 w-1/2 rounded bg-neutral-100 dark:bg-neutral-800" />
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
     title: "Find anything instantly",
     subtitle: "Search that just works",
     description:
@@ -182,9 +228,8 @@ export const Features = () => {
         {features.map((feature, index) => (
           <div
             key={index}
-            className={`flex flex-col items-center gap-10 py-16 md:gap-14 lg:flex-row lg:gap-20 ${
-              index % 2 === 1 ? "lg:flex-row-reverse" : ""
-            } ${index !== features.length - 1 ? "border-b border-neutral-100 dark:border-neutral-800" : ""}`}
+            className={`flex flex-col items-center gap-10 py-16 md:gap-14 lg:flex-row lg:gap-20 ${index % 2 === 1 ? "lg:flex-row-reverse" : ""
+              } ${index !== features.length - 1 ? "border-b border-neutral-100 dark:border-neutral-800" : ""}`}
           >
             {/* Text Content */}
             <div className="flex-1 space-y-5 sm:space-y-6">

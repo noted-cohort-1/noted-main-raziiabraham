@@ -9,12 +9,16 @@ import {
   SuggestionMenuController,
   DefaultReactSuggestionItem,
   useDictionary,
+  FormattingToolbar,
+  FormattingToolbarController,
+  getFormattingToolbarItems,
 } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import {
   AIExtension,
   getAISlashMenuItems,
   AIMenuController,
+  AIToolbarButton,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import { useTheme } from "next-themes";
@@ -155,12 +159,27 @@ const Editor = ({ onChange, initialContent, editable }: EditorProps) => {
         theme={resolvedTheme === "dark" ? "dark" : "light"}
         onChange={handleEditorChange}
         slashMenu={false}
+        formattingToolbar={false}
       >
         <SlashMenuWithAI editor={editor} hasAiConfig={hasAiConfig} />
+        <FormattingToolbarWithAI />
         {hasAiConfig && <AIMenuController />}
       </BlockNoteView>
     </div>
   );
 };
+
+function FormattingToolbarWithAI() {
+  return (
+    <FormattingToolbarController
+      formattingToolbar={() => (
+        <FormattingToolbar>
+          {getFormattingToolbarItems()}
+          <AIToolbarButton />
+        </FormattingToolbar>
+      )}
+    />
+  );
+}
 
 export default Editor;
