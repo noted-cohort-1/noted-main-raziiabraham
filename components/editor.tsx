@@ -162,20 +162,20 @@ const Editor = ({ onChange, initialContent, editable }: EditorProps) => {
         formattingToolbar={false}
       >
         <SlashMenuWithAI editor={editor} hasAiConfig={hasAiConfig} />
-        <FormattingToolbarWithAI />
+        <FormattingToolbarWithAI hasAiConfig={hasAiConfig} />
         {hasAiConfig && <AIMenuController />}
       </BlockNoteView>
     </div>
   );
 };
 
-function FormattingToolbarWithAI() {
+function FormattingToolbarWithAI({ hasAiConfig }: { hasAiConfig: boolean }) {
   return (
     <FormattingToolbarController
       formattingToolbar={() => (
         <FormattingToolbar>
           {getFormattingToolbarItems()}
-          <AIToolbarButton />
+          {hasAiConfig && <AIToolbarButton />}
         </FormattingToolbar>
       )}
     />
