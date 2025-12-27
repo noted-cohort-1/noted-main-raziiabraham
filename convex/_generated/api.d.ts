@@ -13,6 +13,8 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as aiSettings from "../aiSettings.js";
+import type * as aiSettingsActions from "../aiSettingsActions.js";
 import type * as documents from "../documents.js";
 
 /**
@@ -24,6 +26,8 @@ import type * as documents from "../documents.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  aiSettings: typeof aiSettings;
+  aiSettingsActions: typeof aiSettingsActions;
   documents: typeof documents;
 }>;
 export declare const api: FilterApi<

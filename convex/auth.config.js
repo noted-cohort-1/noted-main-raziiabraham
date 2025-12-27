@@ -1,7 +1,7 @@
 export default {
   providers: [
     {
-      domain: "https://clerk.wellnoted.dev",
+      domain: "https://daring-lemming-98.clerk.accounts.dev",
       applicationID: "convex",
     },
   ],
