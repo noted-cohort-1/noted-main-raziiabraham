@@ -23,7 +23,7 @@ import {
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import { useTheme } from "next-themes";
 import { useEdgeStore } from "@/lib/edgestore";
-import { useAction } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useConvexAuth } from "convex/react";
 import { useAuth } from "@clerk/clerk-react";
@@ -91,25 +91,13 @@ const Editor = ({ onChange, initialContent, editable }: EditorProps) => {
   const { edgestore } = useEdgeStore();
   const { isAuthenticated } = useConvexAuth();
   const { getToken } = useAuth();
-  const getDecryptedApiKey = useAction(api.aiSettingsActions.getDecryptedApiKey);
-  const [hasAiConfig, setHasAiConfig] = useState(false);
 
-  // Check if AI settings are configured
-  useEffect(() => {
-    const checkAiSettings = async () => {
-      if (!isAuthenticated) {
-        setHasAiConfig(false);
-        return;
-      }
-      try {
-        const settings = await getDecryptedApiKey();
-        setHasAiConfig(Boolean(settings?.apiKey));
-      } catch {
-        setHasAiConfig(false);
-      }
-    };
-    checkAiSettings();
-  }, [isAuthenticated, getDecryptedApiKey]);
+  // Reactive query: UI updates immediately when settings change
+  const aiSettings = useQuery(
+    api.aiSettings.getSettings,
+    isAuthenticated ? {} : "skip"
+  );
+  const hasAiConfig = !!aiSettings;
 
   // File upload handler
   const handleUpload = async (file: File) => {
