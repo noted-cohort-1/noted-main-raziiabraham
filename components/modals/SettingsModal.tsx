@@ -14,10 +14,10 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSettings } from "@/hooks/useSettings";
 import { useAiSettings } from "@/hooks/useAiSettings";
-import { useAction, useQuery, useConvexAuth } from "convex/react";
+import { useAction, useQuery, useMutation, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ModeToggle } from "../mode-toggle";
-import { Loader2, Check } from "lucide-react";
+import { Loader2, Check, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const SettingsModal = () => {
@@ -36,6 +36,8 @@ export const SettingsModal = () => {
   const loadSavedModels = useAction(
     (api.aiSettingsActions as any).loadSavedModels,
   );
+  const deleteSettings = useMutation(api.aiSettings.deleteSettings);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (savedSettings && activeTab === "ai") {
@@ -135,6 +137,25 @@ export const SettingsModal = () => {
     }
   };
 
+  const handleRemoveApiKey = async () => {
+    if (!confirm("Are you sure you want to remove your API key? AI features will be disabled.")) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await deleteSettings();
+      toast.success("API key removed successfully");
+      aiSettings.reset();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to remove API key"
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <Dialog open={settings.isOpen} onOpenChange={settings.onClose}>
       <DialogContent className="max-w-2xl">
@@ -145,21 +166,19 @@ export const SettingsModal = () => {
         <div className="flex gap-4 border-b">
           <button
             onClick={() => setActiveTab("appearance")}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
-              activeTab === "appearance"
-                ? "border-b-2 border-primary text-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "appearance"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground hover:text-foreground"
+              }`}
           >
             Appearance
           </button>
           <button
             onClick={() => setActiveTab("ai")}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
-              activeTab === "ai"
-                ? "border-b-2 border-primary text-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "ai"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground hover:text-foreground"
+              }`}
           >
             AI Settings
           </button>
@@ -233,7 +252,7 @@ export const SettingsModal = () => {
                         {aiSettings.selectedModel || "Select a model"}
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent 
+                    <DropdownMenuContent
                       className="w-[var(--radix-dropdown-menu-trigger-width)] p-0"
                       align="start"
                     >
@@ -261,35 +280,58 @@ export const SettingsModal = () => {
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    aiSettings.onClose();
-                    aiSettings.reset();
-                  }}
-                  disabled={aiSettings.isLoading}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSaveAiSettings}
-                  disabled={
-                    !aiSettings.apiKey.trim() ||
-                    aiSettings.isLoading ||
-                    aiSettings.isTesting ||
-                    aiSettings.isFetchingModels
-                  }
-                >
-                  {aiSettings.isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    "Save"
+              <div className="flex justify-between gap-2 pt-2">
+                <div>
+                  {savedSettings && (
+                    <Button
+                      variant="destructive"
+                      onClick={handleRemoveApiKey}
+                      disabled={isDeleting || aiSettings.isLoading}
+                    >
+                      {isDeleting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Removing...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Remove API Key
+                        </>
+                      )}
+                    </Button>
                   )}
-                </Button>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      aiSettings.onClose();
+                      aiSettings.reset();
+                    }}
+                    disabled={aiSettings.isLoading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSaveAiSettings}
+                    disabled={
+                      !aiSettings.apiKey.trim() ||
+                      aiSettings.isLoading ||
+                      aiSettings.isTesting ||
+                      aiSettings.isFetchingModels
+                    }
+                  >
+                    {aiSettings.isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save"
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           )}
