@@ -32,4 +32,15 @@ export default defineSchema({
     bytesUsed: v.number(),
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),
+  files: defineTable({ // [NEW] Table to track uploaded files
+    name: v.string(),
+    type: v.string(), // MIME type
+    url: v.string(),
+    userId: v.string(),
+    size: v.number(),
+    documentId: v.optional(v.id("documents")),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_document", ["userId", "documentId"]),
 });

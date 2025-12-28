@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/clerk-react";
 import { useCallback } from "react";
+import { Id } from "@/convex/_generated/dataModel";
 
 /**
  * Custom hook for uploading files with storage tracking.
@@ -16,6 +17,8 @@ export const useTrackedUpload = () => {
     const { userId } = useAuth();
     const addStorageUsage = useMutation(api.storage.addStorageUsage);
     const removeStorageUsage = useMutation(api.storage.removeStorageUsage);
+    const saveFile = useMutation(api.files.save);
+    const removeFile = useMutation(api.files.remove);
 
     /**
      * Upload a file with storage tracking
@@ -25,6 +28,7 @@ export const useTrackedUpload = () => {
             file: File,
             options?: {
                 replaceTargetUrl?: string;
+                documentId?: Id<"documents">;
             }
         ) => {
             try {
@@ -41,6 +45,15 @@ export const useTrackedUpload = () => {
                     await addStorageUsage({
                         userId,
                         bytes: res.size,
+                    });
+
+                    await saveFile({
+                        name: file.name,
+                        type: file.type,
+                        url: res.url,
+                        userId,
+                        size: res.size,
+                        documentId: options?.documentId,
                     });
                 }
 
@@ -63,12 +76,9 @@ export const useTrackedUpload = () => {
                 throw error;
             }
         },
-        [edgestore, userId, addStorageUsage]
+        [edgestore, userId, addStorageUsage, saveFile]
     );
 
-    /**
-     * Delete a file with storage tracking
-     */
     /**
      * Delete a file with storage tracking
      */
@@ -88,14 +98,17 @@ export const useTrackedUpload = () => {
 
             await edgestore.publicFiles.delete({ url });
 
-            if (userId && size > 0) {
-                await removeStorageUsage({
-                    userId,
-                    bytes: size,
-                });
+            if (userId) {
+                if (size > 0) {
+                    await removeStorageUsage({
+                        userId,
+                        bytes: size,
+                    });
+                }
+                await removeFile({ url, userId });
             }
         },
-        [edgestore, userId, removeStorageUsage]
+        [edgestore, userId, removeStorageUsage, removeFile]
     );
 
     return {

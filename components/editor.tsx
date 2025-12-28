@@ -33,10 +33,15 @@ import "@blocknote/core/style.css";
 import "@blocknote/mantine/style.css";
 import "@blocknote/xl-ai/style.css";
 
+import { Id } from "@/convex/_generated/dataModel";
+import { useFilePicker } from "@/hooks/use-file-picker";
+import { ImageIcon } from "lucide-react";
+
 interface EditorProps {
   onChange: (value: string) => void;
   initialContent?: string;
   editable?: boolean;
+  documentId?: Id<"documents">;
 }
 
 /**
@@ -63,15 +68,41 @@ const SlashMenuWithAI = ({
     }
   }, [dictionary, editor]);
 
+  const { onOpen } = useFilePicker();
+
   const getMenuItems = useCallback(
     async (query: string): Promise<DefaultReactSuggestionItem[]> => {
       const defaultItems = getDefaultReactSlashMenuItems(editor);
       const aiItems = hasAiConfig ? getAISlashMenuItems(editor) : [];
 
+      const insertImageFromLibrary: DefaultReactSuggestionItem = {
+        title: "Image from Library",
+        onItemClick: () => {
+          onOpen((url) => {
+            if (editor) {
+              const currentBlock = editor.getTextCursorPosition().block;
+              editor.insertBlocks(
+                [
+                  {
+                    type: "image",
+                    props: { url },
+                  },
+                ],
+                currentBlock,
+                "after"
+              );
+            }
+          });
+        },
+        aliases: ["library", "files", "image library"],
+        group: "Media",
+        icon: <ImageIcon size={18} />,
+      };
+
       // Use BlockNote's built-in filter function
-      return filterSuggestionItems([...aiItems, ...defaultItems], query);
+      return filterSuggestionItems([...aiItems, insertImageFromLibrary, ...defaultItems], query);
     },
-    [editor, hasAiConfig],
+    [editor, hasAiConfig, onOpen],
   );
 
   return (
@@ -86,7 +117,12 @@ const SlashMenuWithAI = ({
  * BlockNote Editor with AI integration.
  * Uses BlockNote xl-ai with server-side API key management via Convex.
  */
-const Editor = ({ onChange, initialContent, editable }: EditorProps) => {
+const Editor = ({
+  onChange,
+  initialContent,
+  editable,
+  documentId,
+}: EditorProps) => {
   const { resolvedTheme } = useTheme();
   const { isAuthenticated } = useConvexAuth();
   const { getToken } = useAuth();
@@ -101,7 +137,7 @@ const Editor = ({ onChange, initialContent, editable }: EditorProps) => {
 
   // File upload handler with storage limit tracking
   const handleUpload = async (file: File) => {
-    const res = await uploadFile(file);
+    const res = await uploadFile(file, { documentId });
     return res.url;
   };
 

@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Dialog,
   DialogContent,
@@ -14,6 +12,8 @@ import { api } from "@/convex/_generated/api";
 import { useParams } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import { useTrackedUpload } from "@/hooks/useTrackedUpload";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FilePicker } from "@/components/file-picker";
 
 export const CoverImageModal = () => {
   const params = useParams();
@@ -48,8 +48,6 @@ export const CoverImageModal = () => {
 
         onClose();
       } catch (error) {
-        // Error is handled by useTrackedUpload (toast shown)
-        // We just need to stop the loading state
         console.log("Cover image upload failed", error);
         setIsSubmitting(false);
         setFile(undefined);
@@ -57,21 +55,47 @@ export const CoverImageModal = () => {
     }
   };
 
+  const onSelectFile = async (url: string) => {
+    setIsSubmitting(true);
+    try {
+      await update({
+        id: params.documentId as Id<"documents">,
+        coverImage: url,
+      });
+      onClose();
+    } catch (error) {
+      console.log("Failed to set cover image from file", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <Dialog open={coverImage.isOpen} onOpenChange={coverImage.onClose}>
-      <DialogTitle>
-        <h1 className="sr-only">Change Cover Image</h1>
-      </DialogTitle>
       <DialogContent>
         <DialogHeader>
           <h2 className="text-center text-lg font-semibold">Cover Image</h2>
         </DialogHeader>
-        <SingleImageDropzone
-          className="w-full outline-none"
-          disabled={isSubmitting}
-          value={file}
-          onChange={onChange}
-        />
+
+        <Tabs defaultValue="upload" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="upload">Upload</TabsTrigger>
+            <TabsTrigger value="files">Select from Files</TabsTrigger>
+          </TabsList>
+          <TabsContent value="upload">
+            <SingleImageDropzone
+              className="w-full outline-none"
+              disabled={isSubmitting}
+              value={file}
+              onChange={onChange}
+            />
+          </TabsContent>
+          <TabsContent value="files">
+            <div className="pt-2">
+              <FilePicker onSelect={onSelectFile} selectedUrl={coverImage.url} />
+            </div>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
