@@ -251,13 +251,3 @@ export const getDecryptedApiKey = action({
   },
 });
 
-export const loadSavedModels = action({
-  handler: async (ctx): Promise<{
-    success: boolean;
-    models?: Array<{ id: string; created: number }>;
-    selectedModel?: string;
-    error?: string;
-  }> => {
-    return { success: true };
-  },
-});
