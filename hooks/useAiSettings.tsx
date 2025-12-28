@@ -1,27 +1,30 @@
 import { create } from "zustand";
-import { toast } from "sonner";
-
-type Model = {
-  id: string;
-  created: number;
-};
+import { AIProvider, getModelsForProvider, getDefaultModel } from "@/lib/ai-models";
 
 type AiSettingsStore = {
   isOpen: boolean;
   isLoading: boolean;
   isTesting: boolean;
-  isFetchingModels: boolean;
+  selectedProvider: AIProvider;
+
+  // State for keys input
   apiKey: string;
+
+  // Track which keys are saved
+  hasOpenAIKey: boolean;
+  hasAnthropicKey: boolean;
+  hasGoogleKey: boolean;
+
   selectedModel: string | null;
-  availableModels: Model[];
+
   onOpen: () => void;
   onClose: () => void;
   setApiKey: (key: string) => void;
   setSelectedModel: (model: string) => void;
-  setAvailableModels: (models: Model[]) => void;
+  setSelectedProvider: (provider: AIProvider) => void;
   setIsTesting: (testing: boolean) => void;
-  setIsFetchingModels: (fetching: boolean) => void;
   setIsLoading: (loading: boolean) => void;
+  setHasKey: (provider: AIProvider, hasKey: boolean) => void;
   reset: () => void;
 };
 
@@ -29,10 +32,13 @@ export const useAiSettings = create<AiSettingsStore>((set) => ({
   isOpen: false,
   isLoading: false,
   isTesting: false,
-  isFetchingModels: false,
+  selectedProvider: "openai",
   apiKey: "",
   selectedModel: null,
-  availableModels: [],
+
+  hasOpenAIKey: false,
+  hasAnthropicKey: false,
+  hasGoogleKey: false,
 
   onOpen: () => set({ isOpen: true }),
   onClose: () => {
@@ -40,27 +46,38 @@ export const useAiSettings = create<AiSettingsStore>((set) => ({
       isOpen: false,
       apiKey: "",
       selectedModel: null,
-      availableModels: [],
     });
   },
 
   setApiKey: (key: string) => set({ apiKey: key }),
   setSelectedModel: (model: string) => set({ selectedModel: model }),
-  setAvailableModels: (models: Model[]) => set({ availableModels: models }),
+  setSelectedProvider: (provider: AIProvider) =>
+    set({
+      selectedProvider: provider,
+      // When switching provider, reset the API key input field
+      // but keep the key status indicator
+      apiKey: "",
+      selectedModel: getDefaultModel(provider),
+    }),
   setIsTesting: (testing: boolean) => set({ isTesting: testing }),
-  setIsFetchingModels: (fetching: boolean) =>
-    set({ isFetchingModels: fetching }),
   setIsLoading: (loading: boolean) => set({ isLoading: loading }),
+
+  setHasKey: (provider: AIProvider, hasKey: boolean) => {
+    if (provider === "openai") set({ hasOpenAIKey: hasKey });
+    if (provider === "anthropic") set({ hasAnthropicKey: hasKey });
+    if (provider === "google") set({ hasGoogleKey: hasKey });
+  },
 
   reset: () => {
     set({
       apiKey: "",
       selectedModel: null,
-      availableModels: [],
+      selectedProvider: "openai",
       isLoading: false,
       isTesting: false,
-      isFetchingModels: false,
+      hasOpenAIKey: false,
+      hasAnthropicKey: false,
+      hasGoogleKey: false,
     });
   },
 }));
-

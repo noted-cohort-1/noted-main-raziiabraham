@@ -64,39 +64,72 @@ function decrypt(encryptedText: string): string {
   return decrypted;
 }
 
-// Helper function to fetch models from OpenAI REST API
-async function fetchOpenAIModels(apiKey: string): Promise<Array<{ id: string; created: number }>> {
-  const response = await fetch("https://api.openai.com/v1/models", {
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error?.message || `OpenAI API error: ${response.statusText}`);
+/**
+ * Test API key connection for different providers
+ */
+async function testProviderConnection(provider: string, apiKey: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    switch (provider) {
+      case "openai": {
+        const response = await fetch("https://api.openai.com/v1/models", {
+          headers: { Authorization: `Bearer ${apiKey}` },
+        });
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          return { success: false, error: error.error?.message || `OpenAI API error: ${response.statusText}` };
+        }
+        return { success: true };
+      }
+      case "anthropic": {
+        // Anthropic uses a different header format
+        const response = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "x-api-key": apiKey,
+            "anthropic-version": "2023-06-01",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "claude-3-5-haiku-latest",
+            max_tokens: 1,
+            messages: [{ role: "user", content: "Hi" }],
+          }),
+        });
+        // 400 is expected for minimal request, but auth errors are 401/403
+        if (response.status === 401 || response.status === 403) {
+          const error = await response.json().catch(() => ({}));
+          return { success: false, error: error.error?.message || "Invalid Anthropic API key" };
+        }
+        return { success: true };
+      }
+      case "google": {
+        // Google Gemini API test
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
+        );
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          return { success: false, error: error.error?.message || `Google API error: ${response.statusText}` };
+        }
+        return { success: true };
+      }
+      default:
+        return { success: false, error: `Unknown provider: ${provider}` };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Connection failed",
+    };
   }
-
-  const data = await response.json();
-  const models = data.data || [];
-
-  // Filter for GPT models and return in the expected format
-  return models
-    .filter((model: { id: string }) => {
-      const id = model.id.toLowerCase();
-      return id.startsWith("gpt");
-    })
-    .map((model: { id: string; created: number }) => ({
-      id: model.id,
-      created: model.created,
-    }));
 }
 
 export const saveSettings = action({
   args: {
-    provider: v.string(),
-    apiKey: v.string(),
-    model: v.optional(v.string()),
+    provider: v.string(), // The provider we are configuring/saving
+    apiKey: v.optional(v.string()), // Optional, if empty we might just be setting active provider
+    model: v.optional(v.string()), // Optional, if empty we might just be setting active provider
+    makeActive: v.optional(v.boolean()), // Whether to set this as the active provider
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -106,25 +139,43 @@ export const saveSettings = action({
     }
 
     const userId = identity.subject;
-
-    const encryptedKey = encrypt(args.apiKey);
     const now = Date.now();
-
     const existing = await ctx.runQuery(api.aiSettings.getSettings);
+
+    const updateFields: any = { updatedAt: now };
+
+    // If apiKey is provided, encrypt and save it for the specific provider
+    if (args.apiKey) {
+      const encryptedKey = encrypt(args.apiKey);
+      if (args.provider === "openai") updateFields.openaiKey = encryptedKey;
+      if (args.provider === "anthropic") updateFields.anthropicKey = encryptedKey;
+      if (args.provider === "google") updateFields.googleKey = encryptedKey;
+    }
+
+    // Set active provider if requested or if it's the first time
+    if (args.makeActive || !existing) {
+      updateFields.activeProvider = args.provider;
+      if (args.model) updateFields.activeModel = args.model;
+    } else if (existing && existing.provider === args.provider && args.model) {
+      // If updating the currently active provider's model
+      updateFields.activeModel = args.model;
+    }
 
     if (existing) {
       await ctx.runMutation(internal.aiSettings.updateSettings, {
         id: existing._id,
-        encryptedKey,
-        model: args.model,
-        updatedAt: now,
+        ...updateFields,
       });
     } else {
+      // Initial creation
       await ctx.runMutation(internal.aiSettings.createSettings, {
         userId,
-        provider: args.provider,
-        encryptedKey,
-        model: args.model,
+        activeProvider: args.provider,
+        activeModel: args.model,
+        // Set the keys if provided
+        openaiKey: args.provider === "openai" && args.apiKey ? encrypt(args.apiKey) : undefined,
+        anthropicKey: args.provider === "anthropic" && args.apiKey ? encrypt(args.apiKey) : undefined,
+        googleKey: args.provider === "google" && args.apiKey ? encrypt(args.apiKey) : undefined,
         createdAt: now,
         updatedAt: now,
       });
@@ -136,6 +187,7 @@ export const saveSettings = action({
 
 export const testConnection = action({
   args: {
+    provider: v.string(),
     apiKey: v.string(),
   },
   handler: async (ctx, args) => {
@@ -145,44 +197,15 @@ export const testConnection = action({
       throw new Error("Not authenticated");
     }
 
-    try {
-      // Test connection by fetching models
-      await fetchOpenAIModels(args.apiKey);
-      return { success: true };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-      };
-    }
-  },
-});
-
-export const getAvailableModels = action({
-  args: {
-    apiKey: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-
-    try {
-      const models = await fetchOpenAIModels(args.apiKey);
-      return { success: true, models };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-      };
-    }
+    return await testProviderConnection(args.provider, args.apiKey);
   },
 });
 
 export const getDecryptedApiKey = action({
-  handler: async (ctx): Promise<{
+  args: {
+    provider: v.optional(v.string()), // Optional, if not provided will use active
+  },
+  handler: async (ctx, args): Promise<{
     apiKey: string;
     model: string | undefined;
     provider: string;
@@ -193,85 +216,38 @@ export const getDecryptedApiKey = action({
       throw new Error("Not authenticated");
     }
 
-    const userId = identity.subject;
-
     const settings = await ctx.runQuery(api.aiSettings.getSettings);
 
     if (!settings) {
       throw new Error("AI settings not found");
     }
 
-    const fullSettings: {
-      _id: string;
-      userId: string;
-      provider: string;
-      apiKey: string;
-      model?: string;
-      createdAt: number;
-      updatedAt: number;
-    } | null = await ctx.runQuery(internal.aiSettings.getSettingsWithKey);
+    const fullSettings = await ctx.runQuery(internal.aiSettings.getSettingsWithKeys);
 
     if (!fullSettings) {
       throw new Error("AI settings not found");
     }
 
-    const decryptedKey = decrypt(fullSettings.apiKey);
+    // Determine which provider to use
+    const targetProvider = args.provider || fullSettings.activeProvider;
+
+    // Get the key for that provider
+    let encryptedKey: string | undefined;
+    if (targetProvider === "openai") encryptedKey = fullSettings.openaiKey;
+    else if (targetProvider === "anthropic") encryptedKey = fullSettings.anthropicKey;
+    else if (targetProvider === "google") encryptedKey = fullSettings.googleKey;
+
+    if (!encryptedKey) {
+      throw new Error(`No API key configured for ${targetProvider}`);
+    }
+
+    const decryptedKey = decrypt(encryptedKey);
 
     return {
       apiKey: decryptedKey,
-      model: fullSettings.model,
-      provider: fullSettings.provider,
+      model: fullSettings.activeModel,
+      provider: targetProvider || "openai", // Default to openai if not set
     };
   },
 });
 
-export const loadSavedModels = action({
-  handler: async (ctx): Promise<{
-    success: boolean;
-    models?: Array<{ id: string; created: number }>;
-    selectedModel?: string;
-    error?: string;
-  }> => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-
-    const settings = await ctx.runQuery(api.aiSettings.getSettings);
-
-    if (!settings) {
-      return { success: false, error: "No saved settings" };
-    }
-
-    const fullSettings: {
-      _id: string;
-      userId: string;
-      provider: string;
-      apiKey: string;
-      model?: string;
-      createdAt: number;
-      updatedAt: number;
-    } | null = await ctx.runQuery(internal.aiSettings.getSettingsWithKey);
-
-    if (!fullSettings) {
-      return { success: false, error: "Settings not found" };
-    }
-
-    try {
-      const decryptedKey = decrypt(fullSettings.apiKey);
-      const models = await fetchOpenAIModels(decryptedKey);
-
-      return {
-        success: true,
-        models,
-        selectedModel: fullSettings.model,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-      };
-    }
-  },
-});

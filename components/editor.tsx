@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useEffect, useState, useRef } from "react";
+import { useCallback, useMemo, useEffect, useRef } from "react";
 import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import {
@@ -22,12 +22,12 @@ import {
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import { useTheme } from "next-themes";
-import { useEdgeStore } from "@/lib/edgestore";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useConvexAuth } from "convex/react";
 import { useAuth } from "@clerk/clerk-react";
 import { ServerSideTransport } from "@/lib/serverSideTransport";
+import { useTrackedUpload } from "@/hooks/useTrackedUpload";
 
 import "@blocknote/core/style.css";
 import "@blocknote/mantine/style.css";
@@ -88,9 +88,9 @@ const SlashMenuWithAI = ({
  */
 const Editor = ({ onChange, initialContent, editable }: EditorProps) => {
   const { resolvedTheme } = useTheme();
-  const { edgestore } = useEdgeStore();
   const { isAuthenticated } = useConvexAuth();
   const { getToken } = useAuth();
+  const { uploadFile, deleteFile } = useTrackedUpload();
 
   // Reactive query: UI updates immediately when settings change
   const aiSettings = useQuery(
@@ -99,9 +99,9 @@ const Editor = ({ onChange, initialContent, editable }: EditorProps) => {
   );
   const hasAiConfig = !!aiSettings;
 
-  // File upload handler
+  // File upload handler with storage limit tracking
   const handleUpload = async (file: File) => {
-    const res = await edgestore.publicFiles.upload({ file });
+    const res = await uploadFile(file);
     return res.url;
   };
 
@@ -122,11 +122,37 @@ const Editor = ({ onChange, initialContent, editable }: EditorProps) => {
     uploadFile: handleUpload,
     extensions: [
       AIExtension({
-        transport: aiTransport,
+        transport: aiTransport as any, // Cast to any to avoid ai SDK version mismatch
         agentCursor: { name: "AI", color: "#8bc6ff" },
       }),
     ],
   });
+
+  // Track file URLs to handle deletions
+  const previousUrlsRef = useRef<Set<string>>(new Set());
+
+  // Helper to get all file URLs from the editor (images, videos, etc)
+  const getEditorFileUrls = useCallback((currentEditor: BlockNoteEditor) => {
+    const urls = new Set<string>();
+    currentEditor.forEachBlock((block) => {
+      // Check for various media types that store files
+      if (
+        ["image", "video", "audio", "file"].includes(block.type) &&
+        (block.props as any).url
+      ) {
+        urls.add((block.props as any).url);
+      }
+      return true;
+    });
+    return urls;
+  }, []);
+
+  // Initialize previous URLs when editor is ready
+  useEffect(() => {
+    if (editor) {
+      previousUrlsRef.current = getEditorFileUrls(editor);
+    }
+  }, [editor, getEditorFileUrls]);
 
   // Debounce updates to avoid spamming the database
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -135,9 +161,19 @@ const Editor = ({ onChange, initialContent, editable }: EditorProps) => {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
 
     saveTimerRef.current = setTimeout(() => {
+      // Check for deleted files
+      const currentUrls = getEditorFileUrls(editor);
+
+      previousUrlsRef.current.forEach((url) => {
+        if (!currentUrls.has(url)) {
+          deleteFile(url);
+        }
+      });
+
+      previousUrlsRef.current = currentUrls;
       onChange(JSON.stringify(editor.document, null, 2));
     }, 1000);
-  }, [editor, onChange]);
+  }, [editor, onChange, deleteFile, getEditorFileUrls]);
 
   return (
     <div>
