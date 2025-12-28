@@ -9,11 +9,11 @@ import {
 import { useCoverImage } from "@/hooks/useCoverImage";
 import { SingleImageDropzone } from "@/components/single-image-dropzone";
 import { useState } from "react";
-import { useEdgeStore } from "@/lib/edgestore";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
+import { useTrackedUpload } from "@/hooks/useTrackedUpload";
 
 export const CoverImageModal = () => {
   const params = useParams();
@@ -23,7 +23,7 @@ export const CoverImageModal = () => {
 
   const update = useMutation(api.documents.update);
   const coverImage = useCoverImage();
-  const { edgestore } = useEdgeStore();
+  const { uploadFile } = useTrackedUpload();
 
   const onClose = () => {
     setFile(undefined);
@@ -36,19 +36,24 @@ export const CoverImageModal = () => {
       setIsSubmitting(true);
       setFile(file);
 
-      const res = await edgestore.publicFiles.upload({
-        file,
-        options: {
+      try {
+        const res = await uploadFile(file, {
           replaceTargetUrl: coverImage.url,
-        },
-      });
+        });
 
-      await update({
-        id: params.documentId as Id<"documents">,
-        coverImage: res.url,
-      });
+        await update({
+          id: params.documentId as Id<"documents">,
+          coverImage: res.url,
+        });
 
-      onClose();
+        onClose();
+      } catch (error) {
+        // Error is handled by useTrackedUpload (toast shown)
+        // We just need to stop the loading state
+        console.log("Cover image upload failed", error);
+        setIsSubmitting(false);
+        setFile(undefined);
+      }
     }
   };
 

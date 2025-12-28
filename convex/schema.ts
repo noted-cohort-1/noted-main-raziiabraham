@@ -16,10 +16,20 @@ export default defineSchema({
     .index("by_user_parent", ["userId", "parentDocument"]),
   aiSettings: defineTable({
     userId: v.string(),
-    provider: v.string(),
-    apiKey: v.string(),
-    model: v.optional(v.string()),
+    activeProvider: v.optional(v.string()), // Optional for migration
+    activeModel: v.optional(v.string()),
+
+    // Encrypted keys for each provider
+    openaiKey: v.optional(v.string()),
+    anthropicKey: v.optional(v.string()),
+    googleKey: v.optional(v.string()),
+
     createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+  userStorage: defineTable({
+    userId: v.string(),
+    bytesUsed: v.number(),
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),
 });
