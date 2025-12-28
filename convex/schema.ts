@@ -14,4 +14,12 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_user_parent", ["userId", "parentDocument"]),
+  aiSettings: defineTable({
+    userId: v.string(),
+    provider: v.string(),
+    apiKey: v.string(),
+    model: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
 });
