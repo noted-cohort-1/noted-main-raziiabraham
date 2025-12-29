@@ -76,7 +76,7 @@ const SlashMenuWithAI = ({
       const aiItems = hasAiConfig ? getAISlashMenuItems(editor) : [];
 
       const insertImageFromLibrary: DefaultReactSuggestionItem = {
-        title: "Image from Library",
+        title: "File from Library",
         onItemClick: () => {
           onOpen((url) => {
             if (editor) {
@@ -94,8 +94,8 @@ const SlashMenuWithAI = ({
             }
           });
         },
-        aliases: ["library", "files", "image library"],
-        group: "Media",
+        aliases: ["library", "files", "upload", "media"],
+        group: "Files",
         icon: <ImageIcon size={18} />,
       };
 
@@ -202,7 +202,7 @@ const Editor = ({
 
       previousUrlsRef.current.forEach((url) => {
         if (!currentUrls.has(url)) {
-          deleteFile(url);
+          deleteFile(url, documentId);
         }
       });
 

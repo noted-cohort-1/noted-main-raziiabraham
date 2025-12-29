@@ -39,8 +39,11 @@ export default defineSchema({
     userId: v.string(),
     size: v.number(),
     documentId: v.optional(v.id("documents")),
+    documentIds: v.optional(v.array(v.id("documents"))), // [NEW] Support multiple docs
+    checksum: v.optional(v.string()), // [NEW] Content hash for deduplication
     createdAt: v.number(),
   })
     .index("by_user", ["userId"])
-    .index("by_user_document", ["userId", "documentId"]),
+    .index("by_user_document", ["userId", "documentId"])
+    .index("by_checksum", ["userId", "checksum"]), // [NEW] Fast lookup for dupes
 });
