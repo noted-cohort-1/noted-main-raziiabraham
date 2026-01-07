@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Logo } from "./Logo";
 
 export const Footer = () => {
@@ -10,18 +11,18 @@ export const Footer = () => {
 
           {/* Links */}
           <div className="flex items-center gap-6 text-sm text-neutral-500">
-            <a
-              href="#"
+            <Link
+              href="/privacy"
               className="transition-colors hover:text-neutral-900 dark:hover:text-white"
             >
               Privacy
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              href="/terms"
               className="transition-colors hover:text-neutral-900 dark:hover:text-white"
             >
               Terms
-            </a>
+            </Link>
           </div>
         </div>
       </div>
