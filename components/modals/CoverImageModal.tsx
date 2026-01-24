@@ -74,7 +74,7 @@ export const CoverImageModal = () => {
     <Dialog open={coverImage.isOpen} onOpenChange={coverImage.onClose}>
       <DialogContent>
         <DialogHeader>
-          <h2 className="text-center text-lg font-semibold">Cover Image</h2>
+          <DialogTitle className="text-center text-lg font-semibold">Cover Image</DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue="upload" className="w-full">
