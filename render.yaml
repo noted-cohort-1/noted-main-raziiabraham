@@ -10,6 +10,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: APP_ENV
+        value: production
       - key: NEXT_PUBLIC_CONVEX_URL
         sync: false  # Set this in Render dashboard (production Convex deployment)
       - key: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
@@ -34,6 +36,8 @@ services:
     startCommand: npm start
     envVars:
       - key: NODE_ENV
+        value: production
+      - key: APP_ENV
         value: staging
       - key: NEXT_PUBLIC_CONVEX_URL
         sync: false  # Set this in Render dashboard (Development Convex deployment)
