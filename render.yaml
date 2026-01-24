@@ -5,7 +5,7 @@ services:
     runtime: node
     plan: starter  # Starter plan ($7/month): Always on, no cold starts
     branch: main  # Only deploys from main branch
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --legacy-peer-deps && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -30,7 +30,7 @@ services:
     runtime: node
     plan: free  # Free tier: spins down after 15min inactivity, ~1min cold start
     branch: staging  # Deploys from staging branch
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --legacy-peer-deps && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
