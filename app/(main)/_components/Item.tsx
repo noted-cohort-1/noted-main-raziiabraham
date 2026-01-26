@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
 import {
@@ -115,7 +116,18 @@ export const Item = ({
         </div>
       )}
       {documentIcon ? (
-        <div className="mr-2 shrink-0 text-[1.125rem]">{documentIcon}</div>
+        documentIcon.startsWith("/") ? (
+          <div className="mr-2 shrink-0 relative h-[1.125rem] w-[1.125rem]">
+            <Image
+              src={documentIcon}
+              alt="Icon"
+              fill
+              className="object-contain"
+            />
+          </div>
+        ) : (
+          <div className="mr-2 shrink-0 text-[1.125rem]">{documentIcon}</div>
+        )
       ) : (
         <Icon className="mr-2 h-[1.125rem] w-[1.125rem] shrink-0 text-muted-foreground" />
       )}

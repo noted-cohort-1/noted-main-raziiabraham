@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { ElementRef, useRef, useState } from "react";
 
 import { useMutation } from "convex/react";
@@ -69,13 +71,24 @@ export const Toolbar = ({ initialData, preview }: ToolbarProps) => {
   };
 
   return (
-    <div className="group relative pl-[54px]">
+    <div className="group relative">
       {!!initialData.icon && !preview && (
         <div className="group/icon flex items-center gap-x-2 pt-6">
           <IconPicker onChange={onIconSelect}>
-            <p className="text-6xl transition hover:opacity-75">
-              {initialData.icon}
-            </p>
+            {initialData.icon.startsWith("/") ? (
+              <div className="relative h-[60px] w-[60px] hover:opacity-75 transition">
+                <Image
+                  src={initialData.icon}
+                  alt="Icon"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            ) : (
+              <p className="text-6xl transition hover:opacity-75">
+                {initialData.icon}
+              </p>
+            )}
           </IconPicker>
           <Button
             onClick={onRemoveIcon}
@@ -88,7 +101,18 @@ export const Toolbar = ({ initialData, preview }: ToolbarProps) => {
         </div>
       )}
       {!!initialData.icon && preview && (
-        <p className="pt-6 text-6xl">{initialData.icon}</p>
+        initialData.icon.startsWith("/") ? (
+          <div className="pt-6 relative h-[84px] w-[60px]">
+            <Image
+              src={initialData.icon}
+              alt="Icon"
+              fill
+              className="object-contain"
+            />
+          </div>
+        ) : (
+          <p className="pt-6 text-6xl">{initialData.icon}</p>
+        )
       )}
       <div className="flex items-center gap-x-1 py-2 group-hover:opacity-100 md:opacity-0">
         {!initialData.icon && !preview && (

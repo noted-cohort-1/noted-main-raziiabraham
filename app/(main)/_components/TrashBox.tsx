@@ -29,7 +29,7 @@ export const TrashBox = () => {
   };
 
   const onRestore = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
     documentId: Id<"documents">,
   ) => {
     event.stopPropagation();
@@ -87,31 +87,34 @@ export const TrashBox = () => {
           </p>
         )}
         {filteredDocuments?.map((document) => (
-          <button
+          <div
             key={document._id}
             onClick={() => onClick(document._id)}
+            role="button"
             className="flex w-full items-center justify-between rounded-sm text-sm text-primary hover:bg-primary/5"
             aria-label="Document"
           >
             <span className="truncate pl-2">{document.title}</span>
             <div className="flex items-center">
-              <button
+              <div
+                role="button"
                 onClick={(e) => onRestore(e, document._id)}
                 className="rounded-sm p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600"
                 aria-label="Restore Document"
               >
                 <Undo className="h-4 w-4 text-muted-foreground " />
-              </button>
+              </div>
               <ConfirmModal onConfirm={() => onRemove(document._id)}>
-                <button
+                <div
+                  role="button"
                   className="rounded-sm p-2 hover:bg-neutral-200 dark:hover:bg-neutral-600"
                   aria-label="Delete Permanently"
                 >
                   <Trash className="h-4 w-4 text-muted-foreground " />
-                </button>
+                </div>
               </ConfirmModal>
             </div>
-          </button>
+          </div>
         ))}
       </div>
     </section>

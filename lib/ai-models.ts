@@ -69,19 +69,11 @@ export const AI_MODELS: AIModel[] = [
     { id: "claude-3-7-sonnet-latest", name: "Claude 3.7 Sonnet Latest", provider: "anthropic" },
     { id: "claude-3-5-haiku-latest", name: "Claude 3.5 Haiku Latest", provider: "anthropic" },
 
-    // Google Gemini Models
+    // Google Gemini Models (Gemini 2.5+ with thinking support)
     { id: "gemini-3-pro-preview", name: "Gemini 3 Pro Preview", provider: "google" },
     { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro", provider: "google" },
     { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", provider: "google" },
     { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite", provider: "google" },
-    { id: "gemini-2.5-flash-lite-preview-06-17", name: "Gemini 2.5 Flash Lite Preview", provider: "google" },
-    { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", provider: "google" },
-    { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro", provider: "google" },
-    { id: "gemini-1.5-pro-latest", name: "Gemini 1.5 Pro Latest", provider: "google" },
-    { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash", provider: "google" },
-    { id: "gemini-1.5-flash-latest", name: "Gemini 1.5 Flash Latest", provider: "google" },
-    { id: "gemini-1.5-flash-8b", name: "Gemini 1.5 Flash 8B", provider: "google" },
-    { id: "gemini-1.5-flash-8b-latest", name: "Gemini 1.5 Flash 8B Latest", provider: "google" },
 ];
 
 /**

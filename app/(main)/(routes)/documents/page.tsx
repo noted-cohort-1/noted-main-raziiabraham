@@ -27,7 +27,7 @@ const DocumentsPage = () => {
   };
 
   return (
-    <div className="flex h-full flex-col items-center justify-center space-y-4">
+    <div className="flex min-h-[calc(100vh-48px)] flex-col items-center justify-center space-y-4">
       <Image
         src="/empty-pages-v3.svg"
         alt="empty"

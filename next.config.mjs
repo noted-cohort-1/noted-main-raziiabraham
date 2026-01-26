@@ -17,3 +17,5 @@ const nextConfig = {
 };
 
 export default nextConfig;
+
+// Forced reload to detect middleware
