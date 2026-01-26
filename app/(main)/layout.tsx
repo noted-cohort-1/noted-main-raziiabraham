@@ -5,9 +5,15 @@ import { useConvexAuth } from "convex/react";
 import { redirect } from "next/navigation";
 import Navigation from "./_components/Navigation";
 import { SearchCommand } from "@/components/search-command";
+import { CoworkerFloatingChat } from "@/components/coworker/CoworkerFloatingChat";
+import { useCoworkerConfig } from "@/hooks/useCoworkerConfig";
+import { cn } from "@/lib/utils";
+
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useConvexAuth();
+  const { isExpanded } = useCoworkerConfig();
 
   if (isLoading) {
     return (
@@ -24,11 +30,22 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex h-full dark:bg-[#1F1F1F]">
       <Navigation />
-      <main className="h-full flex-1 overflow-y-auto">
-        <SearchCommand />
-        {children}
+      <main className="h-full flex-1 overflow-hidden">
+        <ScrollArea className="h-full w-full" type="auto">
+          <div className="flex flex-col items-center w-full h-full min-h-full transition-all duration-300 ease-in-out">
+            <div className={cn(
+              "w-full h-full",
+              isExpanded && "max-w-5xl" // Constrain width when sidebar is open
+            )}>
+              <SearchCommand />
+              {children}
+            </div>
+          </div>
+        </ScrollArea>
       </main>
-    </div>
+      <CoworkerFloatingChat />
+    </div >
   );
 };
 export default MainLayout;
+
