@@ -195,6 +195,7 @@ const Navigation = () => {
               onClick={() => router.push("/coworkers")}
               label="AI Squad"
               icon={Bot}
+              badge="New"
             />
             {squadAgents?.map((agent: any) => (
               <Item
