@@ -72,7 +72,17 @@ export const getSidebar = query({
       .order("desc")
       .collect();
 
-    return documents;
+    // Fetch all agents to filter out instruction documents
+    const squadAgents = await ctx.db
+      .query("squadAgents")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+
+    const instructionDocIds = new Set(
+      squadAgents.map((agent) => agent.instructionsDocId)
+    );
+
+    return documents.filter((doc) => !instructionDocIds.has(doc._id));
   },
 });
 
@@ -227,7 +237,17 @@ export const getSearch = query({
       .order("desc")
       .collect();
 
-    return documents;
+    // Fetch all agents to filter out instruction documents
+    const squadAgents = await ctx.db
+      .query("squadAgents")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+
+    const instructionDocIds = new Set(
+      squadAgents.map((agent) => agent.instructionsDocId)
+    );
+
+    return documents.filter((doc) => !instructionDocIds.has(doc._id));
   },
 });
 
