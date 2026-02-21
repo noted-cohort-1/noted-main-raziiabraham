@@ -149,38 +149,24 @@ export async function POST(req: NextRequest) {
         // Get coworker configuration
         const config = await convex.query(api.coworkerConfig.getConfig, {});
 
-        // Coworker requires an instruction document
-        if (!config?.instructionsDocId) {
-            return Response.json(
-                { error: "No instruction document configured. Please set up your coworker first." },
-                { status: 400 }
-            );
-        }
-
         // Get the instruction document content
-        let systemPrompt = "";
-        try {
-            const doc = await convex.query(api.documents.getById, {
-                documentId: config.instructionsDocId as Id<"documents">
-            });
+        let instructionContent = "";
+        if (config?.instructionsDocId) {
+            try {
+                const doc = await convex.query(api.documents.getById, {
+                    documentId: config.instructionsDocId as Id<"documents">
+                });
 
-            if (doc?.content) {
-                const docText = extractTextFromBlocks(doc.content);
-                if (docText.trim()) {
-                    // Simple: instruction content + tool calling instructions
-                    systemPrompt = buildSystemPrompt(docText);
+                if (doc?.content) {
+                    instructionContent = extractTextFromBlocks(doc.content);
                 }
+            } catch (e) {
+                console.warn("Failed to load instructions document:", e);
             }
-        } catch (e) {
-            console.warn("Failed to load instructions document:", e);
         }
 
-        if (!systemPrompt) {
-            return Response.json(
-                { error: "Instruction document is empty. Please add content to your coworker's instruction page." },
-                { status: 400 }
-            );
-        }
+        // Build system prompt (will use default if instructionContent is empty)
+        const systemPrompt = buildSystemPrompt(instructionContent);
 
         // Get API key from existing BYOK settings
         const settings = await convex.action(

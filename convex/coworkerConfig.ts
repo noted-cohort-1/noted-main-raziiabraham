@@ -156,7 +156,7 @@ export const toggleActive = mutation({
  */
 export const upsertConfig = mutation({
     args: {
-        instructionsDocId: v.id("documents"),
+        instructionsDocId: v.optional(v.id("documents")),
         persona: v.optional(v.object({
             name: v.optional(v.string()),
             systemPrompt: v.string(),
