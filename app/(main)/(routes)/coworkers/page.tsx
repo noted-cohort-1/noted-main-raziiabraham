@@ -32,14 +32,6 @@ export default function CoworkersPage() {
 
                 {/* Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <CoworkerCard
-                        id="marketing-assistant"
-                        name="Marketing Assistant"
-                        description="Trend analysis and report on AI, identify areas of product improvement, and generate creative campaign ideas."
-                        creator="System"
-                        color="bg-orange-100 text-orange-600"
-                    />
-
                     {/* Placeholder for future agents */}
                     <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl bg-muted/10 text-muted-foreground hover:bg-muted/20 transition-colors cursor-pointer min-h-[280px]">
                         <span className="text-sm font-medium">Create custom coworker</span>
