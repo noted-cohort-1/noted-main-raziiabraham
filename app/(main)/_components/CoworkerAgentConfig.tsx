@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { Id } from "@/convex/_generated/dataModel";
 import { useRouter } from "next/navigation";
 
-export function AdologyAgentConfig() {
+export function CoworkerAgentConfig() {
     const router = useRouter();
 
     const {

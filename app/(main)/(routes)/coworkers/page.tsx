@@ -33,10 +33,10 @@ export default function CoworkersPage() {
                 {/* Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <CoworkerCard
-                        id="marketing-specialist"
-                        name="Marketing Intelligence Specialist"
+                        id="marketing-assistant"
+                        name="Marketing Assistant"
                         description="Trend analysis and report on AI, identify areas of product improvement, and generate creative campaign ideas."
-                        creator="Adology"
+                        creator="System"
                         color="bg-orange-100 text-orange-600"
                     />
 
