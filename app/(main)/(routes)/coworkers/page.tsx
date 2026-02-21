@@ -8,7 +8,7 @@ export default function CoworkersPage() {
     return (
         <div className="flex flex-col h-full p-8 max-w-6xl mx-auto">
             <div className="mb-8">
-                <h1 className="text-4xl font-bold mb-4">Coworkers</h1>
+                <h1 className="text-4xl font-bold mb-4">AI Squad</h1>
 
                 {/* Filters */}
                 <div className="flex items-center gap-4 mb-8">
@@ -24,7 +24,7 @@ export default function CoworkersPage() {
                     <div className="relative w-64">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
-                            placeholder="Search coworkers..."
+                            placeholder="Search squad..."
                             className="pl-9 h-9 bg-muted/30 border-none focus-visible:ring-1"
                         />
                     </div>
@@ -32,17 +32,9 @@ export default function CoworkersPage() {
 
                 {/* Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <CoworkerCard
-                        id="marketing-specialist"
-                        name="Marketing Intelligence Specialist"
-                        description="Trend analysis and report on AI, identify areas of product improvement, and generate creative campaign ideas."
-                        creator="Adology"
-                        color="bg-orange-100 text-orange-600"
-                    />
-
                     {/* Placeholder for future agents */}
                     <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl bg-muted/10 text-muted-foreground hover:bg-muted/20 transition-colors cursor-pointer min-h-[280px]">
-                        <span className="text-sm font-medium">Create custom coworker</span>
+                        <span className="text-sm font-medium">Add to your squad</span>
                         <span className="text-xs text-muted-foreground mt-1 text-center">Coming soon</span>
                     </div>
                 </div>

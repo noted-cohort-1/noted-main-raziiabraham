@@ -1,14 +1,30 @@
 /**
- * System prompt utilities for the Coworker Agent
+ * System prompt utilities for the AI Squad
  * 
- * Simple structure: Instruction page content + Tool calling instructions
+ * Simple structure: Instruction content + Tool calling instructions
  */
 
 /**
- * Build the system prompt by combining instruction document content with tool calling instructions
+ * Default generic system prompt if no custom instructions are provided
  */
-export function buildSystemPrompt(instructionContent: string): string {
-    return `${instructionContent}
+export const DEFAULT_SQUAD_PROMPT = `You are a helpful and efficient member of the AI Squad. Your goal is to assist the user with any task within their workspace. 
+
+You can:
+- Research and summarize information from existing documents.
+- Create new documents, reports, plans, or stories.
+- Help organize and manage the workspace.
+
+Be professional, concise, and proactive in using your tools to create value for the user. Always prioritize clarity and accuracy.`;
+
+/**
+ * Build the system prompt by combining instruction content with tool calling instructions
+ */
+export function buildSystemPrompt(instructionContent?: string): string {
+    const basePrompt = (instructionContent && instructionContent.trim())
+        ? instructionContent
+        : DEFAULT_SQUAD_PROMPT;
+
+    return `${basePrompt}
 
 ${TOOL_CALLING_INSTRUCTIONS}`;
 }
@@ -47,11 +63,11 @@ You have access to workspace tools that let you interact with the user's documen
 
 ## Important Rules
 
-1. **ALWAYS invoke tools for content creation requests**. When the user says "write me a campaign brief", you MUST use writeDocument - do NOT just write the content in the chat.
+1. **ALWAYS invoke tools for content creation requests**. When the user says "write me a project plan", you MUST use writeDocument - do NOT just write the content in the chat.
 
 2. **Use Markdown formatting** for document content. Use # for headings, - for lists, **bold** for emphasis.
 
-3. **Set appropriate icons** using emojis (📝, 📊, 📋, 🎯, 💡, 📈) to make documents visually identifiable.
+3. **Set appropriate icons** using emojis (📝, 📊, 📋, 🎯, 💡, 📈, 📖) to make documents visually identifiable.
 
 4. **Explain what you're doing** briefly before and after tool calls, but the actual content should go into the document.
 
@@ -59,13 +75,13 @@ You have access to workspace tools that let you interact with the user's documen
 
 ## Example Flow
 
-User: "Write me a marketing campaign brief for DoorDash"
+User: "Write me a project outline for the new website launch"
 
 Your response should:
 1. Briefly acknowledge the request
-2. Call writeDocument with title "DoorDash Campaign Brief", icon "📋", and the full brief content in Markdown
+2. Call writeDocument with title "Website Launch Plan", icon "🚀", and the full content in Markdown
 3. Confirm the document was created
 
-Do NOT just write the brief in the chat - put it in a document using the tool.
+Do NOT just write the content in the chat - put it in a document using the tool.
 </tool_calling>
 `;

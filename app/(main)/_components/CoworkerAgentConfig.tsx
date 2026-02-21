@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { Id } from "@/convex/_generated/dataModel";
 import { useRouter } from "next/navigation";
 
-export function AdologyAgentConfig() {
+export function CoworkerAgentConfig() {
     const router = useRouter();
 
     const {
@@ -62,15 +62,10 @@ export function AdologyAgentConfig() {
     }, [config, setLoading, setHasConfig, setActive, setInstructionsDocId]);
 
     const handleSave = async () => {
-        if (!instructionsDocId) {
-            toast.error("Please select an instruction document");
-            return;
-        }
-
         setSaving(true);
         try {
             await upsertConfig({
-                instructionsDocId: instructionsDocId
+                instructionsDocId: instructionsDocId || undefined
             });
             setHasConfig(true);
             toast.success("Configuration saved!");
@@ -119,9 +114,9 @@ export function AdologyAgentConfig() {
                     <Bot className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold">Coworker Agent</h1>
+                    <h1 className="text-2xl font-bold">AI Squad Agent</h1>
                     <p className="text-muted-foreground">
-                        Configure your AI coworker
+                        Configure your AI squad members
                     </p>
                 </div>
             </div>
@@ -151,63 +146,17 @@ export function AdologyAgentConfig() {
                 </div>
             </div>
 
-            {/* Instruction Document Selector */}
-            <div className="mb-6 space-y-2">
-                <Label htmlFor="instruction-doc">Instruction Document</Label>
-                <p className="text-sm text-muted-foreground mb-3">
-                    Select a document that defines your coworker&apos;s personality and behavior.
-                    The content of this document will be used as the system prompt.
-                </p>
-                <Select
-                    value={instructionsDocId || "none"}
-                    onValueChange={(value) => setInstructionsDocId(value === "none" ? null : value as Id<"documents">)}
-                >
-                    <SelectTrigger id="instruction-doc" className="w-full">
-                        <SelectValue placeholder="Select a document..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="none">Select a document...</SelectItem>
-                        {documents?.map((doc) => (
-                            <SelectItem key={doc._id} value={doc._id}>
-                                <div className="flex items-center gap-2">
-                                    {doc.icon && <span className="mr-1">{doc.icon}</span>}
-                                    {doc.title}
-                                </div>
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-
-                {instructionsDocId && (
-                    <div className="flex items-center gap-2 pt-2">
-                        <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                            ✓ Connected to document content
-                        </p>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 text-xs"
-                            onClick={navigateToDocument}
-                        >
-                            <FileText className="h-3 w-3 mr-1" />
-                            Edit Document
-                        </Button>
-                    </div>
-                )}
-            </div>
-
             {/* Info Box */}
             <div className="mb-6 rounded-lg border bg-blue-50 dark:bg-blue-900/20 p-4">
                 <p className="text-sm text-blue-900 dark:text-blue-100">
-                    <strong>How it works:</strong> Write your coworker&apos;s instructions in the selected document.
-                    Describe their role, personality, and how they should respond. The coworker will use
-                    this as their system prompt, combined with tool-calling capabilities.
+                    <strong>The AI Squad is ready:</strong> Your squad members are configured with a general-purpose
+                    intelligence suitable for a wide range of tasks, from summarizing documents to generating new content.
                 </p>
             </div>
 
             {/* Save Button */}
             <div className="flex justify-end">
-                <Button onClick={handleSave} disabled={isSaving || !instructionsDocId}>
+                <Button onClick={handleSave} disabled={isSaving}>
                     {isSaving ? (
                         <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

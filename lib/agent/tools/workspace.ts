@@ -240,7 +240,7 @@ function parseInlineFormatting(text: string): any[] {
  * Create workspace tools for the AI agent
  * Uses the AI SDK `tool()` helper with `inputSchema` format
  */
-export function createWorkspaceTools(convexClient: ConvexHttpClient, defaultParentId?: string) {
+export function createWorkspaceTools(convexClient: ConvexHttpClient) {
     return {
         readDocument: tool({
             description: "Read the content of a document in the workspace by its ID",
@@ -283,7 +283,7 @@ export function createWorkspaceTools(convexClient: ConvexHttpClient, defaultPare
             execute: async ({ title, content, icon, parentId }) => {
                 console.log(`[Tool Exec] writeDocument called with title: ${title}`);
                 try {
-                    const finalParentId = (parentId || defaultParentId) as Id<"documents"> | undefined;
+                    const finalParentId = parentId as Id<"documents"> | undefined;
                     const docId = await convexClient.mutation(api.documents.create, {
                         title,
                         parentDocument: finalParentId,

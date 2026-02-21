@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCoworkerConfig } from "@/hooks/useCoworkerConfig";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Bot, Sparkles } from "lucide-react";
 
 interface CoworkerChatProps {
     messages: CoworkerMessageType[];
@@ -20,8 +21,12 @@ export function CoworkerChat({ messages, isStreaming }: CoworkerChatProps) {
     const { instructionsDocId } = useCoworkerConfig();
     const instructionsDoc = useQuery(api.documents.getById, instructionsDocId ? { documentId: instructionsDocId } : "skip");
     const coworkerName = !instructionsDocId
-        ? "AI Co-worker"
-        : (instructionsDoc === undefined ? "..." : (instructionsDoc?.title || "Untitled Co-worker"));
+        ? "AI Squad"
+        : (instructionsDoc === undefined ? "..." : (
+            instructionsDoc?.title === "Marketing Intelligence Specialist"
+                ? "AI Squad"
+                : (instructionsDoc?.title || "Untitled Squad")
+        ));
 
     // Auto-scroll to bottom when new messages arrive or while streaming
     useEffect(() => {
@@ -33,18 +38,13 @@ export function CoworkerChat({ messages, isStreaming }: CoworkerChatProps) {
     if (messages.length === 0) {
         return (
             <div className="flex h-full flex-col items-center justify-center p-4 text-center">
-                <div className="mb-4 relative h-16 w-16 rounded-full overflow-hidden bg-white border shadow-sm">
-                    <Image
-                        src="/agent-logo.png"
-                        alt="Agent Logo"
-                        fill
-                        className="object-contain p-2"
-                    />
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 border shadow-sm">
+                    <Bot className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="mb-1 font-medium">{coworkerName}</h3>
                 <p className="text-sm text-muted-foreground">
-                    I&apos;m here to help with marketing tasks. Ask me to research competitors,
-                    create briefs, or generate creative ideas.
+                    I&apos;m here to help you work with your documents. Ask me to research information,
+                    summarize your workspace, or create new content for you.
                 </p>
             </div>
         );

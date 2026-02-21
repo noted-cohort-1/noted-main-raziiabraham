@@ -74,9 +74,9 @@ export function CoworkerSettingsDialog() {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>Coworker Settings</DialogTitle>
+                    <DialogTitle>AI Squad Settings</DialogTitle>
                     <DialogDescription>
-                        Configure behavior and preferences for this coworker.
+                        Configure behavior and preferences for this squad member.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -86,7 +86,7 @@ export function CoworkerSettingsDialog() {
                         <div className="flex flex-col gap-1">
                             <Label className="text-sm font-medium">Active Status</Label>
                             <span className="text-xs text-muted-foreground">
-                                Enable or disable this coworker
+                                Enable or disable this squad member
                             </span>
                         </div>
                         <Switch
@@ -102,7 +102,7 @@ export function CoworkerSettingsDialog() {
                     <h4 className="text-xs font-semibold text-destructive mb-3 uppercase tracking-wider">Danger Zone</h4>
                     <div className="flex items-center justify-between rounded-lg border border-red-200 bg-red-50 dark:bg-red-900/10 dark:border-red-900/30 p-3">
                         <div className="flex flex-col gap-1">
-                            <span className="text-sm font-medium text-red-900 dark:text-red-200">Reset Agent</span>
+                            <span className="text-sm font-medium text-red-900 dark:text-red-200">Reset Squad Member</span>
                             <span className="text-xs text-red-700 dark:text-red-300">
                                 This will archive the current instructions and create a fresh one.
                             </span>
