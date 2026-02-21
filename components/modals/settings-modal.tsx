@@ -64,6 +64,7 @@ export const SettingsModal = () => {
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedSettings, activeTab]);
 
   // Helper to check if current selected provider has a saved key
