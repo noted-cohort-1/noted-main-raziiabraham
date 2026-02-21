@@ -211,7 +211,7 @@ export async function POST(req: NextRequest) {
             : undefined;
 
         // Create workspace tools with execute functions
-        const tools = createWorkspaceTools(convex, config?.instructionsDocId);
+        const tools = createWorkspaceTools(convex);
 
         // Convert messages to the format expected by streamText (AI SDK Core)
         const formattedMessages = messages.map((msg: ChatMessage) => {
