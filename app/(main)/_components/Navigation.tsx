@@ -22,6 +22,7 @@ import {
   Trash,
   Folder,
   Users,
+  Bot,
 } from "lucide-react";
 import {
   Popover,
@@ -188,7 +189,7 @@ const Navigation = () => {
           <Item
             onClick={() => router.push("/coworkers")}
             label="AI Squad"
-            icon={Users}
+            icon={Bot}
           />
           <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
         </div>
