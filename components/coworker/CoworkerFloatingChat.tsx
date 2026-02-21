@@ -22,7 +22,8 @@ import {
     AtSign,
     Loader2,
     PanelRight,
-    ChevronsRight
+    ChevronsRight,
+    Bot
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
@@ -51,8 +52,12 @@ export function CoworkerFloatingChat() {
     // Dynamic Coworker Name
     const instructionsDoc = useQuery(api.documents.getById, instructionsDocId ? { documentId: instructionsDocId } : "skip");
     const coworkerName = !instructionsDocId
-        ? "AI Co-worker"
-        : (instructionsDoc === undefined ? "..." : (instructionsDoc?.title || "Untitled Co-worker"));
+        ? "AI Assistant"
+        : (instructionsDoc === undefined ? "..." : (
+            instructionsDoc?.title === "Marketing Intelligence Specialist"
+                ? "AI Assistant"
+                : (instructionsDoc?.title || "Untitled Assistant")
+        ));
 
     // Resizing Right Sidebar
     const isResizingRightRef = useRef(false);
@@ -343,13 +348,8 @@ export function CoworkerFloatingChat() {
                 isExpanded ? "bg-secondary/95" : "bg-background/95 border-b"
             )}>
                 <div className="flex items-center gap-2 px-2 py-1 rounded-md">
-                    <div className="relative h-5 w-5 rounded-sm overflow-hidden">
-                        <Image
-                            src="/agent-logo.png"
-                            alt="Agent"
-                            fill
-                            className="object-contain"
-                        />
+                    <div className="flex h-5 w-5 items-center justify-center rounded-sm bg-primary/10">
+                        <Bot className="h-3.5 w-3.5 text-primary" />
                     </div>
                     <span className="text-sm font-medium">{coworkerName}</span>
                 </div>
@@ -391,19 +391,14 @@ export function CoworkerFloatingChat() {
                 {messages.length === 0 ? (
                     <div className="flex h-full flex-col justify-center items-center text-center space-y-8 pb-10">
                         <div className="relative">
-                            <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center shadow-sm border mb-4 relative overflow-hidden">
-                                <Image
-                                    src="/agent-logo.png"
-                                    alt="Agent"
-                                    fill
-                                    className="object-contain p-2"
-                                />
+                            <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center shadow-sm border mb-4 relative overflow-hidden">
+                                <Bot className="h-8 w-8 text-primary" />
                                 <div className="absolute -top-1 -right-1 z-10">
-                                    <Pen className="h-4 w-4 text-orange-500 fill-orange-500" />
+                                    <Sparkles className="h-4 w-4 text-orange-500 fill-orange-500" />
                                 </div>
                             </div>
                         </div>
-                        <h2 className="text-xl font-semibold tracking-tight text-center">I&apos;m {coworkerName}, how can I help?</h2>
+                        <h2 className="text-xl font-semibold tracking-tight text-center">How can I help you today?</h2>
                     </div>
                 ) : (
                     <CoworkerChat messages={messages as any} isStreaming={isLoading} />
