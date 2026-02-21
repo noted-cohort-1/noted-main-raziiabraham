@@ -190,27 +190,25 @@ const Navigation = () => {
           <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
         </div>
         <div className="mt-4">
-          {squadAgents && squadAgents.length > 0 && (
-            <div className="mb-4">
+          <div className="mb-4">
+            <Item
+              onClick={() => router.push("/coworkers")}
+              label="AI Squad Members"
+              icon={Bot}
+            />
+            {squadAgents?.map((agent: any) => (
               <Item
-                onClick={() => router.push("/coworkers")}
-                label="AI Squad Members"
+                key={agent._id}
+                label={agent.name}
+                documentIcon={agent.icon || "🤖"}
                 icon={Bot}
+                onClick={() => router.push(`/documents/${agent.instructionsDocId}`)}
+                active={params.documentId === agent.instructionsDocId}
+                level={0}
+                iconAlignSpacer={true}
               />
-              {squadAgents.map((agent: any) => (
-                <Item
-                  key={agent._id}
-                  label={agent.name}
-                  documentIcon={agent.icon || "🤖"}
-                  icon={Bot}
-                  onClick={() => router.push(`/documents/${agent.instructionsDocId}`)}
-                  active={params.documentId === agent.instructionsDocId}
-                  level={0}
-                  iconAlignSpacer={true}
-                />
-              ))}
-            </div>
-          )}
+            ))}
+          </div>
 
           <DocumentList />
           <Item onClick={handleCreate} icon={Plus} label="Add a page" />
