@@ -193,7 +193,7 @@ const Navigation = () => {
           <div className="mb-4">
             <Item
               onClick={() => router.push("/coworkers")}
-              label="AI Squad Members"
+              label="AI Squad"
               icon={Bot}
             />
             {squadAgents?.map((agent: any) => (

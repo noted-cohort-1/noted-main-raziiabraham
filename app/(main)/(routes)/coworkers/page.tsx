@@ -42,6 +42,8 @@ export default function CoworkersPage() {
             { type: "paragraph", content: [] },
             { type: "heading", props: { level: 3 }, content: [{ type: "text", text: "Constraint", styles: {} }] },
             { type: "paragraph", content: [] },
+            { type: "heading", props: { level: 3 }, content: [{ type: "text", text: "Summary", styles: {} }] },
+            { type: "paragraph", content: [] },
         ]);
 
         const promise = (async () => {
