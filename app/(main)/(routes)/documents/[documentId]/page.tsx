@@ -30,8 +30,11 @@ const DocumentIdPage = ({ params }: DocumentIdPageProps) => {
     documentId: unwrappedParams.documentId,
   });
 
-  const config = useQuery(api.coworkerConfig.getConfig);
-  const isAgentInstructions = config?.instructionsDocId === unwrappedParams.documentId;
+  const agent = useQuery((api as any).squadAgents.findByDocId, {
+    documentId: unwrappedParams.documentId,
+  });
+
+  const isAgentInstructions = !!agent;
 
   const update = useMutation(api.documents.update);
 

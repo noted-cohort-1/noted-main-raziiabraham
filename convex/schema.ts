@@ -47,45 +47,6 @@ export default defineSchema({
     .index("by_user_document", ["userId", "documentId"])
     .index("by_checksum", ["userId", "checksum"]), // [NEW] Fast lookup for dupes
 
-  // Marketing Co-worker Agent Configuration
-  coworkerConfig: defineTable({
-    userId: v.string(),
-
-    // Agent status
-    isActive: v.boolean(),
-
-    // Persona configuration
-    persona: v.object({
-      name: v.optional(v.string()), // e.g., "Max"
-      systemPrompt: v.string(), // Custom instructions
-      tone: v.string(), // professional, casual, creative
-      focusAreas: v.array(v.string()), // Content strategy, Ads, Social, etc.
-    }),
-
-    // Linked instructions document
-    instructionsDocId: v.optional(v.id("documents")),
-
-    // [LEGACY] Auto-run/output configurations from earlier versions
-    folderIds: v.optional(v.object({
-      feeds: v.string(),
-      collections: v.string(),
-      briefings: v.string(),
-      creative: v.string(),
-    })),
-    nextRunTime: v.optional(v.number()),
-
-    // [LEGACY] Adology integration from earlier versions
-    adologyEnabled: v.optional(v.boolean()),
-    adologyTokens: v.optional(v.object({
-      accessToken: v.string(),
-      expiresAt: v.number(),
-      refreshToken: v.string(),
-    })),
-
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  }).index("by_user", ["userId"]),
-
   // Marketing Co-worker Chat Messages
   coworkerMessages: defineTable({
     userId: v.string(),

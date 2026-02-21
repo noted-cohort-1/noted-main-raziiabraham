@@ -10,7 +10,6 @@
 
 import type * as aiSettings from "../aiSettings.js";
 import type * as aiSettingsActions from "../aiSettingsActions.js";
-import type * as coworkerConfig from "../coworkerConfig.js";
 import type * as coworkerMessages from "../coworkerMessages.js";
 import type * as documents from "../documents.js";
 import type * as files from "../files.js";
@@ -26,7 +25,6 @@ import type {
 declare const fullApi: ApiFromModules<{
   aiSettings: typeof aiSettings;
   aiSettingsActions: typeof aiSettingsActions;
-  coworkerConfig: typeof coworkerConfig;
   coworkerMessages: typeof coworkerMessages;
   documents: typeof documents;
   files: typeof files;

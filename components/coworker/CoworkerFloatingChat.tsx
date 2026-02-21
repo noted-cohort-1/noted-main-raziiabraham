@@ -36,8 +36,6 @@ import { AgentSlashCommand } from "./AgentSlashCommand";
 
 export function CoworkerFloatingChat() {
     const { getToken } = useAuth();
-    const { isActive } = useCoworkerConfig();
-
     const [isOpen, setIsOpen] = useState(false);
     const {
         isExpanded,
@@ -46,22 +44,12 @@ export function CoworkerFloatingChat() {
         setSidebarWidth,
         isResizing,
         setIsResizing,
-        instructionsDocId,
-        setInstructionsDocId
     } = useCoworkerConfig();
     const [sourceScope, setSourceScope] = useState<"all" | "selection">("all");
 
     // Agent Selection State
     const [activeAgent, setActiveAgent] = useState<any>(null);
     const [isAgentCommandOpen, setIsAgentCommandOpen] = useState(false);
-
-    // Load config and sync to store
-    const config = useQuery(api.coworkerConfig.getConfig);
-    useEffect(() => {
-        if (config?.instructionsDocId) {
-            setInstructionsDocId(config.instructionsDocId);
-        }
-    }, [config, setInstructionsDocId]);
 
     // The floating chat represents the general squad unless an agent is specifically addressed in input
     const coworkerName = "AI Squad";
