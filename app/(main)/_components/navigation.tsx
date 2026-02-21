@@ -59,12 +59,14 @@ const Navigation = () => {
     } else {
       resetWidth();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile]);
 
   useEffect(() => {
     if (isMobile) {
       collapse();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, isMobile]);
 
   useEffect(() => {
@@ -76,6 +78,7 @@ const Navigation = () => {
     }
     const timer = setTimeout(() => setIsResetting(false), 300);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isExpanded, sidebarWidth]);
 
   const handleMouseDown = (
@@ -113,7 +116,7 @@ const Navigation = () => {
     document.removeEventListener("mouseup", handleMouseUp);
   };
 
-  const resetWidth = () => {
+  function resetWidth() {
     if (sidebarRef.current && navbarRef.current) {
       setIsCollapsed(false);
       setIsResetting(true);
@@ -132,7 +135,7 @@ const Navigation = () => {
     }
   };
 
-  const collapse = () => {
+  function collapse() {
     if (sidebarRef.current && navbarRef.current) {
       setIsCollapsed(true);
       setIsResetting(true);
