@@ -153,7 +153,13 @@ const Editor = ({
   // Create editor with AI extension
   const editor = useCreateBlockNote({
     initialContent: initialContent
-      ? (JSON.parse(initialContent) as PartialBlock[])
+      ? (() => {
+        try {
+          return JSON.parse(initialContent) as PartialBlock[];
+        } catch (e) {
+          return undefined;
+        }
+      })()
       : undefined,
     uploadFile: handleUpload,
     extensions: [
@@ -163,6 +169,19 @@ const Editor = ({
       }),
     ],
   });
+
+  // Handle fallback for non-JSON content (e.g. Markdown/HTML from AI)
+  useEffect(() => {
+    if (editor && initialContent) {
+      try {
+        JSON.parse(initialContent);
+      } catch (e) {
+        // Parsing failed, try to load as Markdown/HTML
+        const blocks = editor.tryParseMarkdownToBlocks(initialContent);
+        editor.replaceBlocks(editor.document, blocks);
+      }
+    }
+  }, [editor, initialContent]);
 
   // Track file URLs to handle deletions
   const previousUrlsRef = useRef<Set<string>>(new Set());
@@ -208,23 +227,44 @@ const Editor = ({
 
       previousUrlsRef.current = currentUrls;
       onChange(JSON.stringify(editor.document, null, 2));
+      saveTimerRef.current = null; // Clear timer ref when done
     }, 1000);
   }, [editor, onChange, deleteFile, getEditorFileUrls]);
 
+  // Safe Silent Refresh: Update editor if initialContent changes externally (e.g. AI tool)
+  // and we don't have pending local changes.
+  useEffect(() => {
+    if (editor && initialContent && !saveTimerRef.current) {
+      try {
+        const currentContent = JSON.stringify(editor.document, null, 2); // Match format used in onChange
+
+        // If content differs significantly, update
+        if (currentContent !== initialContent) {
+          const blocks = JSON.parse(initialContent);
+          editor.replaceBlocks(editor.document, blocks);
+        }
+      } catch (e) {
+        // Ignore parsing errors or if content isn't blocks
+      }
+    }
+  }, [initialContent, editor]);
+
   return (
     <div>
-      <BlockNoteView
-        editable={editable}
-        editor={editor}
-        theme={resolvedTheme === "dark" ? "dark" : "light"}
-        onChange={handleEditorChange}
-        slashMenu={false}
-        formattingToolbar={false}
-      >
-        <SlashMenuWithAI editor={editor} hasAiConfig={hasAiConfig} />
-        <FormattingToolbarWithAI hasAiConfig={hasAiConfig} />
-        {hasAiConfig && <AIMenuController />}
-      </BlockNoteView>
+      <div className="-ml-[54px]">
+        <BlockNoteView
+          editable={editable}
+          editor={editor}
+          theme={resolvedTheme === "dark" ? "dark" : "light"}
+          onChange={handleEditorChange}
+          slashMenu={false}
+          formattingToolbar={false}
+        >
+          <SlashMenuWithAI editor={editor} hasAiConfig={hasAiConfig} />
+          <FormattingToolbarWithAI hasAiConfig={hasAiConfig} />
+          {hasAiConfig && <AIMenuController />}
+        </BlockNoteView>
+      </div>
     </div>
   );
 };

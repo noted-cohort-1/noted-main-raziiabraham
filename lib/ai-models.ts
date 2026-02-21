@@ -60,28 +60,19 @@ export const AI_MODELS: AIModel[] = [
     { id: "gpt-4o-mini", name: "GPT-4o Mini", provider: "openai" },
 
     // Anthropic Models
+    { id: "claude-opus-4-6", name: "Claude Opus 4.6", provider: "anthropic" },
+    { id: "claude-sonnet-4-6", name: "Claude Sonnet 4.6", provider: "anthropic" },
     { id: "claude-opus-4-5", name: "Claude Opus 4.5", provider: "anthropic" },
-    { id: "claude-haiku-4-5", name: "Claude Haiku 4.5", provider: "anthropic" },
     { id: "claude-sonnet-4-5", name: "Claude Sonnet 4.5", provider: "anthropic" },
-    { id: "claude-opus-4-1", name: "Claude Opus 4.1", provider: "anthropic" },
-    { id: "claude-opus-4-0", name: "Claude Opus 4.0", provider: "anthropic" },
-    { id: "claude-sonnet-4-0", name: "Claude Sonnet 4.0", provider: "anthropic" },
-    { id: "claude-3-7-sonnet-latest", name: "Claude 3.7 Sonnet Latest", provider: "anthropic" },
-    { id: "claude-3-5-haiku-latest", name: "Claude 3.5 Haiku Latest", provider: "anthropic" },
+    { id: "claude-haiku-4-5", name: "Claude Haiku 4.5", provider: "anthropic" },
 
-    // Google Gemini Models
+    // Google Gemini Models (Gemini 2.5+ with thinking support)
+    { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro Preview", provider: "google" },
     { id: "gemini-3-pro-preview", name: "Gemini 3 Pro Preview", provider: "google" },
+    { id: "gemini-3-flash-preview", name: "Gemini 3 Flash Preview", provider: "google" },
     { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro", provider: "google" },
     { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", provider: "google" },
     { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite", provider: "google" },
-    { id: "gemini-2.5-flash-lite-preview-06-17", name: "Gemini 2.5 Flash Lite Preview", provider: "google" },
-    { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", provider: "google" },
-    { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro", provider: "google" },
-    { id: "gemini-1.5-pro-latest", name: "Gemini 1.5 Pro Latest", provider: "google" },
-    { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash", provider: "google" },
-    { id: "gemini-1.5-flash-latest", name: "Gemini 1.5 Flash Latest", provider: "google" },
-    { id: "gemini-1.5-flash-8b", name: "Gemini 1.5 Flash 8B", provider: "google" },
-    { id: "gemini-1.5-flash-8b-latest", name: "Gemini 1.5 Flash 8B Latest", provider: "google" },
 ];
 
 /**

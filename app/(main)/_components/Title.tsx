@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -48,7 +50,20 @@ export const Title = ({ initialData }: TitleProps) => {
 
   return (
     <div className="flex items-center gap-x-1">
-      {!!initialData.icon && <p>{initialData.icon}</p>}
+      {!!initialData.icon && (
+        initialData.icon.startsWith("/") ? (
+          <div className="relative h-6 w-6 mr-1">
+            <Image
+              src={initialData.icon}
+              alt="Icon"
+              fill
+              className="object-contain"
+            />
+          </div>
+        ) : (
+          <p>{initialData.icon}</p>
+        )
+      )}
       {isEditing ? (
         <Input
           ref={inputRef}

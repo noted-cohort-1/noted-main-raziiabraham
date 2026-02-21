@@ -21,6 +21,8 @@ import {
   Settings,
   Trash,
   Folder,
+  Users,
+  Bot,
 } from "lucide-react";
 import {
   Popover,
@@ -30,9 +32,12 @@ import {
 import { TrashBox } from "./TrashBox";
 import { useSearch } from "@/hooks/useSearch";
 import { useSettings } from "@/hooks/useSettings";
+import { useCoworkerConfig } from "@/hooks/useCoworkerConfig";
 import { Navbar } from "./Navbar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Navigation = () => {
+  const { isExpanded, sidebarWidth, isResizing } = useCoworkerConfig();
   const search = useSearch();
   const settings = useSettings();
   const router = useRouter();
@@ -61,6 +66,17 @@ const Navigation = () => {
     }
   }, [pathname, isMobile]);
 
+  useEffect(() => {
+    setIsResetting(true);
+    if (isCollapsed) {
+      collapse();
+    } else {
+      resetWidth();
+    }
+    const timer = setTimeout(() => setIsResetting(false), 300);
+    return () => clearTimeout(timer);
+  }, [isExpanded, sidebarWidth]);
+
   const handleMouseDown = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
@@ -80,11 +96,12 @@ const Navigation = () => {
     if (newWidth > 480) newWidth = 480;
 
     if (sidebarRef.current && navbarRef.current) {
+      const chatWidth = isExpanded ? sidebarWidth : 0;
       sidebarRef.current.style.width = `${newWidth}px`;
       navbarRef.current.style.setProperty("left", `${newWidth}px`);
       navbarRef.current.style.setProperty(
         "width",
-        `calc(100% - ${newWidth}px)`,
+        `calc(100% - ${newWidth}px - ${chatWidth}px)`,
       );
     }
   };
@@ -100,11 +117,14 @@ const Navigation = () => {
       setIsCollapsed(false);
       setIsResetting(true);
 
-      sidebarRef.current.style.width = isMobile ? "100%" : "240px";
+      const navWidth = isMobile ? "100%" : "240px";
+      const chatWidth = isExpanded ? `${sidebarWidth}px` : "0px";
+
+      sidebarRef.current.style.width = navWidth;
       navbarRef.current.style.removeProperty("width");
       navbarRef.current.style.setProperty(
         "width",
-        isMobile ? "0" : "calc(100%-240px)",
+        isMobile ? "0" : `calc(100% - 240px - ${chatWidth})`,
       );
       navbarRef.current.style.setProperty("left", isMobile ? "100%" : "240px");
       setTimeout(() => setIsResetting(false), 300);
@@ -116,8 +136,10 @@ const Navigation = () => {
       setIsCollapsed(true);
       setIsResetting(true);
 
+      const chatWidth = isExpanded ? `${sidebarWidth}px` : "0px";
+
       sidebarRef.current.style.width = "0";
-      navbarRef.current.style.setProperty("width", "100%");
+      navbarRef.current.style.setProperty("width", `calc(100% - ${chatWidth})`);
       navbarRef.current.style.setProperty("left", "0");
       setTimeout(() => setIsResetting(false), 300);
     }
@@ -140,7 +162,7 @@ const Navigation = () => {
       <aside
         ref={sidebarRef}
         className={cn(
-          "group/sidebar relative z-[300] flex h-full w-60 flex-col overflow-y-auto bg-secondary",
+          "group/sidebar relative z-[300] flex h-full w-60 flex-col overflow-y-auto overflow-x-hidden bg-secondary",
           isResetting && "transition-all duration-300 ease-in-out",
           isMobile && "w-0",
         )}
@@ -163,6 +185,11 @@ const Navigation = () => {
             onClick={() => router.push("/files")}
             label="Files"
             icon={Folder}
+          />
+          <Item
+            onClick={() => router.push("/coworkers")}
+            label="AI Squad"
+            icon={Bot}
           />
           <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
         </div>
@@ -191,29 +218,31 @@ const Navigation = () => {
       <div
         ref={navbarRef}
         className={cn(
-          "absolute left-60 top-0 z-[300] w-[calc(100%-240px)]",
-          isResetting && "transition-all duration-300 ease-in-out",
-          isMobile && "left-0 w-full",
+          "absolute left-60 top-0 z-[300] w-[calc(100%-240px)] bg-background dark:bg-[#1F1F1F]",
+          isResetting && !isResizing && "transition-all duration-300 ease-in-out",
+          isMobile && "left-0 w-full"
         )}
       >
-        {!!params.documentId ? (
-          <Navbar isCollapsed={isCollapsed} onResetWidth={resetWidth} />
-        ) : (
-          <nav
-            className={cn(
-              "w-full bg-transparent px-3 py-2",
-              !isCollapsed && "p-0",
-            )}
-          >
-            {isCollapsed && (
-              <MenuIcon
-                onClick={resetWidth}
-                role="button"
-                className="h-6 w-6 text-muted-foreground"
-              />
-            )}
-          </nav>
-        )}
+        <div className="w-full">
+          {!!params.documentId ? (
+            <Navbar isCollapsed={isCollapsed} onResetWidth={resetWidth} />
+          ) : (
+            <nav
+              className={cn(
+                "w-full bg-transparent px-3 py-2",
+                !isCollapsed && "p-0",
+              )}
+            >
+              {isCollapsed && (
+                <MenuIcon
+                  onClick={resetWidth}
+                  role="button"
+                  className="h-6 w-6 text-muted-foreground"
+                />
+              )}
+            </nav>
+          )}
+        </div>
       </div>
     </>
   );

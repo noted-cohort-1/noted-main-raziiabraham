@@ -46,4 +46,39 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_user_document", ["userId", "documentId"])
     .index("by_checksum", ["userId", "checksum"]), // [NEW] Fast lookup for dupes
+
+  // Marketing Co-worker Agent Configuration
+  coworkerConfig: defineTable({
+    userId: v.string(),
+
+    // Agent status
+    isActive: v.boolean(),
+
+    // Persona configuration
+    persona: v.object({
+      name: v.optional(v.string()), // e.g., "Max"
+      systemPrompt: v.string(), // Custom instructions
+      tone: v.string(), // professional, casual, creative
+      focusAreas: v.array(v.string()), // Content strategy, Ads, Social, etc.
+    }),
+
+    // Linked instructions document
+    instructionsDocId: v.optional(v.id("documents")),
+
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  // Marketing Co-worker Chat Messages
+  coworkerMessages: defineTable({
+    userId: v.string(),
+    role: v.union(v.literal("user"), v.literal("assistant")),
+    content: v.string(),
+    reasoning: v.optional(v.string()), // Store reasoning tokens
+    toolInvocations: v.optional(v.any()), // Store tool calls and results
+    parts: v.optional(v.any()), // [NEW] Store full interleaved message parts
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_time", ["userId", "createdAt"]),
 });
