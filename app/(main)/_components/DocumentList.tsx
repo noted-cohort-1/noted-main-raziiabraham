@@ -7,7 +7,6 @@ import { useParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import { useCoworkerConfig } from "@/hooks/useCoworkerConfig";
 
 import { Item } from "./Item";
 
@@ -26,18 +25,6 @@ export const DocumentList = ({
   const params = useParams();
   const router = useRouter();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const { instructionsDocId } = useCoworkerConfig();
-
-  // Auto-expand the instructions document so child documents are visible
-  useEffect(() => {
-    if (instructionsDocId && !parentDocumentId) {
-      // Only at root level, auto-expand the instructions doc
-      setExpanded((prev) => ({
-        ...prev,
-        [instructionsDocId]: true,
-      }));
-    }
-  }, [instructionsDocId, parentDocumentId]);
 
   const onExpand = (documentId: string) => {
     setExpanded((prevExpanded) => ({
