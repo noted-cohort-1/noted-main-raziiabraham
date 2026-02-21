@@ -50,8 +50,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Set Convex Environment Variables
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+        run: npx convex env set CLERK_DOMAIN "https://clerk.wellnoted.dev"
+
       - name: Deploy Convex to Production
         env:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
-          CLERK_DOMAIN: "https://clerk.wellnoted.dev"
         run: npx convex deploy
