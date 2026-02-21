@@ -190,11 +190,8 @@ const Navigation = () => {
           <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
         </div>
         <div className="mt-4">
-          <DocumentList />
-          <Item onClick={handleCreate} icon={Plus} label="Add a page" />
-
           {squadAgents && squadAgents.length > 0 && (
-            <div className="mt-4">
+            <div className="mb-4">
               <Item
                 onClick={() => router.push("/coworkers")}
                 label="AI Squad Members"
@@ -214,6 +211,9 @@ const Navigation = () => {
               ))}
             </div>
           )}
+
+          <DocumentList />
+          <Item onClick={handleCreate} icon={Plus} label="Add a page" />
 
           <Popover>
             <PopoverTrigger className="mt-4 w-full">
