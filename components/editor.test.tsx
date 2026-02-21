@@ -98,7 +98,7 @@ describe('Editor Component', () => {
             deleteFile: mockDeleteFile,
         });
 
-        (useFilePicker as jest.Mock).mockReturnValue({
+        (useFilePicker as unknown as jest.Mock).mockReturnValue({
             onOpen: jest.fn(),
         });
 
