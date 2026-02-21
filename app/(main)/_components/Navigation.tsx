@@ -187,11 +187,6 @@ const Navigation = () => {
             label="Files"
             icon={Folder}
           />
-          <Item
-            onClick={() => router.push("/coworkers")}
-            label="AI Squad"
-            icon={Bot}
-          />
           <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
         </div>
         <div className="mt-4">
@@ -213,7 +208,8 @@ const Navigation = () => {
                   icon={Bot}
                   onClick={() => router.push(`/documents/${agent.instructionsDocId}`)}
                   active={params.documentId === agent.instructionsDocId}
-                  level={1}
+                  level={0}
+                  iconAlignSpacer={true}
                 />
               ))}
             </div>

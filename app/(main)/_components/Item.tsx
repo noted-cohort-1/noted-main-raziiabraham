@@ -36,6 +36,7 @@ interface ItemProps {
   label: string;
   onClick?: () => void;
   icon: LucideIcon;
+  iconAlignSpacer?: boolean;
 }
 
 export const Item = ({
@@ -49,6 +50,7 @@ export const Item = ({
   level = 0,
   onExpand,
   expanded,
+  iconAlignSpacer,
 }: ItemProps) => {
   const { user } = useUser();
   const router = useRouter();
@@ -106,7 +108,7 @@ export const Item = ({
         active && "bg-primary/5 text-primary",
       )}
     >
-      {!!id && (
+      {!!id ? (
         <div
           role="button"
           className="mr-1 h-full rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
@@ -114,7 +116,9 @@ export const Item = ({
         >
           <ChevronIcon className="h-4 w-4 shrink-0 text-muted-foreground/50" />
         </div>
-      )}
+      ) : iconAlignSpacer ? (
+        <div className="mr-1 w-4 h-4 shrink-0" />
+      ) : null}
       {documentIcon ? (
         documentIcon.startsWith("/") ? (
           <div className="mr-2 shrink-0 relative h-[1.125rem] w-[1.125rem]">
