@@ -52,11 +52,11 @@ export function CoworkerFloatingChat() {
     // Dynamic Coworker Name
     const instructionsDoc = useQuery(api.documents.getById, instructionsDocId ? { documentId: instructionsDocId } : "skip");
     const coworkerName = !instructionsDocId
-        ? "AI Assistant"
+        ? "AI Squad"
         : (instructionsDoc === undefined ? "..." : (
             instructionsDoc?.title === "Marketing Intelligence Specialist"
-                ? "AI Assistant"
-                : (instructionsDoc?.title || "Untitled Assistant")
+                ? "AI Squad"
+                : (instructionsDoc?.title || "Untitled Squad")
         ));
 
     // Resizing Right Sidebar
@@ -313,7 +313,7 @@ export function CoworkerFloatingChat() {
             <button
                 onClick={() => setIsOpen(true)}
                 className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-background shadow-lg border transition-transform hover:scale-105 active:scale-95"
-                aria-label="Open AI Chat"
+                aria-label="Open AI Squad"
             >
                 <Sparkles className="h-5 w-5 text-foreground" />
             </button>

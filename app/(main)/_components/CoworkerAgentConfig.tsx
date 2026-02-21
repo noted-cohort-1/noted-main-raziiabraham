@@ -119,9 +119,9 @@ export function CoworkerAgentConfig() {
                     <Bot className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold">Coworker Agent</h1>
+                    <h1 className="text-2xl font-bold">AI Squad Agent</h1>
                     <p className="text-muted-foreground">
-                        Configure your AI coworker
+                        Configure your AI squad members
                     </p>
                 </div>
             </div>
@@ -155,7 +155,7 @@ export function CoworkerAgentConfig() {
             <div className="mb-6 space-y-2">
                 <Label htmlFor="instruction-doc">Instruction Document</Label>
                 <p className="text-sm text-muted-foreground mb-3">
-                    Select a document that defines your coworker&apos;s personality and behavior.
+                    Select a document that defines your squad member&apos;s personality and behavior.
                     The content of this document will be used as the system prompt.
                 </p>
                 <Select
@@ -199,8 +199,8 @@ export function CoworkerAgentConfig() {
             {/* Info Box */}
             <div className="mb-6 rounded-lg border bg-blue-50 dark:bg-blue-900/20 p-4">
                 <p className="text-sm text-blue-900 dark:text-blue-100">
-                    <strong>How it works:</strong> Write your coworker&apos;s instructions in the selected document.
-                    Describe their role, personality, and how they should respond. The coworker will use
+                    <strong>How it works:</strong> Write your squad member&apos;s instructions in the selected document.
+                    Describe their role, personality, and how they should respond. The squad member will use
                     this as their system prompt, combined with tool-calling capabilities.
                 </p>
             </div>

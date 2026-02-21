@@ -21,11 +21,11 @@ export function CoworkerChat({ messages, isStreaming }: CoworkerChatProps) {
     const { instructionsDocId } = useCoworkerConfig();
     const instructionsDoc = useQuery(api.documents.getById, instructionsDocId ? { documentId: instructionsDocId } : "skip");
     const coworkerName = !instructionsDocId
-        ? "AI Assistant"
+        ? "AI Squad"
         : (instructionsDoc === undefined ? "..." : (
             instructionsDoc?.title === "Marketing Intelligence Specialist"
-                ? "AI Assistant"
-                : (instructionsDoc?.title || "Untitled Assistant")
+                ? "AI Squad"
+                : (instructionsDoc?.title || "Untitled Squad")
         ));
 
     // Auto-scroll to bottom when new messages arrive or while streaming

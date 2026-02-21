@@ -187,7 +187,7 @@ const Navigation = () => {
           />
           <Item
             onClick={() => router.push("/coworkers")}
-            label="Coworkers"
+            label="AI Squad"
             icon={Users}
           />
           <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
