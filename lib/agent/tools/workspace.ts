@@ -31,10 +31,11 @@ interface SidebarDocument {
  * Convert Markdown content to BlockNote JSON format
  * This creates a simple but valid BlockNote document structure
  */
-function markdownToBlockNoteJson(markdown: string): string {
+function markdownToBlockNoteJson(markdown: string, title?: string): string {
     const blocks: any[] = [];
     const lines = markdown.split('\n');
     let i = 0;
+    let foundFirstHeading = false;
 
     while (i < lines.length) {
         const line = lines[i];
@@ -46,11 +47,42 @@ function markdownToBlockNoteJson(markdown: string): string {
             continue;
         }
 
+        // Horizontal line detection (---, ***, ___)
+        if (trimmedLine.match(/^([-*_])\1{2,}$/)) {
+            blocks.push({
+                type: "divider",
+                props: {},
+                children: []
+            });
+            i++;
+            continue;
+        }
+
         // Heading detection
         const headingMatch = trimmedLine.match(/^(#{1,6})\s+(.+)$/);
         if (headingMatch) {
             const level = headingMatch[1].length;
             const headingText = headingMatch[2];
+
+            // If this is the first heading and it matches the document title, skip it
+            // to avoid duplication in the UI.
+            if (!foundFirstHeading && title) {
+                const normalizedHeading = headingText.replace(/['"]/g, '').toLowerCase().trim();
+                const normalizedTitle = title.replace(/['"]/g, '').toLowerCase().trim();
+
+                // Allow for slight variations, e.g. title is "Marketing Plan" and heading is "Marketing Plan Outline"
+                if (
+                    normalizedHeading === normalizedTitle ||
+                    normalizedHeading.includes(normalizedTitle) ||
+                    normalizedTitle.includes(normalizedHeading)
+                ) {
+                    foundFirstHeading = true;
+                    i++;
+                    continue;
+                }
+            }
+            foundFirstHeading = true;
+
             // Enforce minimum heading level 2 (downgrade H1 to H2) as H1 is too large
             const adjustedLevel = Math.max(level, 2);
             blocks.push({
@@ -284,8 +316,20 @@ export function createWorkspaceTools(convexClient: ConvexHttpClient) {
                 console.log(`[Tool Exec] writeDocument called with title: ${title}`);
                 try {
                     const finalParentId = parentId as Id<"documents"> | undefined;
+
+                    let docTitle = title || "Untitled";
+
+                    // Dynamic Title Generation: Extract the first heading from the generated content
+                    if (content) {
+                        const headingMatch = content.match(/^(#{1,6})\s+(.+)$/m);
+                        if (headingMatch) {
+                            // Use the first heading as the document title
+                            docTitle = headingMatch[2].trim().replace(/['"]/g, '');
+                        }
+                    }
+
                     const docId = await convexClient.mutation(api.documents.create, {
-                        title,
+                        title: docTitle,
                         parentDocument: finalParentId,
                     });
 
@@ -295,8 +339,10 @@ export function createWorkspaceTools(convexClient: ConvexHttpClient) {
                     };
 
                     if (content) {
-                        // Convert Markdown to BlockNote JSON format
-                        updatePayload.content = markdownToBlockNoteJson(content);
+                        // Convert Markdown to BlockNote JSON format.
+                        // Passing docTitle ensures the deduplication logic in markdownToBlockNoteJson 
+                        // will skip this heading when rendering the document body.
+                        updatePayload.content = markdownToBlockNoteJson(content, docTitle);
                     }
 
                     if (icon) {
@@ -339,8 +385,18 @@ export function createWorkspaceTools(convexClient: ConvexHttpClient) {
                     }
 
                     if (content) {
+                        // If title wasn't provided in arguments, we might want to fetch it
+                        // to check for duplication in markdownToBlockNoteJson
+                        let checkTitle = title;
+                        if (!checkTitle) {
+                            const doc = await convexClient.query(api.documents.getById, {
+                                documentId: documentId as Id<"documents">
+                            }) as any;
+                            checkTitle = doc?.title;
+                        }
+
                         // Convert Markdown to BlockNote JSON format
-                        updatePayload.content = markdownToBlockNoteJson(content);
+                        updatePayload.content = markdownToBlockNoteJson(content, checkTitle);
                     }
 
                     if (icon) {

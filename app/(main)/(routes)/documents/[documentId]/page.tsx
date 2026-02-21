@@ -73,7 +73,7 @@ const DocumentIdPage = ({ params }: DocumentIdPageProps) => {
             <div>
               <p className="font-medium mb-1">Agent Context</p>
               <p className="opacity-90">
-                This document defines the personality and behavior of your Marketing Intelligence Specialist agent.
+                This document defines the personality and behavior of your AI Squad agent.
                 Any text you write here will be used as the System Prompt.
               </p>
             </div>

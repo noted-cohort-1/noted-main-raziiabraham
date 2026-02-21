@@ -14,6 +14,7 @@ import type * as coworkerConfig from "../coworkerConfig.js";
 import type * as coworkerMessages from "../coworkerMessages.js";
 import type * as documents from "../documents.js";
 import type * as files from "../files.js";
+import type * as squadAgents from "../squadAgents.js";
 import type * as storage from "../storage.js";
 
 import type {
@@ -29,6 +30,7 @@ declare const fullApi: ApiFromModules<{
   coworkerMessages: typeof coworkerMessages;
   documents: typeof documents;
   files: typeof files;
+  squadAgents: typeof squadAgents;
   storage: typeof storage;
 }>;
 

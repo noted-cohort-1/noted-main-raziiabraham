@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
 
         // Parse request
         const requestBody = await req.json();
-        const { messages } = requestBody;
+        const { messages, agentId } = requestBody;
 
         if (!Array.isArray(messages)) {
             return Response.json({ error: "Messages array is required" }, { status: 400 });
@@ -146,29 +146,40 @@ export async function POST(req: NextRequest) {
         const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
         convex.setAuth(token);
 
-        // Get coworker configuration
-        const config = await convex.query(api.coworkerConfig.getConfig, {});
-
-        // Get the instruction document content
+        // --- RESOLVE AGENT & SYSTEM PROMPT ---
         let instructionContent = "";
-        if (config?.instructionsDocId) {
+        let agentName = "AI Squad";
+
+        if (agentId) {
+            // Load specific squad agent
             try {
-                const doc = await convex.query(api.documents.getById, {
-                    documentId: config.instructionsDocId as Id<"documents">
+                const agent = await convex.query((api as any).squadAgents.getById, {
+                    id: agentId as Id<"squadAgents">
                 });
 
-                if (doc?.content) {
-                    instructionContent = extractTextFromBlocks(doc.content);
+                if (agent) {
+                    agentName = agent.name;
+                    if (agent.instructionsDocId) {
+                        const doc = await convex.query(api.documents.getById, {
+                            documentId: agent.instructionsDocId
+                        });
+                        if (doc?.content) {
+                            instructionContent = extractTextFromBlocks(doc.content);
+                        }
+                    }
                 }
             } catch (e) {
-                console.warn("Failed to load instructions document:", e);
+                console.warn(`Failed to load squad agent ${agentId}:`, e);
             }
+        } else {
+            // No specific agent selected - use the general AI Squad identity
+            instructionContent = ""; // This triggers the buildSystemPrompt to use DEFAULT_SQUAD_PROMPT
         }
 
         // Build system prompt (will use default if instructionContent is empty)
         const systemPrompt = buildSystemPrompt(instructionContent);
 
-        // Get API key from existing BYOK settings
+        // --- GET AI SETTINGS & MODEL ---
         const settings = await convex.action(
             (api as any).aiSettingsActions.getDecryptedApiKey,
             {}
@@ -181,43 +192,28 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Get model ID for thinkingConfig lookup
         const modelId = settings.model || "gemini-2.5-flash";
-
-        // Create the AI model
-        const model = createAIModel(
-            settings.provider,
-            settings.apiKey,
-            modelId
-        );
-
-        // Get provider options for thinking (Google models)
+        const model = createAIModel(settings.provider, settings.apiKey, modelId);
         const providerOptions = settings.provider === "google"
             ? getGoogleThinkingConfig(modelId)
             : undefined;
 
-        // Create workspace tools with execute functions
+        // --- PREPARE TOOLS & MESSAGES ---
         const tools = createWorkspaceTools(convex);
 
-        // Convert messages to the format expected by streamText (AI SDK Core)
         const formattedMessages = messages.map((msg: ChatMessage) => {
-            // Handle parts based content (SDK v6 standard) or string content
-            // If parts exist, use them. If strictly string, use content.
             if (msg.parts && Array.isArray(msg.parts)) {
                 return {
                     role: msg.role as "user" | "assistant",
                     content: msg.parts.map(part => {
-                        // Ensure each part is strictly typed for CoreMessage
                         if (part.type === 'text') return { type: 'text', text: part.text };
                         if (part.type === 'image') return { type: 'image', image: part.image };
-                        // Support generic file parts. validation requires mediaType in some versions.
                         if (part.type === 'file') return {
                             type: 'file',
                             data: part.data,
                             mimeType: part.mimeType,
                             mediaType: part.mimeType
                         };
-                        // Filter out reasoning/unknown parts for the input to the model to avoid Zod errors
                         return null;
                     }).filter(Boolean) as any
                 };
@@ -229,18 +225,17 @@ export async function POST(req: NextRequest) {
             };
         });
 
-        // Stream response with tools and thinking config
+        // --- EXECUTE AGENT LOOP ---
+        // Using streamText with stopWhen for agentic behavior (ToolLoopAgent pattern)
         const result = streamText({
             model,
             system: systemPrompt,
             messages: formattedMessages,
-            tools: tools as any, // Type assertion needed due to complex tool typing
-            stopWhen: stepCountIs(5), // Enable multi-step agentic behavior (tool call -> result -> response)
-            ...(providerOptions && { providerOptions }), // Include thinking config for Google
+            tools: tools as any,
+            stopWhen: stepCountIs(5),
+            ...(providerOptions && { providerOptions }),
         });
 
-        // Use toUIMessageStreamResponse to support Data Stream protocol (tools, etc)
-        // usage of toDataStreamResponse caused runtime error, reverting to alias
         // @ts-ignore
         return result.toUIMessageStreamResponse({
             sendReasoning: true

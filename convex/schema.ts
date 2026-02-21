@@ -65,6 +65,23 @@ export default defineSchema({
     // Linked instructions document
     instructionsDocId: v.optional(v.id("documents")),
 
+    // [LEGACY] Auto-run/output configurations from earlier versions
+    folderIds: v.optional(v.object({
+      feeds: v.string(),
+      collections: v.string(),
+      briefings: v.string(),
+      creative: v.string(),
+    })),
+    nextRunTime: v.optional(v.number()),
+
+    // [LEGACY] Adology integration from earlier versions
+    adologyEnabled: v.optional(v.boolean()),
+    adologyTokens: v.optional(v.object({
+      accessToken: v.string(),
+      expiresAt: v.number(),
+      refreshToken: v.string(),
+    })),
+
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),
@@ -72,6 +89,7 @@ export default defineSchema({
   // Marketing Co-worker Chat Messages
   coworkerMessages: defineTable({
     userId: v.string(),
+    agentId: v.optional(v.string()), // [NEW] Target agent ID (null = default)
     role: v.union(v.literal("user"), v.literal("assistant")),
     content: v.string(),
     reasoning: v.optional(v.string()), // Store reasoning tokens
@@ -81,4 +99,16 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_user_time", ["userId", "createdAt"]),
+
+  // [NEW] Squad Agents Configuration
+  squadAgents: defineTable({
+    userId: v.string(),
+    name: v.string(),              // Agent display name
+    description: v.optional(v.string()), // Short description
+    icon: v.optional(v.string()),  // Emoji icon
+    instructionsDocId: v.id("documents"), // Links to document whose content = system prompt
+    toolIds: v.optional(v.array(v.string())), // [FUTURE] Linked tool IDs
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
 });
