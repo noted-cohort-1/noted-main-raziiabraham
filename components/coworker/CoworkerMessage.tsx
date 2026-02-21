@@ -344,7 +344,7 @@ export function CoworkerMessage({
 
     return (
         <div className="flex w-full gap-2 justify-start">
-            <div className="flex flex-col gap-1.5 max-w-[85%]">
+            <div className="flex flex-col gap-1.5 w-full pr-1">
                 {showThinkingPlaceholder && (
                     <ReasoningSection
                         header="Thinking..."

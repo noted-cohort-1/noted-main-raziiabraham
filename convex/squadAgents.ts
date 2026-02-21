@@ -21,10 +21,33 @@ export const list = query({
         for (const agent of agents) {
             const doc = await ctx.db.get(agent.instructionsDocId);
             if (doc && !doc.isArchived) {
+                let dynamicDescription = agent.description;
+                if (doc.content) {
+                    try {
+                        const blocks = JSON.parse(doc.content);
+                        const summaryIdx = blocks.findIndex((b: any) =>
+                            b.type === "heading" &&
+                            b.content?.[0]?.text?.toLowerCase().trim() === "summary"
+                        );
+                        if (summaryIdx !== -1 && blocks.length > summaryIdx + 1) {
+                            const pBlock = blocks[summaryIdx + 1];
+                            if (pBlock.type === "paragraph" && Array.isArray(pBlock.content)) {
+                                const rawText = pBlock.content.map((c: any) => c.text).join("");
+                                if (rawText && rawText.trim() !== "Write or Ask AI to write a short description about this AI Squad agent. This will be displayed in the card.") {
+                                    dynamicDescription = rawText;
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        // Ignore JSON parse errors
+                    }
+                }
+
                 filteredAgents.push({
                     ...agent,
                     name: doc.title,
                     icon: doc.icon || agent.icon,
+                    description: dynamicDescription,
                 });
             }
         }
@@ -46,7 +69,40 @@ export const getById = query({
         if (!agent || agent.userId !== identity.subject) {
             return null;
         }
-        return agent;
+
+        const doc = await ctx.db.get(agent.instructionsDocId);
+        if (!doc || doc.isArchived) {
+            return null;
+        }
+
+        let dynamicDescription = agent.description;
+        if (doc.content) {
+            try {
+                const blocks = JSON.parse(doc.content);
+                const summaryIdx = blocks.findIndex((b: any) =>
+                    b.type === "heading" &&
+                    b.content?.[0]?.text?.toLowerCase().trim() === "summary"
+                );
+                if (summaryIdx !== -1 && blocks.length > summaryIdx + 1) {
+                    const pBlock = blocks[summaryIdx + 1];
+                    if (pBlock.type === "paragraph" && Array.isArray(pBlock.content)) {
+                        const rawText = pBlock.content.map((c: any) => c.text).join("");
+                        if (rawText && rawText.trim() !== "Write or Ask AI to write a short description about this AI Squad agent. This will be displayed in the card.") {
+                            dynamicDescription = rawText;
+                        }
+                    }
+                }
+            } catch (error) {
+                // Ignore JSON parse errors
+            }
+        }
+
+        return {
+            ...agent,
+            name: doc.title,
+            icon: doc.icon || agent.icon,
+            description: dynamicDescription,
+        };
     },
 });
 

@@ -11,6 +11,8 @@ import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { uniqueNamesGenerator, adjectives, animals } from "unique-names-generator";
+import { random } from "node-emoji";
 
 export default function CoworkersPage() {
     const { user } = useUser();
@@ -21,6 +23,7 @@ export default function CoworkersPage() {
     // Queries & Mutations
     const squadAgents = useQuery((api as any).squadAgents.list);
     const createDocument = useMutation(api.documents.create);
+    const updateDocument = useMutation(api.documents.update);
     const createAgent = useMutation((api as any).squadAgents.create);
 
     const isLoading = squadAgents === undefined;
@@ -34,6 +37,8 @@ export default function CoworkersPage() {
     // Create a new squad agent
     const handleAddAgent = async () => {
         const DEFAULT_INSTRUCTIONS = JSON.stringify([
+            { type: "heading", props: { level: 3 }, content: [{ type: "text", text: "Summary", styles: {} }] },
+            { type: "paragraph", content: [{ type: "text", text: "Write or Ask AI to write a short description about this AI Squad agent. This will be displayed in the card.", styles: { textColor: "gray" } }] },
             { type: "heading", props: { level: 3 }, content: [{ type: "text", text: "Role", styles: {} }] },
             { type: "paragraph", content: [] },
             { type: "heading", props: { level: 3 }, content: [{ type: "text", text: "Task", styles: {} }] },
@@ -42,22 +47,33 @@ export default function CoworkersPage() {
             { type: "paragraph", content: [] },
             { type: "heading", props: { level: 3 }, content: [{ type: "text", text: "Constraint", styles: {} }] },
             { type: "paragraph", content: [] },
-            { type: "heading", props: { level: 3 }, content: [{ type: "text", text: "Summary", styles: {} }] },
-            { type: "paragraph", content: [] },
         ]);
+
+        const randomName = uniqueNamesGenerator({
+            dictionaries: [adjectives, animals],
+            separator: ' ',
+            style: 'lowerCase'
+        });
+        const randomIcon = random().emoji;
 
         const promise = (async () => {
             // 1. Create the instructions document
             const docId = await createDocument({
-                title: "New Agent Instructions",
+                title: randomName,
                 content: DEFAULT_INSTRUCTIONS,
+            });
+
+            // 1.5 Add the randomly selected icon to the document
+            await updateDocument({
+                id: docId,
+                icon: randomIcon,
             });
 
             // 2. Create the squad agent linked to this doc
             const agentId = await createAgent({
-                name: "New Agent",
+                name: randomName,
                 description: "Describe your agent's persona and goals in the linked instructions document.",
-                icon: "🤖",
+                icon: randomIcon,
                 instructionsDocId: docId,
             });
 
