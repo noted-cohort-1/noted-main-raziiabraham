@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { SettingsModal } from "@/components/modals/SettingsModal";
-import { CoverImageModal } from "@/components/modals/CoverImageModal";
+import { SettingsModal } from "@/components/modals/settings-modal";
+import { CoverImageModal } from "@/components/modals/cover-image-modal";
 import { FilePickerModal } from "@/components/modals/file-picker-modal";
 
 export const ModalProvider = () => {

@@ -4,13 +4,13 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { ImageIcon, X } from "lucide-react";
-import { useCoverImage } from "@/hooks/useCoverImage";
+import { useCoverImage } from "@/hooks/use-cover-image";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import { Skeleton } from "./ui/skeleton";
-import { useTrackedUpload } from "@/hooks/useTrackedUpload";
+import { useTrackedUpload } from "@/hooks/use-tracked-upload";
 
 interface CoverImageProps {
   url?: string;

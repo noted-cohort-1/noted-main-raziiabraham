@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
-import { CoworkerCard } from "../../_components/CoworkerCard";
+import { CoworkerCard } from "../../_components/coworker-card";
 import { Search, Plus, Wrench, Bot, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@clerk/nextjs";

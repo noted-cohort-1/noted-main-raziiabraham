@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { useCoworkerConfig } from "@/hooks/useCoworkerConfig";
+import { useCoworkerConfig } from "@/hooks/use-coworker-config";
 import {
     ChevronRight,
     CheckCircle2,

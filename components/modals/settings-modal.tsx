@@ -12,8 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useSettings } from "@/hooks/useSettings";
-import { useAiSettings } from "@/hooks/useAiSettings";
+import { useSettings } from "@/hooks/use-settings";
+import { useAiSettings } from "@/hooks/use-ai-settings";
 import { useAction, useQuery, useMutation, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ModeToggle } from "../mode-toggle";
@@ -64,6 +64,7 @@ export const SettingsModal = () => {
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedSettings, activeTab]);
 
   // Helper to check if current selected provider has a saved key

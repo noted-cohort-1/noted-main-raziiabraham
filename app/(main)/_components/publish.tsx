@@ -7,7 +7,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { useOrigin } from "@/hooks/useOrigin";
+import { useOrigin } from "@/hooks/use-origin";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useState } from "react";

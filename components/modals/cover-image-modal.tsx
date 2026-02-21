@@ -4,14 +4,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useCoverImage } from "@/hooks/useCoverImage";
+import { useCoverImage } from "@/hooks/use-cover-image";
 import { SingleImageDropzone } from "@/components/single-image-dropzone";
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
-import { useTrackedUpload } from "@/hooks/useTrackedUpload";
+import { useTrackedUpload } from "@/hooks/use-tracked-upload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FilePicker } from "@/components/file-picker";
 

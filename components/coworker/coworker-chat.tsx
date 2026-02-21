@@ -3,10 +3,10 @@
 import Image from "next/image";
 
 import { useRef, useEffect } from "react";
-import { useCoworker, CoworkerMessage as CoworkerMessageType } from "@/hooks/useCoworker";
-import { CoworkerMessage } from "./CoworkerMessage";
+import { useCoworker, CoworkerMessage as CoworkerMessageType } from "@/hooks/use-coworker";
+import { CoworkerMessage } from "./coworker-message";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useCoworkerConfig } from "@/hooks/useCoworkerConfig";
+import { useCoworkerConfig } from "@/hooks/use-coworker-config";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Bot, Sparkles } from "lucide-react";

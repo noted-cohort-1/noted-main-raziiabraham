@@ -26,8 +26,8 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useConvexAuth } from "convex/react";
 import { useAuth } from "@clerk/clerk-react";
-import { ServerSideTransport } from "@/lib/serverSideTransport";
-import { useTrackedUpload } from "@/hooks/useTrackedUpload";
+import { ServerSideTransport } from "@/lib/server-side-transport";
+import { useTrackedUpload } from "@/hooks/use-tracked-upload";
 
 import "@blocknote/core/style.css";
 import "@blocknote/mantine/style.css";
@@ -60,6 +60,7 @@ const SlashMenuWithAI = ({
   // Inject AI dictionary into editor when context is available
   useEffect(() => {
     if (dictionary && editor) {
+      // eslint-disable-next-line react-hooks/immutability
       (editor as any).dictionary = {
         ...(editor as any).dictionary,
         ...dictionary,
@@ -235,7 +236,7 @@ const Editor = ({
 
       saveTimerRef.current = null; // Clear timer ref when done
     }, 1000);
-  }, [editor, onChange, deleteFile, getEditorFileUrls, agent, documentId]);
+  }, [editor, onChange, deleteFile, getEditorFileUrls, documentId]);
 
   // Safe Silent Refresh: Update editor if initialContent changes externally (e.g. AI tool)
   // and we don't have pending local changes.
