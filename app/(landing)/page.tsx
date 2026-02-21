@@ -1,8 +1,8 @@
-import { Footer } from "./_components/Footer";
-import { Heading } from "./_components/Heading";
-import { Heroes } from "./_components/Heroes";
-import { Features } from "./_components/Features";
-import { Showcase } from "./_components/Showcase";
+import { Footer } from "./_components/footer";
+import { Heading } from "./_components/heading";
+import { Heroes } from "./_components/heroes";
+import { Features } from "./_components/features";
+import { Showcase } from "./_components/showcase";
 
 export default function LandingPage() {
   return (

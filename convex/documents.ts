@@ -72,7 +72,17 @@ export const getSidebar = query({
       .order("desc")
       .collect();
 
-    return documents;
+    // Fetch all agents to filter out instruction documents
+    const squadAgents = await ctx.db
+      .query("squadAgents")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+
+    const instructionDocIds = new Set(
+      squadAgents.map((agent) => agent.instructionsDocId)
+    );
+
+    return documents.filter((doc) => !instructionDocIds.has(doc._id));
   },
 });
 
@@ -80,6 +90,7 @@ export const create = mutation({
   args: {
     title: v.string(),
     parentDocument: v.optional(v.id("documents")),
+    content: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -93,6 +104,7 @@ export const create = mutation({
     const document = await ctx.db.insert("documents", {
       title: args.title,
       parentDocument: args.parentDocument,
+      content: args.content,
       userId,
       isArchived: false,
       isPublished: false,
@@ -225,7 +237,17 @@ export const getSearch = query({
       .order("desc")
       .collect();
 
-    return documents;
+    // Fetch all agents to filter out instruction documents
+    const squadAgents = await ctx.db
+      .query("squadAgents")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+
+    const instructionDocIds = new Set(
+      squadAgents.map((agent) => agent.instructionsDocId)
+    );
+
+    return documents.filter((doc) => !instructionDocIds.has(doc._id));
   },
 });
 

@@ -3,10 +3,10 @@
 import { Spinner } from "@/components/spinner";
 import { useConvexAuth } from "convex/react";
 import { redirect } from "next/navigation";
-import Navigation from "./_components/Navigation";
+import Navigation from "./_components/navigation";
 import { SearchCommand } from "@/components/search-command";
-import { CoworkerFloatingChat } from "@/components/coworker/CoworkerFloatingChat";
-import { useCoworkerConfig } from "@/hooks/useCoworkerConfig";
+import { CoworkerFloatingChat } from "@/components/coworker/coworker-floating-chat";
+import { useCoworkerConfig } from "@/hooks/use-coworker-config";
 import { cn } from "@/lib/utils";
 
 import { ScrollArea } from "@/components/ui/scroll-area";

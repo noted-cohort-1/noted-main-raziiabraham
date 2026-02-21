@@ -10,6 +10,7 @@ const eslintConfig = [
             "node_modules/**",
             ".next/**",
             "convex/_generated/**",
+            "coverage/**"
         ],
     },
     {
@@ -32,7 +33,14 @@ const eslintConfig = [
         rules: {
             ...nextPlugin.configs.recommended.rules,
             ...nextPlugin.configs["core-web-vitals"].rules,
+            ...reactPlugin.configs.recommended.rules,
+            ...hooksPlugin.configs.recommended.rules,
             "react/react-in-jsx-scope": "off",
+            "react/prop-types": "off",
+            "react/no-unescaped-entities": "off",
+            "react/display-name": "off",
+            "react/no-unknown-property": "off",
+            "react-hooks/set-state-in-effect": "off"
         },
         settings: {
             react: {

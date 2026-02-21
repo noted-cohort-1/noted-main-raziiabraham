@@ -26,8 +26,8 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useConvexAuth } from "convex/react";
 import { useAuth } from "@clerk/clerk-react";
-import { ServerSideTransport } from "@/lib/serverSideTransport";
-import { useTrackedUpload } from "@/hooks/useTrackedUpload";
+import { ServerSideTransport } from "@/lib/server-side-transport";
+import { useTrackedUpload } from "@/hooks/use-tracked-upload";
 
 import "@blocknote/core/style.css";
 import "@blocknote/mantine/style.css";
@@ -60,6 +60,7 @@ const SlashMenuWithAI = ({
   // Inject AI dictionary into editor when context is available
   useEffect(() => {
     if (dictionary && editor) {
+      // eslint-disable-next-line react-hooks/immutability
       (editor as any).dictionary = {
         ...(editor as any).dictionary,
         ...dictionary,
@@ -128,12 +129,10 @@ const Editor = ({
   const { getToken } = useAuth();
   const { uploadFile, deleteFile } = useTrackedUpload();
 
-  // Reactive query: UI updates immediately when settings change
-  const aiSettings = useQuery(
-    api.aiSettings.getSettings,
-    isAuthenticated ? {} : "skip"
+  const agent = useQuery(
+    api.squadAgents.findByDocId,
+    isAuthenticated && documentId ? { documentId } : "skip"
   );
-  const hasAiConfig = !!aiSettings;
 
   // File upload handler with storage limit tracking
   const handleUpload = async (file: File) => {
@@ -142,6 +141,12 @@ const Editor = ({
   };
 
   // Transport for AI requests (sends to our API route)
+  const aiSettings = useQuery(
+    api.aiSettings.getSettings,
+    isAuthenticated ? {} : "skip"
+  );
+  const hasAiConfig = !!aiSettings;
+
   const aiTransport = useMemo(() => {
     return new ServerSideTransport(async () => {
       const token = await getToken({ template: "convex" });
@@ -226,10 +231,12 @@ const Editor = ({
       });
 
       previousUrlsRef.current = currentUrls;
-      onChange(JSON.stringify(editor.document, null, 2));
+      const contentStr = JSON.stringify(editor.document, null, 2);
+      onChange(contentStr);
+
       saveTimerRef.current = null; // Clear timer ref when done
     }, 1000);
-  }, [editor, onChange, deleteFile, getEditorFileUrls]);
+  }, [editor, onChange, deleteFile, getEditorFileUrls, documentId]);
 
   // Safe Silent Refresh: Update editor if initialContent changes externally (e.g. AI tool)
   // and we don't have pending local changes.
