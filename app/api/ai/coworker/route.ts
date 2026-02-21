@@ -6,7 +6,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { streamText, LanguageModel, stepCountIs } from "ai";
 import { NextRequest } from "next/server";
 import { createWorkspaceTools } from "@/lib/agent/tools/workspace";
-import { buildSystemPrompt } from "@/lib/agent/prompts/marketing-persona";
+import { buildSystemPrompt } from "@/lib/agent/prompts/squad-prompts";
 import { Id } from "@/convex/_generated/dataModel";
 
 // Allow streaming responses up to 60 seconds (agent may take longer)
