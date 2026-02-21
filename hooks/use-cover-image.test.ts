@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useCoverImage } from '@/hooks/useCoverImage';
+import { useCoverImage } from '@/hooks/use-cover-image';
 
 describe('useCoverImage', () => {
     beforeEach(() => {

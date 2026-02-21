@@ -1,6 +1,6 @@
 "use client";
 
-import { ConfirmModal } from "@/components/modals/ConfirmModal";
+import { ConfirmModal } from "@/components/modals/confirm-modal";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";

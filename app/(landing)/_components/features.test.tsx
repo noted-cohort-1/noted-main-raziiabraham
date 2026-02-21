@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { Features } from '@/app/(landing)/_components/Features';
+import { Features } from '@/app/(landing)/_components/features';
 
 describe('Features Component', () => {
     it('renders correctly', () => {

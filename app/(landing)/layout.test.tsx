@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import LandingLayout from '@/app/(landing)/layout';
 
 // Mock the Navbar component to avoid its complex dependencies
-jest.mock('@/app/(landing)/_components/Navbar', () => ({
+jest.mock('@/app/(landing)/_components/navbar', () => ({
     Navbar: () => <nav data-testid="mock-navbar">Navbar</nav>,
 }));
 

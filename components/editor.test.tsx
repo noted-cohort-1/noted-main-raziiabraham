@@ -4,7 +4,7 @@ import Editor from '@/components/editor';
 import { useConvexAuth, useQuery } from 'convex/react';
 import { useAuth } from '@clerk/clerk-react';
 import { useTheme } from 'next-themes';
-import { useTrackedUpload } from '@/hooks/useTrackedUpload';
+import { useTrackedUpload } from '@/hooks/use-tracked-upload';
 import { useFilePicker } from '@/hooks/use-file-picker';
 
 // Mock generic hooks
@@ -21,7 +21,7 @@ jest.mock('convex/react', () => ({
     useQuery: jest.fn(),
 }));
 
-jest.mock('@/hooks/useTrackedUpload', () => ({
+jest.mock('@/hooks/use-tracked-upload', () => ({
     useTrackedUpload: jest.fn(),
 }));
 

@@ -7,9 +7,9 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { api } from "@/convex/_generated/api";
-import { DocumentList } from "./DocumentList";
-import { Item } from "./Item";
-import { UserItem } from "./UserItem";
+import { DocumentList } from "./document-list";
+import { Item } from "./item";
+import { UserItem } from "./user-item";
 
 import { toast } from "sonner";
 import {
@@ -29,11 +29,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { TrashBox } from "./TrashBox";
-import { useSearch } from "@/hooks/useSearch";
-import { useSettings } from "@/hooks/useSettings";
-import { useCoworkerConfig } from "@/hooks/useCoworkerConfig";
-import { Navbar } from "./Navbar";
+import { TrashBox } from "./trash-box";
+import { useSearch } from "@/hooks/use-search";
+import { useSettings } from "@/hooks/use-settings";
+import { useCoworkerConfig } from "@/hooks/use-coworker-config";
+import { Navbar } from "./navbar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Navigation = () => {

@@ -14,7 +14,7 @@ jest.mock('convex/react', () => ({
 }));
 
 // Mock coworker config
-jest.mock('@/hooks/useCoworkerConfig', () => ({
+jest.mock('@/hooks/use-coworker-config', () => ({
     useCoworkerConfig: () => ({ isExpanded: false }),
 }));
 
@@ -23,7 +23,7 @@ jest.mock('@/components/spinner', () => ({
     Spinner: () => <div data-testid="mock-spinner">Loading...</div>,
 }));
 
-jest.mock('@/app/(main)/_components/Navigation', () => ({
+jest.mock('@/app/(main)/_components/navigation', () => ({
     __esModule: true,
     default: () => <nav data-testid="mock-navigation">Navigation</nav>,
 }));
@@ -32,7 +32,7 @@ jest.mock('@/components/search-command', () => ({
     SearchCommand: () => <div data-testid="mock-search-command">Search</div>,
 }));
 
-jest.mock('@/components/coworker/CoworkerFloatingChat', () => ({
+jest.mock('@/components/coworker/coworker-floating-chat', () => ({
     CoworkerFloatingChat: () => <div data-testid="mock-coworker-chat">Chat</div>,
 }));
 

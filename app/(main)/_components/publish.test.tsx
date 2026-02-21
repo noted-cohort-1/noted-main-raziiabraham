@@ -1,12 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { Publish } from '@/app/(main)/_components/Publish';
-import { useOrigin } from '@/hooks/useOrigin';
+import { Publish } from '@/app/(main)/_components/publish';
+import { useOrigin } from '@/hooks/use-origin';
 import { useMutation } from 'convex/react';
 import { toast } from 'sonner';
 
 // Mocks
-jest.mock('@/hooks/useOrigin', () => ({
+jest.mock('@/hooks/use-origin', () => ({
     useOrigin: jest.fn(),
 }));
 

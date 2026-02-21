@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { CoworkerFloatingChat } from '@/components/coworker/CoworkerFloatingChat';
+import { CoworkerFloatingChat } from '@/components/coworker/coworker-floating-chat';
 import { useAuth } from '@clerk/nextjs';
 import { useMutation, useQuery } from 'convex/react';
-import { useCoworkerConfig } from '@/hooks/useCoworkerConfig';
+import { useCoworkerConfig } from '@/hooks/use-coworker-config';
 import { useChat } from '@ai-sdk/react';
-import { useTrackedUpload } from '@/hooks/useTrackedUpload';
+import { useTrackedUpload } from '@/hooks/use-tracked-upload';
 import { toast } from 'sonner';
 
 // Mocks
@@ -18,7 +18,7 @@ jest.mock('convex/react', () => ({
     useQuery: jest.fn(),
 }));
 
-jest.mock('@/hooks/useCoworkerConfig', () => ({
+jest.mock('@/hooks/use-coworker-config', () => ({
     useCoworkerConfig: jest.fn(),
 }));
 
@@ -26,7 +26,7 @@ jest.mock('@ai-sdk/react', () => ({
     useChat: jest.fn(),
 }));
 
-jest.mock('@/hooks/useTrackedUpload', () => ({
+jest.mock('@/hooks/use-tracked-upload', () => ({
     useTrackedUpload: jest.fn(),
 }));
 
@@ -34,11 +34,11 @@ jest.mock('sonner', () => ({
     toast: { error: jest.fn(), success: jest.fn() },
 }));
 
-jest.mock('@/components/coworker/CoworkerChat', () => ({
+jest.mock('@/components/coworker/coworker-chat', () => ({
     CoworkerChat: () => <div data-testid="coworker-chat">Chat Messages</div>,
 }));
 
-jest.mock('@/components/coworker/CoworkerContextSelector', () => ({
+jest.mock('@/components/coworker/coworker-context-selector', () => ({
     CoworkerContextSelector: ({ isOpen, onClose, onSelect }: any) => (
         isOpen ? (
             <div data-testid="context-selector">
@@ -49,7 +49,7 @@ jest.mock('@/components/coworker/CoworkerContextSelector', () => ({
     ),
 }));
 
-jest.mock('@/components/coworker/AgentSlashCommand', () => ({
+jest.mock('@/components/coworker/agent-slash-command', () => ({
     AgentSlashCommand: ({ isOpen, onClose, onSelect }: any) => (
         isOpen ? (
             <div data-testid="agent-slash-command">

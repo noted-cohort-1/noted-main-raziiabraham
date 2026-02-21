@@ -3,24 +3,28 @@ import { render, screen } from '@testing-library/react';
 import LandingPage from '@/app/(landing)/page';
 
 // Mock all internal landing page components
-jest.mock('@/app/(landing)/_components/Footer', () => ({
+jest.mock('@/app/(landing)/_components/footer', () => ({
     Footer: () => <footer data-testid="mock-footer">Footer Content</footer>,
 }));
 
-jest.mock('@/app/(landing)/_components/Heading', () => ({
+jest.mock('@/app/(landing)/_components/heading', () => ({
     Heading: () => <div data-testid="mock-heading">Heading Content</div>,
 }));
 
-jest.mock('@/app/(landing)/_components/Heroes', () => ({
+jest.mock('@/app/(landing)/_components/heroes', () => ({
     Heroes: () => <div data-testid="mock-heroes">Heroes Content</div>,
 }));
 
-jest.mock('@/app/(landing)/_components/Features', () => ({
+jest.mock('@/app/(landing)/_components/features', () => ({
     Features: () => <div data-testid="mock-features">Features Content</div>,
 }));
 
-jest.mock('@/app/(landing)/_components/Showcase', () => ({
+jest.mock('@/app/(landing)/_components/showcase', () => ({
     Showcase: () => <div data-testid="mock-showcase">Showcase Content</div>,
+}));
+
+jest.mock('convex/react', () => ({
+    useConvexAuth: () => ({ isAuthenticated: false, isLoading: false })
 }));
 
 describe('LandingPage', () => {

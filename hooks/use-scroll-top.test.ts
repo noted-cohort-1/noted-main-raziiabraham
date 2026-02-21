@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useScrollTop } from '@/hooks/useScrollTop';
+import { useScrollTop } from '@/hooks/use-scroll-top';
 
 describe('useScrollTop', () => {
     it('should return false initially if scroll Y is 0', () => {

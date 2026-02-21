@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useSearch } from '@/hooks/useSearch';
+import { useSearch } from '@/hooks/use-search';
 
 describe('useSearch', () => {
     beforeEach(() => {

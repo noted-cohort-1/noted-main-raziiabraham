@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { CoverImageModal } from '@/components/modals/CoverImageModal';
-import { useCoverImage } from '@/hooks/useCoverImage';
+import { CoverImageModal } from '@/components/modals/cover-image-modal';
+import { useCoverImage } from '@/hooks/use-cover-image';
 import { useMutation } from 'convex/react';
 import { useParams } from 'next/navigation';
-import { useTrackedUpload } from '@/hooks/useTrackedUpload';
+import { useTrackedUpload } from '@/hooks/use-tracked-upload';
 
 // Mock UI components
 jest.mock('@/components/ui/dialog', () => ({
@@ -51,7 +51,7 @@ jest.mock('@/components/file-picker', () => ({
 }));
 
 // Mock hooks
-jest.mock('@/hooks/useCoverImage', () => ({
+jest.mock('@/hooks/use-cover-image', () => ({
     useCoverImage: jest.fn(),
 }));
 
@@ -63,7 +63,7 @@ jest.mock('next/navigation', () => ({
     useParams: jest.fn(),
 }));
 
-jest.mock('@/hooks/useTrackedUpload', () => ({
+jest.mock('@/hooks/use-tracked-upload', () => ({
     useTrackedUpload: jest.fn(),
 }));
 

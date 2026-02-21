@@ -4,7 +4,7 @@ import { SearchCommand } from '@/components/search-command';
 import { useUser } from '@clerk/clerk-react';
 import { useQuery } from 'convex/react';
 import { useRouter } from 'next/navigation';
-import { useSearch } from '@/hooks/useSearch';
+import { useSearch } from '@/hooks/use-search';
 
 // Mock dependencies
 jest.mock('@clerk/clerk-react', () => ({
@@ -20,7 +20,7 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock the global search store
-jest.mock('@/hooks/useSearch', () => ({
+jest.mock('@/hooks/use-search', () => ({
     useSearch: jest.fn(),
 }));
 

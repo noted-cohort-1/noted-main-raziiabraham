@@ -1,12 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import Navigation from '@/app/(main)/_components/Navigation';
+import Navigation from '@/app/(main)/_components/navigation';
 import { useMediaQuery } from 'usehooks-ts';
 import { useMutation, useQuery } from 'convex/react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
-import { useSearch } from '@/hooks/useSearch';
-import { useSettings } from '@/hooks/useSettings';
-import { useCoworkerConfig } from '@/hooks/useCoworkerConfig';
+import { useSearch } from '@/hooks/use-search';
+import { useSettings } from '@/hooks/use-settings';
+import { useCoworkerConfig } from '@/hooks/use-coworker-config';
 import { toast } from 'sonner';
 
 // Mock dependencies
@@ -25,15 +25,15 @@ jest.mock('next/navigation', () => ({
     useRouter: jest.fn(),
 }));
 
-jest.mock('@/hooks/useSearch', () => ({
+jest.mock('@/hooks/use-search', () => ({
     useSearch: jest.fn(),
 }));
 
-jest.mock('@/hooks/useSettings', () => ({
+jest.mock('@/hooks/use-settings', () => ({
     useSettings: jest.fn(),
 }));
 
-jest.mock('@/hooks/useCoworkerConfig', () => ({
+jest.mock('@/hooks/use-coworker-config', () => ({
     useCoworkerConfig: jest.fn(),
 }));
 
@@ -41,23 +41,23 @@ jest.mock('sonner', () => ({
     toast: { promise: jest.fn() },
 }));
 
-jest.mock('@/app/(main)/_components/DocumentList', () => ({
+jest.mock('@/app/(main)/_components/document-list', () => ({
     DocumentList: () => <div data-testid="document-list">Document List</div>,
 }));
 
-jest.mock('@/app/(main)/_components/UserItem', () => ({
+jest.mock('@/app/(main)/_components/user-item', () => ({
     UserItem: () => <div data-testid="user-item">User Item</div>,
 }));
 
-jest.mock('@/app/(main)/_components/Navbar', () => ({
+jest.mock('@/app/(main)/_components/navbar', () => ({
     Navbar: () => <div data-testid="navbar">Navbar</div>,
 }));
 
-jest.mock('@/app/(main)/_components/TrashBox', () => ({
+jest.mock('@/app/(main)/_components/trash-box', () => ({
     TrashBox: () => <div data-testid="trash-box">Trash Box</div>,
 }));
 
-jest.mock('@/app/(main)/_components/Item', () => ({
+jest.mock('@/app/(main)/_components/item', () => ({
     Item: ({ label, onClick }: any) => (
         <div data-testid={`item-${label}`} onClick={onClick}>{label}</div>
     ),

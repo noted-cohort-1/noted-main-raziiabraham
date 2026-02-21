@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { Item } from '@/app/(main)/_components/Item';
+import { Item } from '@/app/(main)/_components/item';
 import { useUser } from '@clerk/clerk-react';
 import { useMutation } from 'convex/react';
 import { useRouter } from 'next/navigation';

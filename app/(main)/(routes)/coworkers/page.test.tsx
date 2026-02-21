@@ -24,7 +24,7 @@ jest.mock('sonner', () => ({
     toast: { promise: jest.fn() },
 }));
 
-jest.mock('@/app/(main)/_components/CoworkerCard', () => ({
+jest.mock('@/app/(main)/_components/coworker-card', () => ({
     CoworkerCard: ({ name }: any) => <div data-testid={`coworker-card-${name}`}>{name}</div>,
 }));
 

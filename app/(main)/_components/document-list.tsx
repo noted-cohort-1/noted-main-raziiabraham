@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 
-import { Item } from "./Item";
+import { Item } from "./item";
 
 import { FileIcon } from "lucide-react";
 

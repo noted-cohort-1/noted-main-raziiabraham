@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { CoworkerMessage } from '@/components/coworker/CoworkerMessage';
-import { useCoworkerConfig } from '@/hooks/useCoworkerConfig';
+import { CoworkerMessage } from '@/components/coworker/coworker-message';
+import { useCoworkerConfig } from '@/hooks/use-coworker-config';
 
 // Mock dependencies
-jest.mock('@/hooks/useCoworkerConfig', () => ({
+jest.mock('@/hooks/use-coworker-config', () => ({
     useCoworkerConfig: jest.fn(),
 }));
 

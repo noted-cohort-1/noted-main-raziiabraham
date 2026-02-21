@@ -26,8 +26,8 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useConvexAuth } from "convex/react";
 import { useAuth } from "@clerk/clerk-react";
-import { ServerSideTransport } from "@/lib/serverSideTransport";
-import { useTrackedUpload } from "@/hooks/useTrackedUpload";
+import { ServerSideTransport } from "@/lib/server-side-transport";
+import { useTrackedUpload } from "@/hooks/use-tracked-upload";
 
 import "@blocknote/core/style.css";
 import "@blocknote/mantine/style.css";

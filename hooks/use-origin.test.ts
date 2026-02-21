@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { useOrigin } from '@/hooks/useOrigin';
+import { useOrigin } from '@/hooks/use-origin';
 
 describe('useOrigin', () => {
     it('returns the window origin when mounted', () => {

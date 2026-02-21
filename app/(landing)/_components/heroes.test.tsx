@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { Heroes } from '@/app/(landing)/_components/Heroes';
+import { Heroes } from '@/app/(landing)/_components/heroes';
 
 describe('Heroes Component', () => {
     it('renders correctly', () => {

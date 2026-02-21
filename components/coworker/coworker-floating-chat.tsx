@@ -6,8 +6,8 @@ import TextareaAutosize from "react-textarea-autosize";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useCoworkerConfig } from "@/hooks/useCoworkerConfig";
-import { CoworkerChat } from "./CoworkerChat";
+import { useCoworkerConfig } from "@/hooks/use-coworker-config";
+import { CoworkerChat } from "./coworker-chat";
 import { Button } from "@/components/ui/button";
 import {
     X,
@@ -28,11 +28,11 @@ import {
 import { cn } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { useTrackedUpload } from "@/hooks/useTrackedUpload";
+import { useTrackedUpload } from "@/hooks/use-tracked-upload";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
-import { CoworkerContextSelector } from "@/components/coworker/CoworkerContextSelector";
-import { AgentSlashCommand } from "./AgentSlashCommand";
+import { CoworkerContextSelector } from "@/components/coworker/coworker-context-selector";
+import { AgentSlashCommand } from "./agent-slash-command";
 
 export function CoworkerFloatingChat() {
     const { getToken } = useAuth();

@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useSettings } from '@/hooks/useSettings';
+import { useSettings } from '@/hooks/use-settings';
 
 describe('useSettings', () => {
     beforeEach(() => {

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { SettingsModal } from '@/components/modals/SettingsModal';
-import { useSettings } from '@/hooks/useSettings';
-import { useAiSettings } from '@/hooks/useAiSettings';
+import { SettingsModal } from '@/components/modals/settings-modal';
+import { useSettings } from '@/hooks/use-settings';
+import { useAiSettings } from '@/hooks/use-ai-settings';
 import { useQuery, useAction, useMutation, useConvexAuth } from 'convex/react';
 import { toast } from 'sonner';
 
@@ -19,11 +19,11 @@ jest.mock('@/components/ui/dialog', () => ({
 }));
 
 // Mock hooks
-jest.mock('@/hooks/useSettings', () => ({
+jest.mock('@/hooks/use-settings', () => ({
     useSettings: jest.fn(),
 }));
 
-jest.mock('@/hooks/useAiSettings', () => ({
+jest.mock('@/hooks/use-ai-settings', () => ({
     useAiSettings: jest.fn(),
 }));
 
