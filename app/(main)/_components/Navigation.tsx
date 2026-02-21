@@ -2,7 +2,7 @@
 
 import React, { ElementRef, useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -45,6 +45,7 @@ const Navigation = () => {
   const params = useParams();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const create = useMutation(api.documents.create);
+  const squadAgents = useQuery((api as any).squadAgents.list);
 
   const isResizingRef = useRef(false);
   const sidebarRef = useRef<ElementRef<"aside">>(null);
@@ -196,6 +197,27 @@ const Navigation = () => {
         <div className="mt-4">
           <DocumentList />
           <Item onClick={handleCreate} icon={Plus} label="Add a page" />
+
+          {squadAgents && squadAgents.length > 0 && (
+            <div className="mt-4">
+              <Item
+                onClick={() => router.push("/coworkers")}
+                label="AI Squad Members"
+                icon={Bot}
+              />
+              {squadAgents.map((agent: any) => (
+                <Item
+                  key={agent._id}
+                  label={agent.name}
+                  documentIcon={agent.icon || "🤖"}
+                  icon={Bot}
+                  onClick={() => router.push(`/documents/${agent.instructionsDocId}`)}
+                  active={params.documentId === agent.instructionsDocId}
+                  level={1}
+                />
+              ))}
+            </div>
+          )}
 
           <Popover>
             <PopoverTrigger className="mt-4 w-full">
