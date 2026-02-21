@@ -29,7 +29,7 @@ export function CoworkerCard({
 }: CoworkerCardProps) {
     const router = useRouter();
     const handleClick = () => {
-        router.push(`/coworkers/${id}`);
+        router.push(`/documents/${id}`);
     };
 
     return (

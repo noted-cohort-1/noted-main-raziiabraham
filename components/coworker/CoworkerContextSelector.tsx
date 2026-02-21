@@ -29,7 +29,13 @@ export const CoworkerContextSelector = ({
 }: CoworkerContextSelectorProps) => {
     const { user } = useUser();
     const documents = useQuery(api.documents.getSearch);
+    const agents = useQuery((api as any).squadAgents.list);
     const [isMounted, setIsMounted] = useState(false);
+
+    // Filter out documents that are used as agent instructions
+    const filteredDocuments = documents?.filter(
+        (doc) => !agents?.some((agent: any) => agent.instructionsDocId === doc._id)
+    );
 
     useEffect(() => {
         setIsMounted(true);
@@ -45,7 +51,7 @@ export const CoworkerContextSelector = ({
             <CommandList>
                 <CommandEmpty>No pages found.</CommandEmpty>
                 <CommandGroup heading="Select a page to add to context">
-                    {documents?.map((document) => (
+                    {filteredDocuments?.map((document) => (
                         <CommandItem
                             key={document._id}
                             value={`${document._id}-${document.title}`}

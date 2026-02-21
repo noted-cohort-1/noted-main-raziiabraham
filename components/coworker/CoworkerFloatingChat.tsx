@@ -32,32 +32,27 @@ import { useTrackedUpload } from "@/hooks/useTrackedUpload";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
 import { CoworkerContextSelector } from "@/components/coworker/CoworkerContextSelector";
+import { AgentSlashCommand } from "./AgentSlashCommand";
 
 export function CoworkerFloatingChat() {
     const { getToken } = useAuth();
-    const { isActive } = useCoworkerConfig();
-
     const [isOpen, setIsOpen] = useState(false);
-    const { isExpanded, setExpanded, sidebarWidth, setSidebarWidth, isResizing, setIsResizing, instructionsDocId, setInstructionsDocId } = useCoworkerConfig();
+    const {
+        isExpanded,
+        setExpanded,
+        sidebarWidth,
+        setSidebarWidth,
+        isResizing,
+        setIsResizing,
+    } = useCoworkerConfig();
     const [sourceScope, setSourceScope] = useState<"all" | "selection">("all");
 
-    // Load config and sync to store
-    const config = useQuery(api.coworkerConfig.getConfig);
-    useEffect(() => {
-        if (config?.instructionsDocId) {
-            setInstructionsDocId(config.instructionsDocId);
-        }
-    }, [config, setInstructionsDocId]);
+    // Agent Selection State
+    const [activeAgent, setActiveAgent] = useState<any>(null);
+    const [isAgentCommandOpen, setIsAgentCommandOpen] = useState(false);
 
-    // Dynamic Coworker Name
-    const instructionsDoc = useQuery(api.documents.getById, instructionsDocId ? { documentId: instructionsDocId } : "skip");
-    const coworkerName = !instructionsDocId
-        ? "AI Squad"
-        : (instructionsDoc === undefined ? "..." : (
-            instructionsDoc?.title === "Marketing Intelligence Specialist"
-                ? "AI Squad"
-                : (instructionsDoc?.title || "Untitled Squad")
-        ));
+    // The floating chat represents the general squad unless an agent is specifically addressed in input
+    const coworkerName = "AI Squad";
 
     // Resizing Right Sidebar
     const isResizingRightRef = useRef(false);
@@ -112,6 +107,10 @@ export function CoworkerFloatingChat() {
         transport: new DefaultChatTransport({
             api: "/api/ai/coworker",
         }),
+        // @ts-ignore
+        body: {
+            agentId: activeAgent?._id
+        },
         onFinish: async ({ message }: any) => {
             // Save assistant message to Convex on finish
             const parts = message.parts || [];
@@ -139,6 +138,26 @@ export function CoworkerFloatingChat() {
 
     // Manual input state
     const [input, setInput] = useState("");
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const value = e.target.value;
+        setInput(value);
+
+        // Detect '/' at start of input or on a new line to open command menu
+        if (value === "/" || value.endsWith("\n/")) {
+            setIsAgentCommandOpen(true);
+        } else if (isAgentCommandOpen && !value.includes("/")) {
+            setIsAgentCommandOpen(false);
+        }
+    };
+
+    const onSelectAgent = (agent: any) => {
+        setActiveAgent(agent);
+        // If agent is selected via slash command, clear the '/'
+        if (input === "/") {
+            setInput("");
+        }
+    };
 
     const isLoading = status === "submitted" || status === "streaming";
 
@@ -267,7 +286,8 @@ export function CoworkerFloatingChat() {
         await addMessageMutation({
             role: "user",
             content: userContent,
-            parts: userParts
+            parts: userParts,
+            agentId: activeAgent?._id // Tag message with active agent
         });
 
         // Generate response using sendMessage which calls the API
@@ -315,14 +335,14 @@ export function CoworkerFloatingChat() {
                 className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-background shadow-lg border transition-transform hover:scale-105 active:scale-95"
                 aria-label="Open AI Squad"
             >
-                <Sparkles className="h-5 w-5 text-foreground" />
+                <Bot className="h-5 w-5 text-foreground" />
             </button>
         );
     }
 
     // Dynamic styles for Sidebar Mode
     const containerClasses = cn(
-        "z-[400] flex flex-col overflow-hidden",
+        "z-[400] flex flex-col", // Removed overflow-hidden to allow popovers to stick out
         isExpanded ? "bg-secondary" : "bg-background",
         !isResizing && "transition-all duration-300 ease-in-out",
         isExpanded
@@ -351,7 +371,9 @@ export function CoworkerFloatingChat() {
                     <div className="flex h-5 w-5 items-center justify-center rounded-sm bg-primary/10">
                         <Bot className="h-3.5 w-3.5 text-primary" />
                     </div>
-                    <span className="text-sm font-medium">{coworkerName}</span>
+                    <span className="text-sm font-medium">
+                        {coworkerName}
+                    </span>
                 </div>
                 <div className="flex items-center gap-1">
                     <Button
@@ -448,13 +470,23 @@ export function CoworkerFloatingChat() {
                     className="relative flex flex-col rounded-[24px] border bg-background shadow-lg ring-1 ring-black/5 focus-within:ring-2 focus-within:ring-black/10 transition-all cursor-text"
                     onClick={() => document.querySelector<HTMLTextAreaElement>('textarea')?.focus()}
                 >
+                    {/* Agent Slash Command Popover - Inside form for relative positioning */}
+                    <AgentSlashCommand
+                        isOpen={isAgentCommandOpen}
+                        onClose={() => setIsAgentCommandOpen(false)}
+                        onSelect={onSelectAgent}
+                    />
+
                     <TextareaAutosize
                         minRows={1}
                         maxRows={5}
                         value={input || ""}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setInput(e.target.value)}
-                        placeholder="Ask anything..."
-                        className="w-full min-h-[40px] pt-4 px-4 bg-transparent border-none resize-none focus:outline-none text-sm placeholder:text-muted-foreground/60 rounded-[24px]"
+                        onChange={handleInputChange}
+                        placeholder={activeAgent ? `Message ${activeAgent.name}...` : "Ask anything ... or / for your agents"}
+                        className={cn(
+                            "w-full min-h-[40px] px-4 bg-transparent border-none resize-none focus:outline-none text-sm placeholder:text-muted-foreground/60 rounded-[24px]",
+                            activeAgent ? "pt-2" : "pt-4"
+                        )}
                         onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault();
@@ -499,6 +531,24 @@ export function CoworkerFloatingChat() {
                                 <AtSign className="h-3 w-3" />
                                 <span>{contextDocs.length > 0 ? `${contextDocs.length} selected` : "Context"}</span>
                             </div>
+
+                            {/* Agent Indicator Pill */}
+                            {activeAgent && (
+                                <div className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-semibold animate-in fade-in zoom-in border border-primary/20">
+                                    <span className="text-sm">{activeAgent.icon || "🤖"}</span>
+                                    <span>{activeAgent.name}</span>
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveAgent(null);
+                                        }}
+                                        className="ml-1 hover:text-primary/70"
+                                    >
+                                        <X className="h-3 w-3" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         <Button

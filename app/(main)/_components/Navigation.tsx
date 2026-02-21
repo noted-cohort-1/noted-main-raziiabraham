@@ -2,7 +2,7 @@
 
 import React, { ElementRef, useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -45,6 +45,7 @@ const Navigation = () => {
   const params = useParams();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const create = useMutation(api.documents.create);
+  const squadAgents = useQuery((api as any).squadAgents.list);
 
   const isResizingRef = useRef(false);
   const sidebarRef = useRef<ElementRef<"aside">>(null);
@@ -186,14 +187,30 @@ const Navigation = () => {
             label="Files"
             icon={Folder}
           />
-          <Item
-            onClick={() => router.push("/coworkers")}
-            label="AI Squad"
-            icon={Bot}
-          />
           <Item onClick={handleCreate} label="New page" icon={PlusCircle} />
         </div>
         <div className="mt-4">
+          <div className="mb-4">
+            <Item
+              onClick={() => router.push("/coworkers")}
+              label="AI Squad"
+              icon={Bot}
+              badge="New"
+            />
+            {squadAgents?.map((agent: any) => (
+              <Item
+                key={agent._id}
+                label={agent.name}
+                documentIcon={agent.icon || "🤖"}
+                icon={Bot}
+                onClick={() => router.push(`/documents/${agent.instructionsDocId}`)}
+                active={params.documentId === agent.instructionsDocId}
+                level={0}
+                iconAlignSpacer={true}
+              />
+            ))}
+          </div>
+
           <DocumentList />
           <Item onClick={handleCreate} icon={Plus} label="Add a page" />
 

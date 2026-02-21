@@ -128,12 +128,10 @@ const Editor = ({
   const { getToken } = useAuth();
   const { uploadFile, deleteFile } = useTrackedUpload();
 
-  // Reactive query: UI updates immediately when settings change
-  const aiSettings = useQuery(
-    api.aiSettings.getSettings,
-    isAuthenticated ? {} : "skip"
+  const agent = useQuery(
+    api.squadAgents.findByDocId,
+    isAuthenticated && documentId ? { documentId } : "skip"
   );
-  const hasAiConfig = !!aiSettings;
 
   // File upload handler with storage limit tracking
   const handleUpload = async (file: File) => {
@@ -142,6 +140,12 @@ const Editor = ({
   };
 
   // Transport for AI requests (sends to our API route)
+  const aiSettings = useQuery(
+    api.aiSettings.getSettings,
+    isAuthenticated ? {} : "skip"
+  );
+  const hasAiConfig = !!aiSettings;
+
   const aiTransport = useMemo(() => {
     return new ServerSideTransport(async () => {
       const token = await getToken({ template: "convex" });
@@ -226,10 +230,12 @@ const Editor = ({
       });
 
       previousUrlsRef.current = currentUrls;
-      onChange(JSON.stringify(editor.document, null, 2));
+      const contentStr = JSON.stringify(editor.document, null, 2);
+      onChange(contentStr);
+
       saveTimerRef.current = null; // Clear timer ref when done
     }, 1000);
-  }, [editor, onChange, deleteFile, getEditorFileUrls]);
+  }, [editor, onChange, deleteFile, getEditorFileUrls, agent, documentId]);
 
   // Safe Silent Refresh: Update editor if initialContent changes externally (e.g. AI tool)
   // and we don't have pending local changes.

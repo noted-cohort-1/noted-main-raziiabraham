@@ -36,6 +36,8 @@ interface ItemProps {
   label: string;
   onClick?: () => void;
   icon: LucideIcon;
+  iconAlignSpacer?: boolean;
+  badge?: string;
 }
 
 export const Item = ({
@@ -49,6 +51,8 @@ export const Item = ({
   level = 0,
   onExpand,
   expanded,
+  iconAlignSpacer,
+  badge,
 }: ItemProps) => {
   const { user } = useUser();
   const router = useRouter();
@@ -106,7 +110,7 @@ export const Item = ({
         active && "bg-primary/5 text-primary",
       )}
     >
-      {!!id && (
+      {!!id ? (
         <div
           role="button"
           className="mr-1 h-full rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
@@ -114,7 +118,9 @@ export const Item = ({
         >
           <ChevronIcon className="h-4 w-4 shrink-0 text-muted-foreground/50" />
         </div>
-      )}
+      ) : iconAlignSpacer ? (
+        <div className="mr-1 w-4 h-4 shrink-0" />
+      ) : null}
       {documentIcon ? (
         documentIcon.startsWith("/") ? (
           <div className="mr-2 shrink-0 relative h-[1.125rem] w-[1.125rem]">
@@ -133,6 +139,11 @@ export const Item = ({
       )}
 
       <span className="truncate">{label}</span>
+      {badge && (
+        <span className="ml-2 rounded-md bg-blue-500/10 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
+          {badge}
+        </span>
+      )}
       {isSearch && (
         <kbd className="pointer-events-none ml-auto inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[.625rem] font-medium text-muted-foreground opacity-100 dark:bg-neutral-700">
           <span className="text-xs">CTRL</span>K

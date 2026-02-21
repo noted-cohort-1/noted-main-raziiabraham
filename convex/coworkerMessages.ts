@@ -64,6 +64,7 @@ export const addMessage = mutation({
     args: {
         role: v.union(v.literal("user"), v.literal("assistant")),
         content: v.string(),
+        agentId: v.optional(v.string()), // [NEW] Tag message with agent
         reasoning: v.optional(v.string()),
         toolInvocations: v.optional(v.any()),
         parts: v.optional(v.any()),
@@ -81,6 +82,7 @@ export const addMessage = mutation({
             userId,
             role: args.role,
             content: args.content,
+            agentId: args.agentId,
             reasoning: args.reasoning,
             toolInvocations: args.toolInvocations,
             parts: args.parts,

@@ -18,15 +18,8 @@ interface CoworkerChatProps {
 
 export function CoworkerChat({ messages, isStreaming }: CoworkerChatProps) {
     const bottomRef = useRef<HTMLDivElement>(null);
-    const { instructionsDocId } = useCoworkerConfig();
-    const instructionsDoc = useQuery(api.documents.getById, instructionsDocId ? { documentId: instructionsDocId } : "skip");
-    const coworkerName = !instructionsDocId
-        ? "AI Squad"
-        : (instructionsDoc === undefined ? "..." : (
-            instructionsDoc?.title === "Marketing Intelligence Specialist"
-                ? "AI Squad"
-                : (instructionsDoc?.title || "Untitled Squad")
-        ));
+    // The general chat falls back to the collective AI Squad name
+    const coworkerName = "AI Squad";
 
     // Auto-scroll to bottom when new messages arrive or while streaming
     useEffect(() => {
