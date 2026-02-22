@@ -12,8 +12,8 @@ import { Id } from "@/convex/_generated/dataModel";
 
 export const runtime = "edge";
 
-// Allow streaming responses up to 60 seconds (agent may take longer)
-export const maxDuration = 60;
+// Allow streaming responses up to 300 seconds (Relevance agents can run for several minutes)
+export const maxDuration = 300;
 
 // Message type for API
 interface ChatMessage {
@@ -304,7 +304,7 @@ CRITICAL INSTRUCTIONS:
                             // Track which steps are currently "running" so we can mark them finished
                             const activeStepIds = new Set<string>();
                             let attempts = 0;
-                            const maxAttempts = 30; // ~60 seconds
+                            const maxAttempts = 90; // ~3 minutes (90 attempts × 2s)
 
                             if (!taskId) {
                                 throw new Error("Trigger returned no taskId. Full response: " + JSON.stringify(trigger));
