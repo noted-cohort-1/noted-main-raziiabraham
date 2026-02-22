@@ -23,6 +23,7 @@ export default defineSchema({
     openaiKey: v.optional(v.string()),
     anthropicKey: v.optional(v.string()),
     googleKey: v.optional(v.string()),
+    relevanceKey: v.optional(v.string()), // Encrypted Relevance AI API key (BYOK)
 
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -68,7 +69,7 @@ export default defineSchema({
     description: v.optional(v.string()), // Short description
     icon: v.optional(v.string()),  // Emoji icon
     instructionsDocId: v.id("documents"), // Links to document whose content = system prompt
-    toolIds: v.optional(v.array(v.string())), // [FUTURE] Linked tool IDs
+    toolIds: v.optional(v.array(v.string())), // Linked Relevance AI tool IDs
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),

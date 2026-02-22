@@ -38,10 +38,11 @@ interface CoworkerMessageProps {
     content: string;
     parts: MessagePart[];
     isStreaming?: boolean;
+    agentName?: string;
 }
 
 // Get display name for tool
-function getToolDisplayName(toolName: string, result?: any, state?: string) {
+function getToolDisplayName(toolName: string, result?: any, state?: string, agentName?: string) {
     const isDone = state === 'result' || result !== undefined;
 
     switch (toolName) {
@@ -59,6 +60,10 @@ function getToolDisplayName(toolName: string, result?: any, state?: string) {
             if (!isDone) return 'Listing documents...';
             const docCount = result?.count || result?.documents?.length || 0;
             return `Found ${docCount} document(s)`;
+        case 'invoke_relevance_agent':
+            return isDone
+                ? `${agentName || 'Agent'} completed`
+                : `Calling ${agentName || 'agent'}...`;
         default:
             return toolName;
     }
@@ -96,7 +101,7 @@ const MarkdownComponents = {
 };
 
 // Render a single part
-function renderPart(part: MessagePart, index: number, isStreaming: boolean, isLastReasoningPart: boolean) {
+function renderPart(part: MessagePart, index: number, isStreaming: boolean, isLastReasoningPart: boolean, agentName?: string) {
     const key = `part-${index}`;
 
     // Text part
@@ -160,7 +165,7 @@ function renderPart(part: MessagePart, index: number, isStreaming: boolean, isLa
                         "font-medium text-[12px]",
                         !isDone ? "opacity-90" : "opacity-70"
                     )}>
-                        {getToolDisplayName(toolName, result, state)}
+                        {getToolDisplayName(toolName, result, state, agentName)}
                     </span>
                 </div>
             </div>
@@ -238,6 +243,7 @@ export function CoworkerMessage({
     content,
     parts,
     isStreaming,
+    agentName,
 }: CoworkerMessageProps) {
     const isUser = role === "user";
     const { isExpanded } = useCoworkerConfig();
@@ -354,7 +360,7 @@ export function CoworkerMessage({
                 )}
 
                 {effectiveParts.map((part, index) =>
-                    renderPart(part, index, isStreaming || false, index === lastReasoningIndex)
+                    renderPart(part, index, isStreaming || false, index === lastReasoningIndex, agentName)
                 )}
             </div>
         </div>

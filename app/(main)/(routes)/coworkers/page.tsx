@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useState, useEffect } from "react";
+import { useMutation, useQuery, useAction, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { CoworkerCard } from "../../_components/coworker-card";
-import { Search, Plus, Wrench, Bot, Loader2 } from "lucide-react";
+import { Search, Plus, Wrench, Bot, Loader2, Settings, ExternalLink, Zap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
@@ -13,10 +13,13 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { uniqueNamesGenerator, adjectives, animals } from "unique-names-generator";
 import { random } from "node-emoji";
+import { useSettings } from "@/hooks/use-settings";
+import Image from "next/image";
 
 export default function CoworkersPage() {
     const { user } = useUser();
     const router = useRouter();
+    const openSettings = useSettings();
     const [activeTab, setActiveTab] = useState<"agents" | "tools">("agents");
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -25,6 +28,23 @@ export default function CoworkersPage() {
     const createDocument = useMutation(api.documents.create);
     const updateDocument = useMutation(api.documents.update);
     const createAgent = useMutation((api as any).squadAgents.create);
+    const savedSettings = useQuery(api.aiSettings.getSettings);
+    const hasRelevanceKey = !!(savedSettings as any)?.hasRelevanceKey;
+
+    // Relevance AI data
+    const listRelevanceAgentsFn = useAction((api as any).aiSettingsActions.listRelevanceAgents);
+    const [relevanceAgents, setRelevanceAgents] = useState<any[]>([]);
+    const [loadingRelevance, setLoadingRelevance] = useState(false);
+
+    useEffect(() => {
+        if (!hasRelevanceKey) return;
+        setLoadingRelevance(true);
+        listRelevanceAgentsFn({})
+            .then((agents: any[]) => setRelevanceAgents(agents))
+            .catch(() => { /* silently fail */ })
+            .finally(() => setLoadingRelevance(false));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [hasRelevanceKey]);
 
     const isLoading = squadAgents === undefined;
 
@@ -131,7 +151,7 @@ export default function CoworkersPage() {
 
                 {activeTab === "agents" ? (
                     <>
-                        {/* Filters */}
+                        {/* Filters & Actions */}
                         <div className="flex items-center justify-between gap-4 mb-8">
                             <div className="relative w-full max-w-md">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -158,7 +178,7 @@ export default function CoworkersPage() {
                                 <span className="text-xs text-muted-foreground mt-1">Start a new squad member</span>
                             </div>
 
-                            {/* List agents */}
+                            {/* List Noted agents */}
                             {isLoading ? (
                                 <div className="flex items-center justify-center col-span-full py-12">
                                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -167,7 +187,7 @@ export default function CoworkersPage() {
                                 filteredAgents?.map((agent: any) => (
                                     <CoworkerCard
                                         key={agent._id}
-                                        id={agent.instructionsDocId} // Link directly to instructions doc
+                                        id={agent.instructionsDocId}
                                         name={agent.name}
                                         description={agent.description || "Experimental AI Squad Agent"}
                                         creator={user?.fullName || "Me"}
@@ -178,27 +198,84 @@ export default function CoworkersPage() {
                                 ))
                             )}
 
+                            {/* Relevance AI Agents */}
+                            {relevanceAgents.map((agent) => {
+                                const hasValidAvatar = agent.avatarUrl &&
+                                    (agent.avatarUrl.startsWith("http") || agent.avatarUrl.startsWith("/"));
+
+                                return (
+                                    <CoworkerCard
+                                        key={agent.id}
+                                        name={agent.name}
+                                        description={agent.description || "Relevance AI Agent"}
+                                        icon={
+                                            hasValidAvatar ? (
+                                                <div className="relative h-12 w-12 rounded-full overflow-hidden">
+                                                    <Image
+                                                        src={agent.avatarUrl}
+                                                        alt={agent.name}
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                </div>
+                                            ) : agent.icon && agent.icon.length <= 4 ? (
+                                                <span className="text-2xl">{agent.icon}</span>
+                                            ) : (
+                                                <div className="relative h-8 w-8">
+                                                    <Image
+                                                        src="/relevance-logo.jpeg"
+                                                        alt="Relevance AI"
+                                                        fill
+                                                        className="object-contain"
+                                                    />
+                                                </div>
+                                            )
+                                        }
+                                        color="bg-violet-50"
+                                        creator="Relevance AI"
+                                        creatorImage="/relevance-logo.jpeg"
+                                    />
+                                );
+                            })}
+
+                            {/* Connect Relevance AI */}
+                            {!hasRelevanceKey && !isLoading && (
+                                <div
+                                    onClick={() => { openSettings.onOpen(); }}
+                                    className="group flex flex-col items-center justify-center p-6 border-2 border-dashed border-violet-200 dark:border-violet-800 rounded-xl bg-violet-50/30 dark:bg-violet-900/10 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all cursor-pointer min-h-[200px]"
+                                >
+                                    <Zap className="h-8 w-8 text-violet-400 mb-2" />
+                                    <span className="text-sm font-semibold text-violet-700 dark:text-violet-300">Connect Relevance AI</span>
+                                    <span className="text-xs text-muted-foreground mt-1 text-center">Add your API key in Settings → Tools</span>
+                                </div>
+                            )}
+
                             {/* Empty state if no search results */}
                             {!isLoading && filteredAgents?.length === 0 && searchQuery && (
-                                <div className="col-span-full py-12 text-center">
-                                    <p className="text-muted-foreground">No agents found matching "{searchQuery}"</p>
+                                <div className="col-span-full py-12 text-center text-muted-foreground">
+                                    No agents found matching “{searchQuery}”
                                 </div>
                             )}
                         </div>
                     </>
                 ) : (
-                    /* Tools Tab Placeholder */
+                    /* Tools Tab — Simple empty state */
                     <div className="flex flex-col items-center justify-center py-24 text-center">
-                        <div className="h-20 w-20 rounded-2xl bg-muted/30 flex items-center justify-center mb-6">
-                            <Wrench className="h-10 w-10 text-muted-foreground" />
+                        <div className="h-16 w-16 rounded-2xl bg-muted/40 flex items-center justify-center mb-5">
+                            <Wrench className="h-8 w-8 text-muted-foreground" />
                         </div>
-                        <h2 className="text-2xl font-bold mb-2">Build Custom Tools</h2>
-                        <p className="text-muted-foreground max-w-sm mb-8">
-                            Create reusable tools that your squad agents can use to interact with external APIs, process data, or perform complex tasks.
+                        <h3 className="text-lg font-semibold mb-2">Tools</h3>
+                        <p className="text-sm text-muted-foreground max-w-md mb-6">
+                            This page is for managing Noted’s agents. Your Relevance AI tools can be managed directly on{" "}
+                            <a
+                                href="https://app.relevanceai.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-violet-600 dark:text-violet-400 hover:underline font-medium"
+                            >
+                                their platform
+                            </a>.
                         </p>
-                        <div className="px-4 py-2 bg-muted/50 rounded-lg text-sm font-medium text-muted-foreground">
-                            Coming Soon
-                        </div>
                     </div>
                 )}
             </div>
