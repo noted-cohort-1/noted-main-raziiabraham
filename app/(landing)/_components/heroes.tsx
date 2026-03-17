@@ -141,7 +141,7 @@ export const Heroes = () => {
             </div>
 
             {/* Trash */}
-            <div className="mt-4">
+            <div className="mt-4 space-y-0.5">
               <div className="flex items-center gap-2 rounded-md px-3 py-1 text-sm text-muted-foreground hover:bg-primary/5">
                 <svg
                   className="h-4 w-4"
@@ -157,6 +157,10 @@ export const Heroes = () => {
                   />
                 </svg>
                 <span>Trash</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20">
+                <span className="text-lg">🤖</span>
+                <span>AI Squad</span>
               </div>
             </div>
           </div>
@@ -187,53 +191,60 @@ export const Heroes = () => {
                 <div className="mt-6 overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700">
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[520px] border-collapse text-left text-sm">
-                    <thead className="bg-neutral-50 dark:bg-neutral-800">
-                      <tr>
-                        <th className="border-b border-neutral-200 px-4 py-2.5 font-medium text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
-                          Task
-                        </th>
-                        <th className="border-b border-neutral-200 px-4 py-2.5 font-medium text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
-                          Status
-                        </th>
-                        <th className="border-b border-neutral-200 px-4 py-2.5 font-medium text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
-                          Due
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-neutral-100 dark:border-neutral-700">
-                        <td className="px-4 py-2.5">Design landing page</td>
-                        <td className="px-4 py-2.5">
-                          <span className="inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                            Done
-                          </span>
-                        </td>
-                        <td className="px-4 py-2.5 text-neutral-500">Dec 1</td>
-                      </tr>
-                      <tr className="border-b border-neutral-100 dark:border-neutral-700">
-                        <td className="px-4 py-2.5">Build API endpoints</td>
-                        <td className="px-4 py-2.5">
-                          <span className="inline-flex rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                            In Progress
-                          </span>
-                        </td>
-                        <td className="px-4 py-2.5 text-neutral-500">Dec 5</td>
-                      </tr>
-                      <tr>
-                        <td className="px-4 py-2.5">Write documentation</td>
-                        <td className="px-4 py-2.5">
-                          <span className="inline-flex rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400">
-                            Not Started
-                          </span>
-                        </td>
-                        <td className="px-4 py-2.5 text-neutral-500">Dec 10</td>
-                      </tr>
-                    </tbody>
+                      <thead className="bg-neutral-50 dark:bg-neutral-800">
+                        <tr>
+                          <th className="border-b border-neutral-200 px-4 py-2.5 font-medium text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
+                            Task
+                          </th>
+                          <th className="border-b border-neutral-200 px-4 py-2.5 font-medium text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
+                            Status
+                          </th>
+                          <th className="border-b border-neutral-200 px-4 py-2.5 font-medium text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
+                            Due
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b border-neutral-100 dark:border-neutral-700">
+                          <td className="px-4 py-2.5">Design landing page</td>
+                          <td className="px-4 py-2.5">
+                            <span className="inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                              Done
+                            </span>
+                          </td>
+                          <td className="px-4 py-2.5 text-neutral-500">Dec 1</td>
+                        </tr>
+                        <tr className="border-b border-neutral-100 dark:border-neutral-700">
+                          <td className="px-4 py-2.5">Build API endpoints</td>
+                          <td className="px-4 py-2.5">
+                            <span className="inline-flex rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                              In Progress
+                            </span>
+                          </td>
+                          <td className="px-4 py-2.5 text-neutral-500">Dec 5</td>
+                        </tr>
+                        <tr>
+                          <td className="px-4 py-2.5">Write documentation</td>
+                          <td className="px-4 py-2.5">
+                            <span className="inline-flex rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400">
+                              Not Started
+                            </span>
+                          </td>
+                          <td className="px-4 py-2.5 text-neutral-500">Dec 10</td>
+                        </tr>
+                      </tbody>
                     </table>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Floating Chat Indicator */}
+          <div className="absolute bottom-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-violet-500 shadow-lg shadow-blue-500/25">
+            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
           </div>
         </div>
       </div>
