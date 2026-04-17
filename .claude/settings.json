@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh repo *)",
+      "Bash(gh api *)",
+      "Bash(gh pr *)",
+      "Bash(gh issue *)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git status)",
+      "Bash(git branch)",
+      "Bash(npm run lint)",
+      "Bash(npm run lint:check)",
+      "Bash(npm run type:check)",
+      "Bash(npm run test)",
+      "Bash(npm run test:coverage)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:news.aakashg.com)",
+      "WebFetch(domain:www.news.aakashg.com)",
+      "WebFetch(domain:anthropic.com)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:convex.dev)",
+      "WebFetch(domain:clerk.com)"
+    ]
+  }
+}
