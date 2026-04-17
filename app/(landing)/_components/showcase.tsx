@@ -18,8 +18,8 @@ export const Showcase = () => {
           Start writing today
         </h2>
         <p className="mb-10 text-base text-neutral-600 sm:text-lg dark:text-neutral-400">
-          Join thousands of people who use Noted to organize their thoughts,
-          manage projects, and bring ideas to life.
+          Join thousands of people who use Noted and their AI Squad to organize
+          thoughts, manage projects, and bring ideas to life.
         </p>
 
         {/* CTA */}

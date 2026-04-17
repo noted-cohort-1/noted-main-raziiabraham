@@ -1,0 +1,15 @@
+# Default: avidx-app owns everything in the code side of the repo.
+*       @avidx-app
+
+# team-os/ is a shared knowledge base. Anyone on the team can contribute and merge.
+# Leave these lines without an owner so GitHub does not require a specific reviewer
+# (CODEOWNERS "no owner" means no required review from this file).
+/team-os/
+
+# README, top-level CLAUDE.md, and tech docs stay owned by avidx-app.
+/CLAUDE.md        @avidx-app
+/README.md        @avidx-app
+/TECH_STACK.md    @avidx-app
+/DEPLOYMENT.md    @avidx-app
+/.github/         @avidx-app
+/.claude/         @avidx-app

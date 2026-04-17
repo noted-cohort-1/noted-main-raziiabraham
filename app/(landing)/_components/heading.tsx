@@ -14,14 +14,14 @@ export const Heading = () => {
     <div className="flex max-w-4xl flex-col items-center space-y-8 px-2 text-center sm:px-0">
       {/* Main Headline */}
       <h1 className="text-center text-4xl font-bold tracking-tight text-neutral-900 sm:text-5xl lg:text-7xl dark:text-white">
-        Write, plan, and
+        Write, plan, and work
         <br />
-        create with AI.
+        with your <span className="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-violet-400">AI Squad.</span>
       </h1>
 
       {/* Subtitle */}
       <p className="max-w-2xl text-center text-lg text-neutral-600 sm:text-xl dark:text-neutral-400">
-        A simple, powerful workspace with <span className="font-semibold text-blue-600 dark:text-blue-400">built-in AI</span> for your notes, tasks, and ideas.
+        A powerful workspace where <span className="font-semibold text-blue-600 dark:text-blue-400">AI coworkers</span> help you write, research, and manage your documents—powered by your own API key.
       </p>
 
       {/* CTA Buttons */}

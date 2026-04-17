@@ -1,0 +1,98 @@
+# Noted — Feature Index
+#
+# The master map. Every feature lives here with its dossier, code paths, owners, and status.
+# When looking up anything about a specific feature (what's shipped, who owns it, where is the code),
+# check this file FIRST.
+#
+# Pattern inspired by in-the-weeds-hannah-stulberg/team-os-example-repo.
+#
+# Status values: planned | in-design | in-development | beta | live | deprecated
+# Owners use GitHub handles from team-os/ROSTER.md.
+
+ai-features:
+  dossier: team-os/features/ai-features/
+  status_file: team-os/features/ai-features/status.md
+  ship_log: team-os/features/ai-features/ship-log.md
+  status: live
+  sub_features:
+    - ai-settings                  # choose provider + model, encrypted key storage
+    - in-editor-ai                 # "/Ask AI" slash command inside Blocknote editor
+    - coworker-chat                # floating chat panel with AI Squad agents
+    - squad-agents                 # custom agents with instruction documents
+  code:
+    convex:
+      - convex/aiSettings.ts
+      - convex/aiSettingsActions.ts
+      - convex/coworkerMessages.ts
+      - convex/squadAgents.ts
+    api_routes:
+      - app/api/ai/chat/route.ts
+      - app/api/ai/coworker/route.ts
+    ui:
+      - components/coworker/
+      - components/editor.tsx
+      - components/modals/settings-modal.tsx
+      - app/(main)/(routes)/coworkers/page.tsx
+    lib:
+      - lib/ai-models.ts
+      - lib/agent/
+      - lib/server-side-transport.ts
+    hooks:
+      - hooks/use-coworker.ts
+      - hooks/use-coworker-config.ts
+  providers:
+    - openai
+    - anthropic
+    - google
+  owners:
+    product: raziiabraham
+    engineering: avidx-app
+  historical_prds:
+    - team-os/product/prds/ai-features/ai-features-prd.md
+    - team-os/product/prds/ai-features/ai-agent-prd.md
+
+core-editor:
+  dossier: null                    # not yet written
+  status: live
+  code:
+    convex:
+      - convex/documents.ts
+      - convex/files.ts
+      - convex/storage.ts
+    ui:
+      - components/editor.tsx
+      - app/(main)/(routes)/documents/
+  owners:
+    engineering: avidx-app
+
+publish-to-web:
+  # Live but no dossier yet — worth one once team-collab v1 starts, since this is
+  # technically the only "sharing" primitive we have today.
+  dossier: null
+  status: live
+  code:
+    convex:
+      - convex/documents.ts          # isPublished flag, getById public-read path
+      - convex/schema.ts              # documents.isPublished field
+    ui:
+      - app/(main)/_components/publish.tsx
+      - app/(public)/(routes)/preview/[documentId]/page.tsx
+  owners:
+    engineering: avidx-app
+
+team-collaboration:
+  dossier: null                    # not yet written (nothing built)
+  status: planned
+  prd: team-os/product/prds/collaboration/team-collaboration-prd.md
+  owners:
+    product: raziiabraham
+    engineering: avidx-app
+
+paywall-subscription:
+  dossier: null                    # not yet written (nothing built)
+  status: planned
+  prd: team-os/product/prds/paywall/paywall-subscription-prd.md
+  blocked_by: team-collaboration
+  owners:
+    product: raziiabraham
+    engineering: avidx-app
