@@ -21,7 +21,9 @@ export const Navbar = () => {
         scrolled && "border-b border-neutral-200 dark:border-neutral-800",
       )}
     >
-      <Logo />
+      <Link href="/" className="hover:opacity-80 transition-opacity">
+        <Logo />
+      </Link>
 
       <div className="flex items-center gap-4">
         {isLoading && <Spinner size="sm" />}
