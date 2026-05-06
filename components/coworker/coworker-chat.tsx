@@ -14,9 +14,10 @@ import { Bot, Sparkles } from "lucide-react";
 interface CoworkerChatProps {
     messages: CoworkerMessageType[];
     isStreaming?: boolean;
+    agentName?: string;
 }
 
-export function CoworkerChat({ messages, isStreaming }: CoworkerChatProps) {
+export function CoworkerChat({ messages, isStreaming, agentName }: CoworkerChatProps) {
     const bottomRef = useRef<HTMLDivElement>(null);
     // The general chat falls back to the collective AI Squad name
     const coworkerName = "AI Squad";
@@ -97,6 +98,7 @@ export function CoworkerChat({ messages, isStreaming }: CoworkerChatProps) {
                             content={message.content || ""}
                             parts={enrichedParts}
                             isStreaming={isStreaming && message === messages[messages.length - 1]}
+                            agentName={agentName}
                         />
                     );
                 })}
@@ -109,6 +111,7 @@ export function CoworkerChat({ messages, isStreaming }: CoworkerChatProps) {
                         content=""
                         parts={[]}
                         isStreaming={true}
+                        agentName={agentName}
                     />
                 )}
 

@@ -39,6 +39,8 @@ jest.mock('@/convex/_generated/api', () => ({
         aiSettingsActions: {
             testConnection: 'mock-test-connection',
             saveSettings: 'mock-save-settings',
+            saveRelevanceKey: 'mock-save-relevance-key',
+            testRelevanceConnection: 'mock-test-relevance-connection',
         },
         aiSettings: {
             deleteSettings: 'mock-delete-settings',
@@ -103,9 +105,12 @@ describe('SettingsModal', () => {
             model: 'gpt-4o'
         });
 
+        const mockSaveRelevanceKey = jest.fn();
+
         (useAction as jest.Mock).mockImplementation((actionSpec) => {
             if (actionSpec === 'mock-test-connection') return mockTestConnection;
             if (actionSpec === 'mock-save-settings') return mockSaveSettings;
+            if (actionSpec === 'mock-save-relevance-key') return mockSaveRelevanceKey;
             return jest.fn();
         });
 
@@ -210,6 +215,119 @@ describe('SettingsModal', () => {
             expect(mockDeleteSettings).toHaveBeenCalled();
             expect(mockReset).toHaveBeenCalled();
             expect(toast.success).toHaveBeenCalledWith("All settings removed successfully");
+        });
+    });
+});
+
+describe('SettingsModal – Tools Tab', () => {
+    const mockOnClose = jest.fn();
+    const mockSaveRelevanceKey = jest.fn();
+
+    const baseAiSettings = {
+        selectedProvider: 'openai',
+        selectedModel: 'gpt-4o',
+        apiKey: '',
+        hasOpenAIKey: false,
+        hasAnthropicKey: false,
+        hasGoogleKey: false,
+        isLoading: false,
+        isTesting: false,
+        setApiKey: jest.fn(),
+        setSelectedProvider: jest.fn(),
+        setSelectedModel: jest.fn(),
+        setIsTesting: jest.fn(),
+        setIsLoading: jest.fn(),
+        setHasKey: jest.fn(),
+        reset: jest.fn(),
+    };
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+
+        (useConvexAuth as jest.Mock).mockReturnValue({ isAuthenticated: true });
+        (useSettings as unknown as jest.Mock).mockReturnValue({ isOpen: true, onClose: mockOnClose });
+        (useAiSettings as unknown as jest.Mock).mockReturnValue({ ...baseAiSettings });
+
+        // Default: no Relevance key saved
+        (useQuery as jest.Mock).mockReturnValue({ hasOpenAIKey: false, hasRelevanceKey: false });
+
+        (useAction as jest.Mock).mockImplementation((actionSpec: any) => {
+            if (actionSpec === 'mock-save-relevance-key') return mockSaveRelevanceKey;
+            return jest.fn();
+        });
+
+        (useMutation as jest.Mock).mockReturnValue(jest.fn());
+    });
+
+    const openToolsTab = () => {
+        const { container } = render(<SettingsModal />);
+        fireEvent.click(screen.getByRole('button', { name: 'Tools' }));
+        return container;
+    };
+
+    it('renders the Tools tab button', () => {
+        render(<SettingsModal />);
+        expect(screen.getByRole('button', { name: 'Tools' })).toBeInTheDocument();
+    });
+
+    it('shows Relevance AI section when Tools tab is active', () => {
+        openToolsTab();
+        expect(screen.getByText('Relevance AI')).toBeInTheDocument();
+    });
+
+    it('shows the key format hint', () => {
+        openToolsTab();
+        expect(screen.getByText(/Find these in your Relevance AI account settings/i)).toBeInTheDocument();
+    });
+
+    it('shows "Connected" badge when hasRelevanceKey is true', () => {
+        (useQuery as jest.Mock).mockReturnValue({ hasRelevanceKey: true });
+        openToolsTab();
+        expect(screen.getByText(/connected/i)).toBeInTheDocument();
+    });
+
+    it('does NOT show "Connected" badge when no key is saved', () => {
+        openToolsTab();
+        expect(screen.queryByText(/connected/i)).not.toBeInTheDocument();
+    });
+
+    it('Save button is disabled when input is empty', () => {
+        openToolsTab();
+        const saveBtn = screen.getByRole('button', { name: /^save$/i });
+        expect(saveBtn).toBeDisabled();
+    });
+
+    it('saves the Relevance key successfully', async () => {
+        mockSaveRelevanceKey.mockResolvedValue({ success: true });
+        openToolsTab();
+
+        fireEvent.change(screen.getByPlaceholderText(/sk-.../i), { target: { value: 'apikey456' } });
+        fireEvent.change(screen.getByPlaceholderText(/e.g. abc123/i), { target: { value: 'us-east-1' } });
+        fireEvent.change(screen.getByPlaceholderText(/e.g. xxx/i), { target: { value: 'proj123' } });
+
+        const saveBtn = screen.getByRole('button', { name: /^save$/i });
+        fireEvent.click(saveBtn);
+
+        await waitFor(() => {
+            // Combined as region:project:apiKey
+            expect(mockSaveRelevanceKey).toHaveBeenCalledWith({ apiKey: 'us-east-1:proj123:apikey456' });
+            expect(toast.success).toHaveBeenCalledWith('Relevance AI key saved!');
+            expect(mockOnClose).toHaveBeenCalled();
+        });
+    });
+
+    it('shows error toast when save fails', async () => {
+        mockSaveRelevanceKey.mockRejectedValue(new Error('Encryption failed'));
+        openToolsTab();
+
+        fireEvent.change(screen.getByPlaceholderText(/sk-.../i), { target: { value: 'badkey' } });
+        fireEvent.change(screen.getByPlaceholderText(/e.g. abc123/i), { target: { value: 'us-east-1' } });
+        fireEvent.change(screen.getByPlaceholderText(/e.g. xxx/i), { target: { value: 'proj-bad' } });
+
+        fireEvent.click(screen.getByRole('button', { name: /^save$/i }));
+
+        await waitFor(() => {
+            expect(toast.error).toHaveBeenCalledWith('Encryption failed');
         });
     });
 });

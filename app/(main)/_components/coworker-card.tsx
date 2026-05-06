@@ -9,13 +9,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 
 interface CoworkerCardProps {
-    id: string;
+    id?: string;
     name: string;
     description: string;
-    creator: string;
+    creator?: string;
     icon?: React.ReactNode;
     creatorImage?: string;
     color?: string;
+    badge?: React.ReactNode;
+    onClick?: () => void;
 }
 
 export function CoworkerCard({
@@ -26,16 +28,22 @@ export function CoworkerCard({
     icon,
     creatorImage,
     color = "bg-orange-100",
+    badge,
+    onClick,
 }: CoworkerCardProps) {
     const router = useRouter();
     const handleClick = () => {
-        router.push(`/documents/${id}`);
+        if (onClick) return onClick();
+        if (id) router.push(`/documents/${id}`);
     };
 
     return (
         <div
             onClick={handleClick}
-            className="group relative flex cursor-pointer flex-col justify-between rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md"
+            className={cn(
+                "group relative flex flex-col justify-between rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md",
+                (id || onClick) && "cursor-pointer"
+            )}
         >
             <div>
                 <div className="flex items-start justify-between">
@@ -58,15 +66,23 @@ export function CoworkerCard({
                 </p>
             </div>
 
-            <div className="flex items-center gap-2 pt-4 border-t">
-                <Avatar className="h-5 w-5">
-                    <AvatarImage src={creatorImage} />
-                    <AvatarFallback className="text-[10px]">
-                        <User className="h-3 w-3" />
-                    </AvatarFallback>
-                </Avatar>
-                <span className="text-xs text-muted-foreground">{creator}</span>
-            </div>
+            {(creator || badge) && (
+                <div className="flex items-center gap-2 pt-4 border-t">
+                    {creator ? (
+                        <>
+                            <Avatar className="h-5 w-5">
+                                <AvatarImage src={creatorImage} />
+                                <AvatarFallback className="text-[10px]">
+                                    <User className="h-3 w-3" />
+                                </AvatarFallback>
+                            </Avatar>
+                            <span className="text-xs text-muted-foreground">{creator}</span>
+                        </>
+                    ) : (
+                        badge
+                    )}
+                </div>
+            )}
         </div>
     );
 }

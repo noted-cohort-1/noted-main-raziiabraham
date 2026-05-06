@@ -36,6 +36,7 @@ export const getSettings = query({
       hasOpenAIKey: !!settings.openaiKey,
       hasAnthropicKey: !!settings.anthropicKey,
       hasGoogleKey: !!settings.googleKey,
+      hasRelevanceKey: !!settings.relevanceKey,
 
       createdAt: settings.createdAt,
       updatedAt: settings.updatedAt,
@@ -53,6 +54,7 @@ export const createSettings = internalMutation({
     openaiKey: v.optional(v.string()),
     anthropicKey: v.optional(v.string()),
     googleKey: v.optional(v.string()),
+    relevanceKey: v.optional(v.string()),
 
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -65,6 +67,7 @@ export const createSettings = internalMutation({
       openaiKey: args.openaiKey,
       anthropicKey: args.anthropicKey,
       googleKey: args.googleKey,
+      relevanceKey: args.relevanceKey,
       createdAt: args.createdAt,
       updatedAt: args.updatedAt,
     });
@@ -81,6 +84,7 @@ export const updateSettings = internalMutation({
     openaiKey: v.optional(v.string()),
     anthropicKey: v.optional(v.string()),
     googleKey: v.optional(v.string()),
+    relevanceKey: v.optional(v.string()),
 
     updatedAt: v.number(),
   },
@@ -92,6 +96,7 @@ export const updateSettings = internalMutation({
     if (args.openaiKey !== undefined) patch.openaiKey = args.openaiKey;
     if (args.anthropicKey !== undefined) patch.anthropicKey = args.anthropicKey;
     if (args.googleKey !== undefined) patch.googleKey = args.googleKey;
+    if (args.relevanceKey !== undefined) patch.relevanceKey = args.relevanceKey;
 
     await ctx.db.patch(args.id, patch);
   },
