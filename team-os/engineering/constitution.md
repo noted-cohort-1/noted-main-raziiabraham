@@ -1,7 +1,7 @@
 ---
 type: constitution
 last_ratified: 2026-05-06
-version: 1.0.0
+version: 1.1.0
 owner: avidx-app
 ---
 
@@ -128,6 +128,27 @@ This is what makes team-os work as a self-service knowledge base: every shipped 
 
 Major user-facing features and key interactions emit Amplitude events. Trivial UI interactions do not. The `event-tracking` skill defines the canonical event names, properties, and the DO/DON'T table. Events fire from event handlers (per principle VI), never from `useEffect`. Sensitive content (document body text, AI conversation contents, file contents, PII) NEVER goes into event properties — IDs only.
 
+## XVI. Visual identity contract (DESIGN.md) (NON-NEGOTIABLE)
+
+Noted's visual identity lives at the repo root in `DESIGN.md`, following the [google-labs-code/design.md](https://github.com/google-labs-code/design.md) spec. It is a **binding contract**, not advisory reading.
+
+Every PR that touches pixels — anything under `components/`, `app/(landing)/`, `app/globals.css`, `tailwind.config.ts`, `components.json`, or Tailwind classes affecting visual presentation — must keep three things in sync:
+
+1. The code change itself.
+2. `app/globals.css` if a CSS custom property is added or modified.
+3. `DESIGN.md` — the YAML token added or updated, the markdown rationale added or updated.
+
+Skipping (3) is the single most common drift. `npm run design:lint` catches some of it (broken refs, contrast, structural). `/noted-review` catches the rest by treating DESIGN.md as a binding contract for files in the trigger paths above.
+
+Specific non-negotiables:
+
+- No inline hex/rgb/hsl in `className` or `style` props. Always use a token.
+- Brand accents (`bg-blue-*`, `bg-violet-*`) are scoped to AI affordances and marketing CTAs only. Anywhere else is a finding.
+- shadcn primitives in `components/ui/` are read-only (already principle XII). Wrap; don't edit. New variants are added via `cva` in the primitive file AND documented in DESIGN.md `components:`.
+- New color/typography/radii/spacing tokens require both light AND dark counterparts, justified in the PR description.
+- Permanent surfaces (cards, sidebars, navigation) use the `border` token for separation, not box-shadows. Shadows are reserved for transient surfaces (popovers, dropdowns, floating menus).
+- See the `design-md` skill for the full picking-the-right-token guide and the merge checklist.
+
 ---
 
 ## Governance
@@ -150,10 +171,12 @@ This constitution is enforced via these `.ai/skills/<name>/SKILL.md` files:
 - `effect-to-event` (§VI)
 - `code-quality-checklist` (§IX)
 - `event-tracking` (§XV)
+- `design-md` (§XVI)
 - `unit-testing` (cross-cutting; covers test-coverage portion of §IX)
 
 Plus these cross-cutting commands:
 
 - `/feature-workflow` — daily-driver feature workflow that enforces §VIII (Linear linkage)
 - `/speckit.specify` → `.plan` → `.tasks` → `.implement` — spec-driven workflow with Constitution Check
-- `/noted-review` — multi-agent quality-check that surfaces constitution violations as findings
+- `/noted-review` — multi-agent quality-check that surfaces constitution violations as findings (DESIGN.md is loaded as a binding contract for UI files per §XVI)
+- `/design-lint`, `/design-diff` — DESIGN.md validation and diffing (§XVI)

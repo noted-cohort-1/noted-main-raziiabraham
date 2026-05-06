@@ -14,6 +14,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Check, Copy, Divide, Globe } from "lucide-react";
+import {
+  trackDocumentPublished,
+  trackDocumentUnpublished,
+  trackPublicLinkCopied,
+} from "@/lib/analytics";
 
 interface PublishProps {
   initialData: Doc<"documents">;
@@ -41,6 +46,11 @@ export const Publish = ({ initialData }: PublishProps) => {
       success: "Note published!",
       error: "Failed to publish note.",
     });
+
+    trackDocumentPublished({
+      document_id: initialData._id,
+      document_title: initialData.title,
+    });
   };
 
   const onUnpublish = () => {
@@ -56,11 +66,15 @@ export const Publish = ({ initialData }: PublishProps) => {
       success: "Note unpublished",
       error: "Failed to unpublish note.",
     });
+
+    trackDocumentUnpublished({ document_id: initialData._id });
   };
 
   const onCopy = () => {
     navigator.clipboard.writeText(url);
     setCopied(true);
+
+    trackPublicLinkCopied({ document_id: initialData._id });
 
     setTimeout(() => {
       setCopied(false);

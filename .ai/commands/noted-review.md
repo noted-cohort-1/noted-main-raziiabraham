@@ -202,12 +202,20 @@ For every changed file in scope, also check whether its path matches one of the 
 
 | Path trigger | Architecture docs (BINDING) |
 |---|---|
-| *(currently empty — noted has not yet codified architecture docs)* | *(none)* |
+| `components/**/*.tsx`, `app/**/*.tsx`, `app/globals.css`, `tailwind.config.ts`, `components.json` | `DESIGN.md` (visual identity contract) |
 
-> **Status note for noted**: as architecture docs land in `team-os/engineering/architecture/<doc>.md`, add their path triggers here. Examples likely to land:
+> **Status note for noted**: the trigger table currently has one entry — `DESIGN.md`. As more architecture docs land in `team-os/engineering/architecture/<doc>.md`, add their triggers here. Examples likely to land:
 > - `lib/agent/**` → `team-os/engineering/architecture/ai-agent-architecture.md`
 > - `convex/coworkerMessages.ts`, `convex/squadAgents.ts` → `team-os/engineering/architecture/coworker-chat.md`
-> Until those docs exist, this section is no-op and the architecture-compliance scorecard rows are omitted entirely (per Step 7b's "omit rows with zero applicable files" rule).
+
+When a UI file matches the DESIGN.md trigger, the linter treats it as a binding contract: any visual change (new color, new typography, new component variant, new spacing) must be reflected in DESIGN.md in the same PR. Common findings:
+
+- A new `bg-blue-*`, `bg-violet-*`, or other branded color used outside an AI-affordance or marketing-CTA context (DESIGN.md §Brand accent restricts these).
+- An inline `style={{ color: '#hex' }}` or raw hex/rgb in a `className` (DESIGN.md §Don't).
+- A modified file under `components/ui/` (shadcn primitives are read-only per DESIGN.md and Constitution §XII; wrap, don't edit).
+- A new typography size hardcoded as `text-[2.125rem]` (DESIGN.md §Typography requires reusing `Body`, `Body SM`, or `Caption`).
+- A new color, typography, radius, or spacing value used in code without the corresponding token added to DESIGN.md.
+- A box-shadow on a permanent surface (DESIGN.md §Elevation: borders, not shadows).
 
 When a trigger does match, findings emit with the literal `architecture-compliance` in the `Skill:` field, plus a `Doc:` field naming the architecture doc, plus a `Rule:` paraphrasing the specific rule violated. These are the highest-priority findings — they appear FIRST in the scorecard and Things-to-fix sections.
 
