@@ -25,7 +25,6 @@ throw new Error("Not authorized");
 throw new Error("Document not found");
 throw new Error("AI settings not found");
 throw new Error(`No API key configured for ${targetProvider}`);
-throw new Error("Invalid Relevance AI key format (expected region:project_id:api_key)");
 throw new Error(`Connection failed: ${msg}`);
 throw new Error("ENCRYPTION_KEY environment variable is not set");
 ```

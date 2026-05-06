@@ -49,13 +49,7 @@ export function CoworkerFloatingChat() {
 
     // Agent Selection State
     const [activeAgent, setActiveAgent] = useState<any>(null);
-    const activeAgentRef = useRef<any>(null);
     const [isAgentCommandOpen, setIsAgentCommandOpen] = useState(false);
-
-    // Keep ref in sync with state
-    useEffect(() => {
-        activeAgentRef.current = activeAgent;
-    }, [activeAgent]);
 
     // The floating chat represents the general squad unless an agent is specifically addressed in input
     const coworkerName = "AI Squad";
@@ -112,15 +106,11 @@ export function CoworkerFloatingChat() {
     } = useChat({
         transport: new DefaultChatTransport({
             api: "/api/ai/coworker",
-            body: () => {
-                const agent = activeAgentRef.current;
-                return {
-                    agentId: agent?._id,
-                    agentSource: agent?.relevanceId ? "relevance" : "noted",
-                    agentDisplayName: agent?.name || undefined,
-                };
-            },
         }),
+        // @ts-ignore
+        body: {
+            agentId: activeAgent?._id
+        },
         onFinish: async ({ message }: any) => {
             // Save assistant message to Convex on finish
             const parts = message.parts || [];
@@ -433,7 +423,7 @@ export function CoworkerFloatingChat() {
                         <h2 className="text-xl font-semibold tracking-tight text-center">How can I help you today?</h2>
                     </div>
                 ) : (
-                    <CoworkerChat messages={messages as any} isStreaming={isLoading} agentName={activeAgent?.name} />
+                    <CoworkerChat messages={messages as any} isStreaming={isLoading} />
                 )}
             </div>
 
@@ -486,26 +476,6 @@ export function CoworkerFloatingChat() {
                         onClose={() => setIsAgentCommandOpen(false)}
                         onSelect={onSelectAgent}
                     />
-
-                    {/* Agent Badge - shown above textarea when an agent is active */}
-                    {activeAgent && (
-                        <div className="flex items-center gap-1.5 px-4 pt-3 pb-1">
-                            <div className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-semibold border border-primary/20">
-                                <span className="text-sm">{activeAgent.icon || "🤖"}</span>
-                                <span className="max-w-[200px] truncate">{activeAgent.name}</span>
-                                <button
-                                    type="button"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setActiveAgent(null);
-                                    }}
-                                    className="ml-1 hover:text-primary/70"
-                                >
-                                    <X className="h-3 w-3" />
-                                </button>
-                            </div>
-                        </div>
-                    )}
 
                     <TextareaAutosize
                         minRows={1}
@@ -562,6 +532,23 @@ export function CoworkerFloatingChat() {
                                 <span>{contextDocs.length > 0 ? `${contextDocs.length} selected` : "Context"}</span>
                             </div>
 
+                            {/* Agent Indicator Pill */}
+                            {activeAgent && (
+                                <div className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-semibold animate-in fade-in zoom-in border border-primary/20">
+                                    <span className="text-sm">{activeAgent.icon || "🤖"}</span>
+                                    <span>{activeAgent.name}</span>
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveAgent(null);
+                                        }}
+                                        className="ml-1 hover:text-primary/70"
+                                    >
+                                        <X className="h-3 w-3" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         <Button

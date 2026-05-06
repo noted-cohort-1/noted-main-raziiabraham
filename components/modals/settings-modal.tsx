@@ -29,7 +29,7 @@ import {
 export const SettingsModal = () => {
   const settings = useSettings();
   const aiSettings = useAiSettings();
-  const [activeTab, setActiveTab] = useState<"appearance" | "ai" | "tools">("appearance");
+  const [activeTab, setActiveTab] = useState<"appearance" | "ai">("appearance");
   const { isAuthenticated } = useConvexAuth();
 
   const savedSettings = useQuery(
@@ -38,20 +38,8 @@ export const SettingsModal = () => {
   );
   const testConnection = useAction(api.aiSettingsActions.testConnection);
   const saveSettings = useAction(api.aiSettingsActions.saveSettings);
-  const saveRelevanceKey = useAction((api as any).aiSettingsActions.saveRelevanceKey);
-  const testRelevanceConnectionFn = useAction((api as any).aiSettingsActions.testRelevanceConnection);
   const deleteSettings = useMutation(api.aiSettings.deleteSettings);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [relevanceApiKey, setRelevanceApiKey] = useState("");
-  const [relevanceRegion, setRelevanceRegion] = useState("");
-  const [relevanceProject, setRelevanceProject] = useState("");
-  const [isSavingRelevance, setIsSavingRelevance] = useState(false);
-  const [isTestingRelevance, setIsTestingRelevance] = useState(false);
-
-  // Combined key derived from three fields
-  const relevanceCombinedKey = relevanceRegion.trim() && relevanceProject.trim() && relevanceApiKey.trim()
-    ? `${relevanceRegion.trim()}:${relevanceProject.trim()}:${relevanceApiKey.trim()}`
-    : "";
 
   // Get models for currently selected provider
   const providerModels = getModelsForProvider(aiSettings.selectedProvider);
@@ -65,7 +53,6 @@ export const SettingsModal = () => {
       aiSettings.setHasKey("openai", savedSettings.hasOpenAIKey);
       aiSettings.setHasKey("anthropic", savedSettings.hasAnthropicKey);
       aiSettings.setHasKey("google", savedSettings.hasGoogleKey);
-      // hasRelevanceKey is read directly from savedSettings (not tracked in AIProvider store)
 
       // On first load, set selected provider to active one
       if (!aiSettings.apiKey && !aiSettings.selectedModel) {
@@ -213,15 +200,6 @@ export const SettingsModal = () => {
               }`}
           >
             AI Settings
-          </button>
-          <button
-            onClick={() => setActiveTab("tools")}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "tools"
-              ? "border-b-2 border-primary text-primary"
-              : "text-muted-foreground hover:text-foreground"
-              }`}
-          >
-            Tools
           </button>
         </div>
 
@@ -435,129 +413,6 @@ export const SettingsModal = () => {
                     )}
                   </Button>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "tools" && (
-            <div className="space-y-4">
-              {/* Relevance AI Header */}
-              <div className="flex flex-col gap-y-1">
-                <div className="flex items-center gap-2">
-                  <Label>Relevance AI</Label>
-                  {(savedSettings as any)?.hasRelevanceKey && (
-                    <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <CheckCircle2 className="h-3 w-3" /> Connected
-                    </span>
-                  )}
-                </div>
-                <span className="text-[0.8rem] text-muted-foreground">
-                  Connect your Relevance AI account to use your agents and tools in the AI Squad.
-                </span>
-              </div>
-
-              {/* API Key */}
-              <div className="flex flex-col gap-y-2">
-                <Label htmlFor="relevance-api-key">API Key</Label>
-                <Input
-                  id="relevance-api-key"
-                  type="password"
-                  placeholder={(savedSettings as any)?.hasRelevanceKey ? "Saved (enter new key to update)" : "sk-..."}
-                  value={relevanceApiKey}
-                  onChange={(e) => setRelevanceApiKey(e.target.value)}
-                  disabled={isSavingRelevance || isTestingRelevance}
-                />
-              </div>
-
-              {/* Region */}
-              <div className="flex flex-col gap-y-2">
-                <Label htmlFor="relevance-region">Region</Label>
-                <Input
-                  id="relevance-region"
-                  type="text"
-                  placeholder="e.g. abc123"
-                  value={relevanceRegion}
-                  onChange={(e) => setRelevanceRegion(e.target.value)}
-                  disabled={isSavingRelevance || isTestingRelevance}
-                />
-              </div>
-
-              {/* Project */}
-              <div className="flex flex-col gap-y-2">
-                <Label htmlFor="relevance-project">Project</Label>
-                <Input
-                  id="relevance-project"
-                  type="text"
-                  placeholder="e.g. xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                  value={relevanceProject}
-                  onChange={(e) => setRelevanceProject(e.target.value)}
-                  disabled={isSavingRelevance || isTestingRelevance}
-                />
-                <span className="text-[0.8rem] text-muted-foreground">
-                  Find these in your Relevance AI account settings. Keys are encrypted before storage.
-                </span>
-              </div>
-
-              {/* Test Connection */}
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!relevanceCombinedKey || isTestingRelevance || isSavingRelevance}
-                  onClick={async () => {
-                    setIsTestingRelevance(true);
-                    try {
-                      await testRelevanceConnectionFn({
-                        region: relevanceRegion.trim(),
-                        projectId: relevanceProject.trim(),
-                        apiKey: relevanceApiKey.trim(),
-                      });
-                      toast.success("Relevance AI connection successful!");
-                    } catch (e) {
-                      toast.error(e instanceof Error ? e.message : "Connection failed");
-                    } finally {
-                      setIsTestingRelevance(false);
-                    }
-                  }}
-                >
-                  {isTestingRelevance ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Testing...</> : "Test Connection"}
-                </Button>
-              </div>
-
-              {/* Actions */}
-              <div className="flex justify-end gap-2 pt-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setRelevanceApiKey("");
-                    setRelevanceRegion("");
-                    setRelevanceProject("");
-                    settings.onClose();
-                  }}
-                  disabled={isSavingRelevance}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  disabled={!relevanceCombinedKey || isSavingRelevance}
-                  onClick={async () => {
-                    setIsSavingRelevance(true);
-                    try {
-                      await saveRelevanceKey({ apiKey: relevanceCombinedKey });
-                      toast.success("Relevance AI key saved!");
-                      setRelevanceApiKey("");
-                      setRelevanceRegion("");
-                      setRelevanceProject("");
-                      settings.onClose();
-                    } catch (e) {
-                      toast.error(e instanceof Error ? e.message : "Failed to save key");
-                    } finally {
-                      setIsSavingRelevance(false);
-                    }
-                  }}
-                >
-                  {isSavingRelevance ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : "Save"}
-                </Button>
               </div>
             </div>
           )}
