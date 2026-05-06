@@ -13,7 +13,9 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "lint:check": "eslint .",
-    "type:check": "tsc --noEmit"
+    "type:check": "tsc --noEmit",
+    "sync-ai": "node scripts/sync-ai.mjs",
+    "postinstall": "node scripts/sync-ai.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.23",

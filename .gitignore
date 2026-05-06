@@ -34,4 +34,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-.cursor/
+# .cursor/ — ignore everything except sync-ai-managed symlinks
+.cursor/*
+!.cursor/skills
+!.cursor/commands
+
+# sync-ai keeps these symlinks consistent across runtimes; the symlinks
+# themselves ARE tracked so fresh clones / GitHub web work without an install.
+# Source of truth lives in .ai/. Run `npm run sync-ai` to repair symlinks if
+# they break (e.g., on Windows without Developer Mode).
