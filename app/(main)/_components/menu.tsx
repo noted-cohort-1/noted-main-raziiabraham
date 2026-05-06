@@ -6,6 +6,7 @@ import { useUser } from "@clerk/clerk-react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
+import { trackDocumentArchived } from "@/lib/analytics";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +37,7 @@ export const Menu = ({ documentId }: MenuProps) => {
       error: "Failed to archive note.",
     });
 
+    trackDocumentArchived({ document_id: documentId });
     router.push("/documents");
   };
 

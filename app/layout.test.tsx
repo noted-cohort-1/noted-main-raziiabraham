@@ -19,6 +19,10 @@ jest.mock('@/components/providers/modal-provider', () => ({
     ModalProvider: () => <div data-testid="modal-provider" />,
 }));
 
+jest.mock('@/components/providers/amplitude-provider', () => ({
+    AmplitudeProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="amplitude-provider">{children}</div>,
+}));
+
 jest.mock('sonner', () => ({
     Toaster: () => <div data-testid="toaster" />,
 }));
@@ -32,6 +36,7 @@ describe('RootLayout', () => {
         );
 
         expect(getByTestId('convex-provider')).toBeInTheDocument();
+        expect(getByTestId('amplitude-provider')).toBeInTheDocument();
         expect(getByTestId('edgestore-provider')).toBeInTheDocument();
         expect(getByTestId('theme-provider')).toBeInTheDocument();
         expect(getByTestId('toaster')).toBeInTheDocument();
