@@ -8,6 +8,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { trackDocumentCreated } from "@/lib/analytics";
 
 const DocumentsPage = () => {
   const { user } = useUser();
@@ -15,9 +16,10 @@ const DocumentsPage = () => {
   const create = useMutation(api.documents.create);
 
   const onCreate = () => {
-    const promise = create({ title: "Untitled" }).then((documentId) =>
-      router.push(`/documents/${documentId}`),
-    );
+    const promise = create({ title: "Untitled" }).then((documentId) => {
+      trackDocumentCreated({ document_id: documentId });
+      router.push(`/documents/${documentId}`);
+    });
 
     toast.promise(promise, {
       loading: "Creating a new note....",
