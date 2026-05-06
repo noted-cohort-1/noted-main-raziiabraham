@@ -1,99 +1,33 @@
 <!--
-  Sync Impact Report
-  ===================
-  Version: 0.0.0 → 0.1.0 (DRAFT — scaffold only, content to be filled
-  during Vibe PM course Module 4 cohort exercise)
+  This file is read by /speckit.plan's Constitution Check.
 
-  This file is the formal constitution location read by /speckit.plan's
-  Constitution Check. The full content lives at:
-    team-os/engineering/constitution.md  (TBD by Module 4 cohort exercise)
-
-  Once that file is drafted, this file should either include it via
-  reference or be replaced by it via symlink.
-
-  Templates Status:
-  ✅ plan-template.md — Constitution Check section references this file
-  ✅ spec-template.md — no constitution dependency
-  ✅ tasks-template.md — no constitution dependency
+  The ratified noted constitution lives at team-os/engineering/constitution.md.
+  This file mirrors a condensed version below for the Constitution Check, but
+  the full text — including governance, skill cross-references, and rationale —
+  is at team-os/engineering/constitution.md. When the cohort version supersedes
+  the current one in Module 4 of the Vibe PM course, both files update together.
 -->
 
-# Noted Engineering Constitution
+# Noted Engineering Constitution (condensed for Constitution Check)
 
-A constitution is the small, stable list of non-negotiables that govern how this codebase grows. The full constitution will be drafted as a cohort exercise in Module 4 of the Vibe PM course; this file is the placeholder it will replace.
+**Full version**: [`team-os/engineering/constitution.md`](../../team-os/engineering/constitution.md)
 
-## Principles (placeholder — to be ratified)
+The principles below are NON-NEGOTIABLE. `/speckit.plan`'s Constitution Check fails any plan that would violate them without a documented Complexity-Tracking justification.
 
-The principles below are the seed list — drawn from the existing skills under `.ai/skills/` and from `.ai/INSTRUCTIONS.md`. The cohort will refine, drop, or add to them.
+1. **Convex separation.** Queries are reactive reads, mutations are transactional writes, actions are non-reactive (HTTP/AI/EdgeStore). Never mix.
+2. **Auth → existence → ownership → validation.** Every Convex handler that touches user data runs the four checks in this order, top of the function, before any business logic.
+3. **Errors are thrown, not returned.** Use `throw new Error(message)` with the conventional vocabulary. No `{ success: false, error }` returns.
+4. **No `any`.** Use `unknown` + type guards, Zod, generics, or Convex's `Doc<>`/`Id<>` branded types.
+5. **No derived state in `useEffect`.** Compute during render. Never sync `useQuery` results into local state.
+6. **Interaction logic in handlers, not effects.** Side effects from user actions go in `onClick`/`onSubmit`/`onChange`/mutation callbacks.
+7. **Convex `useQuery` is the only client reactive read.** No `fetch` in `useEffect` for Convex data. No TanStack Query.
+8. **Linear ticket linkage.** Branches: `feature/not-XXX-slug`. PRs target `staging`. PR descriptions end with `Closes NOT-XXX`.
+9. **Quality gates pass before merge.** `npm run format && npm run lint:fix && npm run type:check && npm run test`. Coverage ≥ 50% on touched files.
+10. **File naming.** kebab-case files, PascalCase component exports, camelCase Convex modules.
+11. **Server Components by default.** Add `'use client'` only when needed.
+12. **shadcn primitives are read-only.** Do not modify `components/ui/`. Wrap in `components/<feature>/`.
+13. **AI feature surface conventions.** AI prompts in `lib/agent/prompts/`, tools in `lib/agent/tools/`, persistence in `convex/`. Conversation contents never logged, tracked, or pasted.
+14. **team-os reflex.** Feature dossier + `ship-log.md` entry + `feature-index.yaml` updated before a feature is "done."
+15. **Analytics: track decisions, not clicks.** See the `event-tracking` skill.
 
-### I. Convex separation (PROPOSED)
-
-- Queries are reactive reads. Mutations are transactional writes. Actions are non-reactive (used for HTTP calls, AI provider calls, EdgeStore operations).
-- Each handler must do, in order: **auth check** → **existence check** → **ownership check** → **validation** → **business logic**.
-- Auth check uses `ctx.auth.getUserIdentity()`; ownership check verifies `existing.userId === identity.subject`.
-- See `.ai/skills/error-handling/SKILL.md`.
-
-### II. Strict TypeScript (PROPOSED)
-
-- No `any`. Use `unknown` + type guards, Zod parse, generics, or Convex's `Doc<>`/`Id<>` branded types.
-- See `.ai/skills/typescript-patterns/SKILL.md`.
-
-### III. No derived state in `useEffect` (PROPOSED)
-
-- If a value can be computed from props or state, compute it during render. Don't sync via `useEffect` + `setState`.
-- See `.ai/skills/derived-state/SKILL.md`.
-
-### IV. Interaction logic in handlers, not effects (PROPOSED)
-
-- Side effects caused by user actions belong in `onClick`/`onSubmit`/`onChange`. Not in `useEffect` watching a flag.
-- See `.ai/skills/effect-to-event/SKILL.md`.
-
-### V. Convex `useQuery` is the only reactive read (PROPOSED)
-
-- Don't `fetch` inside `useEffect`. Don't sync `useQuery` results into local state. Trust the subscription.
-- See `.ai/skills/derived-state/SKILL.md`.
-
-### VI. File naming (PROPOSED)
-
-- Files and directories: kebab-case (`coworker-message.tsx`).
-- React component exports: PascalCase.
-- Convex modules: camelCase (`aiSettings.ts`).
-- Tests colocated as `*.test.ts(x)`.
-
-### VII. Quality gates before merge (PROPOSED)
-
-- `npm run format && npm run lint:fix && npm run type:check && npm run test` must pass.
-- ≥50% line coverage on every file touched in the diff.
-- See `.ai/skills/code-quality-checklist/SKILL.md`.
-
-### VIII. Linear linkage (PROPOSED)
-
-- Branches: `feature/NOT-XXXX-short-slug` (or `bugfix/`, `hotfix/`, `explore/EXP-N-...`).
-- Every PR description ends with `Closes NOT-XXXX` so Linear auto-transitions on merge.
-
-### IX. team-os reflex (PROPOSED)
-
-- A feature is not "done" until its dossier (`team-os/features/<slug>/`) is updated and its ship-log entry appended via `/ship-log`.
-- See `.ai/INSTRUCTIONS.md` Rules of the Road.
-
-### X. Server Components by default (PROPOSED)
-
-- Add `'use client'` only when a file uses hooks or browser APIs. Most route components should be Server Components.
-
-### XI. shadcn primitives are read-only (PROPOSED)
-
-- Don't modify files under `components/ui/`. Wrap with project-specific variants in `components/<feature>/`.
-
-### XII. AI feature surface (PROPOSED)
-
-- AI logic lives in `lib/agent/` (prompts, tools) and `convex/aiSettings*.ts` / `convex/squadAgents.ts` / `convex/coworkerMessages.ts`.
-- New AI tools follow the pattern in `lib/agent/tools/` — schema (Zod), handler, registration.
-
-## Governance
-
-This constitution is amended by PR. The current owner of this file is `@avidx-app`. Material changes (adding/removing a principle) require sign-off from the product and engineering leads.
-
-When `/speckit.plan` runs its Constitution Check and a feature's plan would violate one of the principles above, the plan must include a "Complexity Tracking" entry justifying the deviation, or the plan must be revised. There is no "we'll fix it later."
-
----
-
-**Status**: SCAFFOLD. The full ratified constitution is drafted as a cohort exercise in Module 4 of the Vibe PM course and lives at `team-os/engineering/constitution.md`. This file references that one once it exists.
+For governance, the full rationale, and skill cross-references, read [`team-os/engineering/constitution.md`](../../team-os/engineering/constitution.md).
