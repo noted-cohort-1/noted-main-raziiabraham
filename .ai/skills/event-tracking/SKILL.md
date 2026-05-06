@@ -97,7 +97,7 @@ export interface AmplitudeEventProperties {
     document_id?: string;
     /** Plain-text document title at time of event */
     document_title?: string;
-    /** AI provider in use (openai | anthropic | google | relevance) */
+    /** AI provider in use (openai | anthropic | google) */
     ai_provider?: string;
     /** Squad agent ID, when relevant */
     squad_agent_id?: string;

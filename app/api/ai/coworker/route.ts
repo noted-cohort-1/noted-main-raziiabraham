@@ -3,17 +3,14 @@ import { api } from "@/convex/_generated/api";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { streamText, LanguageModel, stepCountIs, tool, createUIMessageStream, createUIMessageStreamResponse } from "ai";
-import { z } from "zod";
+import { streamText, LanguageModel, stepCountIs } from "ai";
 import { NextRequest } from "next/server";
 import { createWorkspaceTools } from "@/lib/agent/tools/workspace";
 import { buildSystemPrompt } from "@/lib/agent/prompts/squad-prompts";
 import { Id } from "@/convex/_generated/dataModel";
 
-export const runtime = "edge";
-
-// Allow streaming responses up to 300 seconds (Relevance agents can run for several minutes)
-export const maxDuration = 300;
+// Allow streaming responses up to 60 seconds (agent may take longer)
+export const maxDuration = 60;
 
 // Message type for API
 interface ChatMessage {
@@ -139,10 +136,7 @@ export async function POST(req: NextRequest) {
 
         // Parse request
         const requestBody = await req.json();
-        const { messages, agentId, agentSource, agentDisplayName } = requestBody;
-
-        console.log("[coworker/route] Request body keys:", Object.keys(requestBody));
-        console.log("[coworker/route] agentId:", agentId, "| agentSource:", agentSource, "| agentDisplayName:", agentDisplayName);
+        const { messages, agentId } = requestBody;
 
         if (!Array.isArray(messages)) {
             return Response.json({ error: "Messages array is required" }, { status: 400 });
@@ -155,13 +149,9 @@ export async function POST(req: NextRequest) {
         // --- RESOLVE AGENT & SYSTEM PROMPT ---
         let instructionContent = "";
         let agentName = "AI Squad";
-        const isRelevanceAgent = agentSource === "relevance";
 
-        if (isRelevanceAgent && agentId) {
-            // Relevance AI agent — skip Convex query, go straight to execution block
-            agentName = agentDisplayName || "Relevance Agent";
-        } else if (agentId) {
-            // Load specific Noted squad agent
+        if (agentId) {
+            // Load specific squad agent
             try {
                 const agent = await convex.query((api as any).squadAgents.getById, {
                     id: agentId as Id<"squadAgents">
@@ -179,7 +169,7 @@ export async function POST(req: NextRequest) {
                     }
                 }
             } catch (e) {
-                console.error("Failed to load squad agent:", e);
+                console.warn(`Failed to load squad agent ${agentId}:`, e);
             }
         } else {
             // No specific agent selected - use the general AI Squad identity
@@ -235,215 +225,14 @@ export async function POST(req: NextRequest) {
             };
         });
 
-        // --- ENFORCE RELEVANCE AGENT VIA TOOL CALLING ---
-        let dynamicTools: any = { ...tools };
-        let finalSystemPrompt = systemPrompt;
-
-        // Shared writer reference — will be set by createUIMessageStream
-        // and used by the tool's execute function to inject live progress chunks
-        let sharedWriter: any = null;
-
-        if (isRelevanceAgent && agentId) {
-            finalSystemPrompt = `You are a coordinator for the "${agentName}" agent. 
-The user wants to interact with this specific agent. 
-You MUST immediately use the \`invoke_relevance_agent\` tool to forward the user's exact request to the agent.
-You are the interface. The user is talking to you, but you rely ENTIRELY on the \`invoke_relevance_agent\` tool to get the actual work done or questions answered by the specialized agent.
-The tool will return both a "Process Log" representing what the agent did, and a "Final Result". 
-
-CRITICAL INSTRUCTIONS:
-1. Always call invoke_relevance_agent for the user's latest request. Wait for the result.
-2. When the result returns, provide a brief 2-3 sentence summary of what the agent found or did.
-3. If the user asked you to write a report, document, or save the output, use the workspace tools to create the document. In chat, only confirm that the document was created and give a short summary — do NOT paste the full report content into the chat message.
-4. Keep your chat responses concise and actionable. The user can read the full details in the document you created.`;
-
-            const lastMsg = messages[messages.length - 1];
-            const userMsg = lastMsg?.parts
-                ?.filter((p: any) => p.type === 'text')
-                .map((p: any) => p.text)
-                .join('') || lastMsg?.content || "";
-
-            // Extract the previous taskId from the message history if it exists
-            let previousTaskId = undefined;
-            for (let i = messages.length - 1; i >= 0; i--) {
-                const msg = messages[i];
-                if (msg.role === 'assistant') {
-                    const contentStr = msg.parts ? msg.parts.map((p: any) => p.text).join('') : msg.content;
-                    const match = contentStr?.match(/<!-- _relevance_task_id: (.*?) -->/);
-                    if (match) {
-                        previousTaskId = match[1];
-                        break;
-                    }
-                }
-            }
-
-            console.log("[relevance-tool] found previousTaskId:", previousTaskId);
-
-            dynamicTools = {
-                ...tools,
-                invoke_relevance_agent: tool({
-                    description: `REQUIRED: Call the ${agentName} agent to get specific information or perform tasks on behalf of the user.`,
-                    inputSchema: z.object({
-                        request: z.string().describe("The user's exact original request, question, or follow-up response.")
-                    }),
-                    execute: async ({ request }) => {
-                        console.log(`[relevance-tool] Invoking ${agentName} with:`, request);
-
-                        try {
-                            const trigger = await convex.action(
-                                (api as any).aiSettingsActions.triggerRelevanceAgent,
-                                { agentId, message: request || userMsg, taskId: previousTaskId }
-                            );
-
-                            console.log("[relevance-tool] trigger result:", JSON.stringify(trigger));
-
-                            const taskId = trigger.taskId;
-                            let status = trigger.status;
-                            let output = "";
-                            let stepsHistory: any[] = [];
-                            const seenStepIds = new Set<string>();
-                            // Track which steps are currently "running" so we can mark them finished
-                            const activeStepIds = new Set<string>();
-                            let attempts = 0;
-                            const maxAttempts = 90; // ~3 minutes (90 attempts × 2s)
-
-                            if (!taskId) {
-                                throw new Error("Trigger returned no taskId. Full response: " + JSON.stringify(trigger));
-                            }
-
-                            while (status !== "completed" && attempts < maxAttempts) {
-                                attempts++;
-                                await new Promise(r => setTimeout(r, 2000));
-
-                                const freshToken = await getToken({ template: "convex" });
-                                if (freshToken) {
-                                    convex.setAuth(freshToken);
-                                }
-
-                                const poll = await convex.action(
-                                    (api as any).aiSettingsActions.pollRelevanceAgentResult,
-                                    { agentId, taskId }
-                                );
-
-                                console.log(`[relevance-tool] poll #${attempts}:`, JSON.stringify(poll));
-
-                                // Stream each step as a tool-call-like chunk in the UI
-                                if (poll.steps && sharedWriter) {
-                                    stepsHistory = poll.steps;
-                                    for (const step of poll.steps) {
-                                        const stepToolCallId = `relevance-step-${step.id}`;
-
-                                        if (!seenStepIds.has(step.id)) {
-                                            // New step — emit tool-input-start (shows spinner + name)
-                                            seenStepIds.add(step.id);
-                                            activeStepIds.add(step.id);
-                                            try {
-                                                sharedWriter.write({
-                                                    type: 'tool-input-start',
-                                                    toolCallId: stepToolCallId,
-                                                    toolName: step.title,
-                                                });
-                                            } catch (e) { /* ignore */ }
-                                        }
-
-                                        if (step.state === 'finished' && activeStepIds.has(step.id)) {
-                                            // Step finished — emit tool-output-available (removes spinner)
-                                            activeStepIds.delete(step.id);
-                                            try {
-                                                sharedWriter.write({
-                                                    type: 'tool-output-available',
-                                                    toolCallId: stepToolCallId,
-                                                    output: 'completed',
-                                                });
-                                            } catch (e) { /* ignore */ }
-                                        }
-                                    }
-                                }
-
-                                status = poll.status;
-                                if (status === "completed") {
-                                    output = poll.output || "Agent completed but returned no message.";
-                                    break;
-                                }
-
-                                if (status === "error") {
-                                    throw new Error(poll.output || "Relevance agent encountered an error.");
-                                }
-                            }
-
-                            // Mark any remaining active steps as finished
-                            if (sharedWriter) {
-                                for (const stepId of activeStepIds) {
-                                    try {
-                                        sharedWriter.write({
-                                            type: 'tool-output-available',
-                                            toolCallId: `relevance-step-${stepId}`,
-                                            output: 'completed',
-                                        });
-                                    } catch (e) { /* ignore */ }
-                                }
-                            }
-
-                            if (status !== "completed") {
-                                throw new Error("Agent timed out. Check your Relevance AI dashboard for results.");
-                            }
-
-                            // Format the output to include the steps taken
-                            let formattedOutput = `**Process Log:**\n`;
-                            stepsHistory.forEach(step => {
-                                formattedOutput += `- [${step.state.toUpperCase()}] ${step.title}\n`;
-                            });
-
-                            formattedOutput += `\n**Final Result:**\n${output}`;
-                            formattedOutput += `\n\n<!-- _relevance_task_id: ${taskId} -->`;
-
-                            return formattedOutput;
-                        } catch (error: any) {
-                            console.error("[relevance-tool] Error:", error.message || error);
-                            return `Error invoking agent: ${error.message || String(error)}`;
-                        }
-                    }
-                })
-            };
-        }
-
         // --- EXECUTE AGENT LOOP ---
-        if (isRelevanceAgent && agentId) {
-            // Use createUIMessageStream to allow live progress injection from the tool
-            const stream = createUIMessageStream({
-                execute: async ({ writer }) => {
-                    // Share the writer with the tool's execute function via closure
-                    sharedWriter = writer;
-
-                    const result = streamText({
-                        model,
-                        system: finalSystemPrompt,
-                        messages: formattedMessages,
-                        tools: dynamicTools as any,
-                        stopWhen: stepCountIs(10),
-                        ...(providerOptions && { providerOptions }),
-                    });
-
-                    // Merge the AI model's stream — keep model reasoning visible
-                    writer.merge(result.toUIMessageStream({
-                        sendReasoning: true,
-                    }));
-                },
-                onError: (error) => {
-                    console.error("[createUIMessageStream] Error:", error);
-                    return String(error);
-                },
-            });
-
-            return createUIMessageStreamResponse({ stream });
-        }
-
-        // Non-Relevance agent: standard streamText flow
+        // Using streamText with stopWhen for agentic behavior (ToolLoopAgent pattern)
         const result = streamText({
             model,
-            system: finalSystemPrompt,
+            system: systemPrompt,
             messages: formattedMessages,
-            tools: dynamicTools as any,
-            stopWhen: stepCountIs(10),
+            tools: tools as any,
+            stopWhen: stepCountIs(5),
             ...(providerOptions && { providerOptions }),
         });
 
