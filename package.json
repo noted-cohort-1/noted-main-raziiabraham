@@ -13,7 +13,9 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "lint:check": "eslint .",
-    "type:check": "tsc --noEmit"
+    "type:check": "tsc --noEmit",
+    "sync-ai": "node scripts/sync-ai.mjs",
+    "postinstall": "node scripts/sync-ai.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.23",
@@ -42,6 +44,7 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
+    "@relevanceai/sdk": "^3.0.2",
     "@tiptap/core": "^3.17.0",
     "@tiptap/extensions": "^3.17.0",
     "@types/node": "^20",
