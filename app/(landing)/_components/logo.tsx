@@ -6,12 +6,17 @@ const font = DM_Serif_Display({
   weight: ["400"],
 });
 
-export const Logo = () => {
+type LogoProps = {
+  className?: string;
+};
+
+export const Logo = ({ className }: LogoProps) => {
   return (
     <span
       className={cn(
         "text-2xl font-semibold tracking-tight text-foreground",
         font.className,
+        className,
       )}
     >
       Noted
