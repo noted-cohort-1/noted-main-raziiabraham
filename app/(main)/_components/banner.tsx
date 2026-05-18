@@ -7,6 +7,10 @@ import { Id } from "@/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import {
+  trackDocumentPermanentlyDeleted,
+  trackDocumentRestored,
+} from "@/lib/analytics";
 
 interface BannerProps {
   documentId: Id<"documents">;
@@ -18,7 +22,9 @@ export const Banner = ({ documentId }: BannerProps) => {
   const restore = useMutation(api.documents.restore);
 
   const onRemove = () => {
-    const promise = remove({ id: documentId });
+    const promise = remove({ id: documentId }).then(() => {
+      trackDocumentPermanentlyDeleted({ document_id: documentId });
+    });
 
     toast.promise(promise, {
       loading: "Deleting note...",
@@ -30,7 +36,9 @@ export const Banner = ({ documentId }: BannerProps) => {
   };
 
   const onRestore = () => {
-    const promise = restore({ id: documentId });
+    const promise = restore({ id: documentId }).then(() => {
+      trackDocumentRestored({ document_id: documentId });
+    });
 
     toast.promise(promise, {
       loading: "Restoring note...",

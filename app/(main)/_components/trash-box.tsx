@@ -10,6 +10,10 @@ import { Search, Trash, Undo } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import {
+  trackDocumentPermanentlyDeleted,
+  trackDocumentRestored,
+} from "@/lib/analytics";
 
 export const TrashBox = () => {
   const router = useRouter();
@@ -33,7 +37,9 @@ export const TrashBox = () => {
     documentId: Id<"documents">,
   ) => {
     event.stopPropagation();
-    const promise = restore({ id: documentId });
+    const promise = restore({ id: documentId }).then(() => {
+      trackDocumentRestored({ document_id: documentId });
+    });
 
     toast.promise(promise, {
       loading: "Restoring note..",
@@ -43,7 +49,9 @@ export const TrashBox = () => {
   };
 
   const onRemove = (documentId: Id<"documents">) => {
-    const promise = remove({ id: documentId });
+    const promise = remove({ id: documentId }).then(() => {
+      trackDocumentPermanentlyDeleted({ document_id: documentId });
+    });
 
     toast.promise(promise, {
       loading: "Deleting note..",
