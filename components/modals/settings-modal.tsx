@@ -25,6 +25,33 @@ import {
   getModelsForProvider,
   getDefaultModel,
 } from "@/lib/ai-models";
+import {
+  trackAIProviderTested,
+  trackAISettingsUpdated,
+} from "@/lib/analytics";
+
+const getAIErrorCategory = (error?: string) => {
+  if (!error) return "unknown";
+  const normalized = error.toLowerCase();
+
+  if (normalized.includes("auth") || normalized.includes("key") || normalized.includes("401")) {
+    return "authentication";
+  }
+
+  if (normalized.includes("rate") || normalized.includes("quota") || normalized.includes("429")) {
+    return "rate_limit";
+  }
+
+  if (normalized.includes("network") || normalized.includes("fetch") || normalized.includes("timeout")) {
+    return "network";
+  }
+
+  if (normalized.includes("provider") || normalized.includes("model")) {
+    return "configuration";
+  }
+
+  return "provider_error";
+};
 
 export const SettingsModal = () => {
   const settings = useSettings();
@@ -106,10 +133,26 @@ export const SettingsModal = () => {
       } else {
         toast.error(testResult.error || "Connection failed");
       }
+
+      trackAIProviderTested({
+        ai_provider: aiSettings.selectedProvider,
+        success: testResult.success,
+        error_category: testResult.success
+          ? undefined
+          : getAIErrorCategory(testResult.error),
+      });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Connection failed",
       );
+
+      trackAIProviderTested({
+        ai_provider: aiSettings.selectedProvider,
+        success: false,
+        error_category: getAIErrorCategory(
+          error instanceof Error ? error.message : undefined,
+        ),
+      });
     } finally {
       aiSettings.setIsTesting(false);
     }
@@ -126,13 +169,23 @@ export const SettingsModal = () => {
     }
 
     aiSettings.setIsLoading(true);
+    const selectedModel =
+      aiSettings.selectedModel || getDefaultModel(aiSettings.selectedProvider);
+    const modelChanged = savedSettings?.model !== selectedModel;
+
     try {
       await saveSettings({
         provider: aiSettings.selectedProvider,
         // Only send API key if user typed one. If empty but hasSavedKey, send undefined to keep existing.
         apiKey: aiSettings.apiKey.trim() || undefined,
-        model: aiSettings.selectedModel || getDefaultModel(aiSettings.selectedProvider),
+        model: selectedModel,
         makeActive: true, // When saving from UI, we make it the active provider
+      });
+
+      trackAISettingsUpdated({
+        ai_provider: aiSettings.selectedProvider,
+        ai_model: selectedModel,
+        model_changed: modelChanged,
       });
 
       toast.success("Settings saved successfully!");

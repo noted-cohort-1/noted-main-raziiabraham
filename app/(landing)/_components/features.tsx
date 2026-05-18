@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { TrackedFeatureLink } from "./landing-analytics";
 
 const features = [
   {
@@ -443,13 +443,15 @@ export const Features = () => {
                   </span>
                 ))}
               </div>
-              <Link
+              <TrackedFeatureLink
                 href={feature.href}
+                featureName={feature.title}
+                destinationPath={feature.href}
                 className="inline-flex items-center gap-2 text-blue-600 transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 <span className="font-medium">Learn more</span>
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </TrackedFeatureLink>
             </div>
 
             {/* Mockup */}

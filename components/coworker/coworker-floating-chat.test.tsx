@@ -67,6 +67,9 @@ jest.mock('@/convex/_generated/api', () => ({
             getMessages: 'mock-get-messages',
             addMessage: 'mock-add-message',
             clearHistory: 'mock-clear-history'
+        },
+        aiSettings: {
+            getSettings: 'mock-get-ai-settings'
         }
     }
 }));
@@ -112,7 +115,13 @@ describe('CoworkerFloatingChat', () => {
             return jest.fn();
         });
 
-        (useQuery as jest.Mock).mockReturnValue([]); // No saved messages initially
+        (useQuery as jest.Mock).mockImplementation((apiFn) => {
+            if (apiFn === 'mock-get-messages') return [];
+            if (apiFn === 'mock-get-ai-settings') {
+                return { provider: 'openai', model: 'gpt-4o' };
+            }
+            return null;
+        });
 
         (useChat as jest.Mock).mockReturnValue({
             messages: [],
