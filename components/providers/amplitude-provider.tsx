@@ -1,8 +1,13 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
-import { identifyAmplitudeUser, initAmplitude } from "@/lib/analytics";
+import {
+  identifyAmplitudeUser,
+  initAmplitude,
+  trackUserLoggedIn,
+  trackUserLoggedOut,
+} from "@/lib/analytics";
 
 /**
  * Boots the Amplitude SDK once at app load and keeps the Amplitude user
@@ -17,6 +22,7 @@ import { identifyAmplitudeUser, initAmplitude } from "@/lib/analytics";
  */
 export const AmplitudeProvider = ({ children }: { children: ReactNode }) => {
   const { isLoaded, isSignedIn, user } = useUser();
+  const previousSignedInRef = useRef<boolean | null>(null);
 
   useEffect(() => {
     initAmplitude();
@@ -25,14 +31,27 @@ export const AmplitudeProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (!isLoaded) return;
 
-    if (isSignedIn && user) {
+    const isCurrentlySignedIn = Boolean(isSignedIn && user);
+    const wasSignedIn = previousSignedInRef.current;
+
+    if (isCurrentlySignedIn && user) {
       identifyAmplitudeUser(user.id, {
         email: user.primaryEmailAddress?.emailAddress,
         firstName: user.firstName ?? undefined,
       });
+
+      if (wasSignedIn === false) {
+        trackUserLoggedIn();
+      }
     } else {
+      if (wasSignedIn === true) {
+        trackUserLoggedOut();
+      }
+
       identifyAmplitudeUser(null);
     }
+
+    previousSignedInRef.current = isCurrentlySignedIn;
   }, [isLoaded, isSignedIn, user]);
 
   return <>{children}</>;
