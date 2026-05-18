@@ -94,6 +94,7 @@ export function initAmplitude(): void {
             elementInteractions: false,
         },
         defaultTracking: false,
+        logLevel: amplitude.Types.LogLevel.None,
     });
 
     initialized = true;
