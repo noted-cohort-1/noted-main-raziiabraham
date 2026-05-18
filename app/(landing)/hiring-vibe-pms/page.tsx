@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 };
 
 const outcomes = [
-  "A working fork of noted-main with your own PRs, reviews, and merge history",
+  "A working command of Noted's product, customers, roadmap, and team rituals",
   "A PM toolkit you authored from skills, commands, subagents, and MCP recipes",
   "A discovery sprint memo with citations, personas, JTBD, synthesis, and a PRD",
   "A shipped capstone slice with code review, instrumentation, and a retro",
@@ -43,8 +43,8 @@ const surfaces = [
     title: "The actual product",
     description: (
       <>
-        Work inside <BrandName />{"'s"} live product context and codebase: a
-        Next.js, Convex, Clerk, and AI-native workspace with real product
+        Work inside <BrandName />
+        {"'s"} live product context: an AI-native workspace with real product
         tradeoffs.
       </>
     ),
@@ -53,7 +53,7 @@ const surfaces = [
   {
     title: "The actual inbox",
     description:
-      "Start with messy inherited context: tickets, customer calls, analytics, Slack threads, GitHub PRs, and Sarah's hand-off doc.",
+      "Start with messy inherited context: tickets, customer calls, analytics, Slack threads, product decisions, and Sarah's hand-off doc.",
     icon: MessageSquareText,
   },
   {
@@ -67,9 +67,9 @@ const surfaces = [
 const weeks = [
   {
     week: "Week 0",
-    title: "Fork the repo",
+    title: "Get your access",
     detail:
-      "Install Claude Code and Codex, fork noted-main, clone it locally, and get the app running.",
+      "Install Claude Code and Codex, set up your workspace, and get familiar with how Noted works.",
   },
   {
     week: "Week 1",
@@ -79,13 +79,13 @@ const weeks = [
       </>
     ),
     detail:
-      "Meet the product, read Sarah's hand-off, and run your first agentic workflow in the repo.",
+      "Meet the product, read Sarah's hand-off, and run your first agentic workflow.",
   },
   {
     week: "Week 2",
     title: "Get oriented",
     detail:
-      "Triage backlog, customer calls, analytics, Slack threads, and repo history into a priority memo.",
+      "Triage backlog, customer calls, analytics, Slack threads, and product history into a priority memo.",
   },
   {
     week: "Week 3",
@@ -109,7 +109,7 @@ const weeks = [
     week: "Weeks 7-8",
     title: "Capstone to demo",
     detail:
-      "Pick a feature slice, open the PR, merge the work in your fork, and demo the full decision arc.",
+      "Pick a feature slice, ship the work, and demo the full decision arc.",
   },
 ];
 
@@ -120,7 +120,8 @@ const proofPoints = [
   },
   {
     label: "10 seats",
-    detail: "Pilot cohort capped tightly so review and discussion stay hands-on.",
+    detail:
+      "Pilot cohort capped tightly so review and discussion stay hands-on.",
   },
   {
     label: "7 hrs/week",
@@ -141,7 +142,7 @@ const artifacts = [
       </>
     ),
     description:
-      "A concrete trail of decisions, specs, GitHub PRs, reviews, merge commits, and shipped work.",
+      "A concrete trail of decisions, specs, prototypes, reviews, and shipped work.",
     icon: GitPullRequest,
   },
   {
@@ -171,42 +172,42 @@ const teamMembers = [
   {
     name: "Razii",
     role: "Founder, CEO, Head of Product Engineering",
-    image: "/Noted - Raz.png",
+    image: "/team/raz.webp",
     description:
       "Reads everything, replies fast in Slack, and gives you decision authority instead of asking you to wait for founder taste.",
   },
   {
     name: "Sarah",
     role: "Outgoing PM",
-    image: "/Noted - Sarah.png",
+    image: "/team/sarah.webp",
     description:
       "Held the seat for 14 months and leaves the unofficial tour: product history, roadmap politics, and the traps she would avoid next time.",
   },
   {
     name: "Priya",
     role: "Customer Success",
-    image: "/Noted - Priya.png",
+    image: "/team/priya.webp",
     description:
       "Reads every support ticket, knows users by name, and is the highest-signal source Sarah warns you not to underuse.",
   },
   {
     name: "Diego",
     role: "Engineering Lead",
-    image: "/Noted - Diego.png",
+    image: "/team/diego.webp",
     description:
       "Owns the Convex backend, AI integrations, and deploy pipeline. Direct questions beat surprises with him.",
   },
   {
     name: "Maya",
     role: "Designer",
-    image: "/Noted - Maya.png",
+    image: "/team/maya.webp",
     description:
       "Owns DESIGN.md and treats the design-system contract as a real operating artifact, not decoration.",
   },
   {
     name: "Sam",
     role: "Backend Engineer",
-    image: "/Noted - Sam.png",
+    image: "/team/sam.webp",
     description:
       "Quieter than Diego and often right when he flags scaling or data-model issues others missed.",
   },
@@ -216,7 +217,7 @@ const faqs = [
   {
     question: "Do I need to know how to code?",
     answer:
-      "No coding background is required, but you should be willing to use a terminal, read diffs, and learn enough of the codebase to direct agents responsibly.",
+      "No coding background is required, but you should be willing to use a terminal, read diffs, and learn enough technical context to direct agents responsibly.",
   },
   {
     question: "Is this tied to one AI tool?",
@@ -238,6 +239,11 @@ const faqs = [
       </>
     ),
   },
+  {
+    question: "What language is the program conducted in?",
+    answer:
+      "Everything is conducted in English so Indonesian talent can practice the product, stakeholder, and remote-work communication expected in global teams.",
+  },
 ];
 
 export default function HiringVibePMsPage() {
@@ -258,10 +264,9 @@ export default function HiringVibePMsPage() {
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-neutral-600 dark:text-neutral-300 sm:text-xl">
                 This is the open track for PMs who can direct agents without
-                outsourcing judgment. You inherit <BrandName />{"'s"} forkable
-                repo,
-                backlog, customer evidence, analytics, agent tools, and one
-                question from the founder: what should we ship next?
+                outsourcing judgment. You inherit <BrandName />
+                {"'s"} backlog, customer evidence, analytics, agent tools, and
+                one question from the founder: what should we ship next?
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -315,7 +320,7 @@ export default function HiringVibePMsPage() {
                   {[
                     "12 inherited product tickets across planned, blocked, and shipped work",
                     "5 interview transcripts and 5 customer-success calls to mine",
-                    "A noted-main fork with skills, commands, MCP recipes, and subagents to extend",
+                    "A PM toolkit with skills, commands, MCP recipes, and subagents to extend",
                     "A draft PR with planted review issues to catch before launch",
                   ].map((item) => (
                     <div
@@ -335,9 +340,9 @@ export default function HiringVibePMsPage() {
                     By the end, you do not just say you can work this way.
                   </p>
                   <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-400">
-                    You have a reviewed PRD, a working fork, an agent toolkit,
-                    a merged feature slice, and a story about how you took fuzzy
-                    evidence to product judgment.
+                    You have a reviewed PRD, an agent toolkit, a shipped feature
+                    slice, and a story about how you took fuzzy evidence to
+                    product judgment.
                   </p>
                 </div>
               </div>
@@ -419,8 +424,8 @@ export default function HiringVibePMsPage() {
                 </h2>
                 <p className="mt-4 text-lg leading-8 text-neutral-600 dark:text-neutral-300">
                   Each week mirrors a real probation signal. You read, decide,
-                  dispatch, review diffs, merge work in your fork, and ship
-                  against the same surfaces a <BrandName /> PM would inherit.
+                  dispatch, review diffs, and ship against the same surfaces a{" "}
+                  <BrandName /> PM would inherit.
                 </p>
               </div>
 
@@ -457,8 +462,8 @@ export default function HiringVibePMsPage() {
               </h2>
               <p className="mt-4 text-lg leading-8 text-neutral-600 dark:text-neutral-300">
                 The course gives you a live-feeling operating room: founder
-                pressure, PM handoff, customer success signal, engineering
-                risk, design critique, and infrastructure constraints.
+                pressure, PM handoff, customer success signal, engineering risk,
+                design critique, and infrastructure constraints.
               </p>
             </div>
 
@@ -472,8 +477,8 @@ export default function HiringVibePMsPage() {
                     <Image
                       src={member.image}
                       alt={`${member.name}, ${member.role}`}
-                      width={420}
-                      height={420}
+                      width={1024}
+                      height={1024}
                       sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                       className="h-full w-full object-cover"
                     />
@@ -481,9 +486,7 @@ export default function HiringVibePMsPage() {
                   <div className="p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <h3 className="text-lg font-semibold">
-                          {member.name}
-                        </h3>
+                        <h3 className="text-lg font-semibold">{member.name}</h3>
                         <p className="mt-1 text-sm font-medium text-blue-700 dark:text-blue-300">
                           {member.role}
                         </p>
@@ -544,7 +547,8 @@ export default function HiringVibePMsPage() {
                 <div className="mt-8 border-t border-neutral-200 pt-6 dark:border-neutral-800">
                   <p className="text-sm leading-6 text-neutral-600 dark:text-neutral-400">
                     Exceptional capstone work can be considered for{" "}
-                    <BrandName />{"'s"}
+                    <BrandName />
+                    {"'s"}
                     live roadmap at the founder&apos;s discretion.
                   </p>
                 </div>
@@ -566,8 +570,8 @@ export default function HiringVibePMsPage() {
               <p className="mt-4 text-lg leading-8 text-neutral-300">
                 The bar is comfort with ambiguity, not comfort with code. You
                 will learn enough technical literacy to make better calls, write
-                tighter specs, run agent workflows, review PRs, and know when
-                to stop and bring engineering in.
+                tighter specs, run agent workflows, review PRs, and know when to
+                stop and bring engineering in.
               </p>
             </div>
 
