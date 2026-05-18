@@ -61,6 +61,16 @@ export interface AmplitudeEventProperties {
 
     /** Generic toggle outcome — used for `Sharing Toggled`-style events. */
     enabled?: boolean;
+    /** User-selected theme preference (`light` | `dark` | `system`). */
+    theme?: string;
+    /** Landing feature slug or display name. */
+    feature_name?: string;
+    /** Link or CTA destination path/URL. */
+    destination_path?: string;
+    /** CTA label, when tracking a specific button/link. */
+    cta_label?: string;
+    /** Explicit route path for page visit events. */
+    page_path?: string;
 }
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY;
@@ -216,3 +226,40 @@ export const trackAISettingsUpdated = (
     properties: Required<Pick<AmplitudeEventProperties, "ai_provider">> &
         Pick<AmplitudeEventProperties, "ai_model" | "model_changed">,
 ) => trackPageEvent("AI Settings Updated", properties);
+
+/** Auth: a signed-out visitor became a signed-in user. */
+export const trackUserLoggedIn = () => trackPageEvent("User Logged In");
+
+/** Auth: a signed-in user signed out. */
+export const trackUserLoggedOut = () => trackPageEvent("User Logged Out");
+
+/** Appearance: the user selected a theme option. */
+export const trackThemeChanged = (
+    properties: Required<Pick<AmplitudeEventProperties, "theme">>,
+) => trackPageEvent("Theme Changed", properties);
+
+/** Landing: a user clicked a feature CTA from the landing page. */
+export const trackLandingFeatureClicked = (
+    properties: Required<
+        Pick<AmplitudeEventProperties, "feature_name" | "destination_path">
+    >,
+) => trackPageEvent("Landing Feature Clicked", properties);
+
+/** Landing: a user viewed a dedicated feature page. */
+export const trackLandingFeaturePageVisited = (
+    properties: Required<
+        Pick<AmplitudeEventProperties, "feature_name" | "page_path">
+    >,
+) => trackPageEvent("Landing Feature Page Visited", properties);
+
+/** Landing: a user viewed the Vibe PM hiring page. */
+export const trackHiringVibePmsPageVisited = (
+    properties: Required<Pick<AmplitudeEventProperties, "page_path">>,
+) => trackPageEvent("Hiring Vibe PMs Page Visited", properties);
+
+/** Landing: a user clicked a CTA on the Vibe PM hiring page. */
+export const trackHiringVibePmsCtaClicked = (
+    properties: Required<
+        Pick<AmplitudeEventProperties, "cta_label" | "destination_path">
+    >,
+) => trackPageEvent("Hiring Vibe PMs CTA Clicked", properties);

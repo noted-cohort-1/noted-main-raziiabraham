@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import {
   ArrowRight,
   Bot,
@@ -19,6 +18,11 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { Footer } from "../_components/footer";
+import {
+  HiringVibePmsPageVisitTracker,
+  TrackedHiringAnchor,
+  TrackedHiringLink,
+} from "../_components/landing-analytics";
 import { Logo } from "../_components/logo";
 
 const BrandName = () => (
@@ -249,6 +253,7 @@ const faqs = [
 export default function HiringVibePMsPage() {
   return (
     <div className="flex min-h-full flex-col bg-white text-neutral-950 dark:bg-neutral-950 dark:text-white">
+      <HiringVibePmsPageVisitTracker />
       <div className="flex-1">
         <section className="border-b border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950">
           <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-16 pt-10 sm:px-6 md:pb-24 md:pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8">
@@ -275,14 +280,16 @@ export default function HiringVibePMsPage() {
                   className="h-12 rounded-lg bg-blue-600 px-8 text-base font-medium text-white hover:bg-blue-700"
                   asChild
                 >
-                  <a
+                  <TrackedHiringAnchor
                     href="https://www.linkedin.com/in/raziiabraham/"
                     target="_blank"
                     rel="noreferrer"
+                    ctaLabel="Apply for the Vibe PM track"
+                    destinationPath="https://www.linkedin.com/in/raziiabraham/"
                   >
                     Apply for the Vibe PM track
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </a>
+                  </TrackedHiringAnchor>
                 </Button>
                 <Button
                   size="lg"
@@ -290,7 +297,13 @@ export default function HiringVibePMsPage() {
                   className="h-12 rounded-lg px-8 text-base"
                   asChild
                 >
-                  <Link href="#first-60-days">See your first 60 days</Link>
+                  <TrackedHiringLink
+                    href="#first-60-days"
+                    ctaLabel="See your first 60 days"
+                    destinationPath="#first-60-days"
+                  >
+                    See your first 60 days
+                  </TrackedHiringLink>
                 </Button>
               </div>
 
@@ -637,14 +650,16 @@ export default function HiringVibePMsPage() {
                 className="h-12 rounded-lg bg-blue-600 px-8 text-base font-medium text-white hover:bg-blue-700"
                 asChild
               >
-                <a
+                <TrackedHiringAnchor
                   href="https://www.linkedin.com/in/raziiabraham/"
                   target="_blank"
                   rel="noreferrer"
+                  ctaLabel="Apply via LinkedIn DM"
+                  destinationPath="https://www.linkedin.com/in/raziiabraham/"
                 >
                   Apply via LinkedIn DM
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </a>
+                </TrackedHiringAnchor>
               </Button>
             </div>
           </div>

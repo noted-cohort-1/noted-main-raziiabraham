@@ -33,6 +33,14 @@ import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
 import { CoworkerContextSelector } from "@/components/coworker/coworker-context-selector";
 import { AgentSlashCommand } from "./agent-slash-command";
+import { trackCoworkerMessageSent } from "@/lib/analytics";
+
+const getMessageLengthBucket = (message: string) => {
+    const length = message.trim().length;
+    if (length < 100) return "<100";
+    if (length <= 500) return "100-500";
+    return "500+";
+};
 
 export function CoworkerFloatingChat() {
     const { getToken } = useAuth();
@@ -93,6 +101,7 @@ export function CoworkerFloatingChat() {
 
     // Load messages from Convex
     const savedMessages = useQuery(api.coworkerMessages.getMessages, { limit: 50 });
+    const savedAiSettings = useQuery(api.aiSettings.getSettings);
     const addMessageMutation = useMutation(api.coworkerMessages.addMessage);
     const clearHistoryMutation = useMutation(api.coworkerMessages.clearHistory);
 
@@ -288,6 +297,13 @@ export function CoworkerFloatingChat() {
             content: userContent,
             parts: userParts,
             agentId: activeAgent?._id // Tag message with active agent
+        });
+
+        trackCoworkerMessageSent({
+            ai_provider: savedAiSettings?.provider ?? "unknown",
+            message_length_bucket: getMessageLengthBucket(safeInput),
+            squad_agent_id: activeAgent?._id,
+            document_id: contextDocs[0]?.id,
         });
 
         // Generate response using sendMessage which calls the API
