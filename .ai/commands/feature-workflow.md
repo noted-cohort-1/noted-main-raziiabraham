@@ -107,7 +107,11 @@ Then:
 Open with: *"Phase 4 — Implement. I'll work through the plan one PR at a time."*
 
 For each PR in the plan:
-1. Use the `/branch-commit` command to create the feature branch (`feature/NOT-XXX-short-slug`) off `staging`.
+1. Decide whether to branch in place or create a worktree:
+   - If the session is already inside a worktree, **do not create another worktree by default**. Branch in place with `git checkout -b feature/NOT-XXX-short-slug staging`.
+   - If the session started from the main checkout and parallel isolation is useful, create a new worktree off `staging`.
+   - If you create a fresh worktree, run the Phase 3.0 env-file sync from the `feature-workflow` skill before starting dev servers.
+   - If you need multiple `noted-main` worktrees running at once, use the Phase 3.0.1 port-offset convention from the skill so the Next dev servers do not all collide on `3000`.
 2. Implement the slice. Read the relevant skills before writing code in unfamiliar areas:
    - Convex changes → see `convex/` patterns; auth + ownership + indexes per `error-handling` skill
    - React changes → `derived-state` and `effect-to-event` skills are non-negotiable
