@@ -69,6 +69,13 @@ const eslintConfig = [
       "@typescript-eslint/no-explicit-any": "off",
     },
   },
+  {
+    files: ["components/ui/**/*.{ts,tsx}"],
+    rules: {
+      "noted/no-hardcoded-color": "off",
+      "noted/no-inline-style": "off",
+    },
+  },
 ];
 
 export default eslintConfig;

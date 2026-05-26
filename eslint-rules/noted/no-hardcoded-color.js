@@ -15,7 +15,10 @@ const rule = {
     schema: [],
   },
   create(context) {
-    if (context.filename.includes(`${path.sep}eslint-rules${path.sep}`)) {
+    if (
+      context.filename.includes(`${path.sep}eslint-rules${path.sep}`) ||
+      context.filename.includes(`${path.sep}lib${path.sep}design-tokens.ts`)
+    ) {
       return {};
     }
 

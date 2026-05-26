@@ -202,9 +202,9 @@ function ReasoningSection({
                         <>
                             Thinking
                             <span className="flex gap-0.5">
-                                <span className="animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1.4s' }}>.</span>
-                                <span className="animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1.4s' }}>.</span>
-                                <span className="animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1.4s' }}>.</span>
+                                <span className="animate-bounce [animation-delay:0ms] [animation-duration:1.4s]">.</span>
+                                <span className="animate-bounce [animation-delay:200ms] [animation-duration:1.4s]">.</span>
+                                <span className="animate-bounce [animation-delay:400ms] [animation-duration:1.4s]">.</span>
                             </span>
                         </>
                     ) : (

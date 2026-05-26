@@ -134,7 +134,6 @@ describe('Item Component', () => {
 
     it('renders skeleton correctly', () => {
         const { container } = render(<Item.Skeleton level={2} />);
-        // Initial padding should be level * 12 + 25 = 49px
-        expect(container.firstChild).toHaveStyle({ paddingLeft: '49px' });
+        expect(container.firstChild).toHaveClass("pl-[49px]");
     });
 });

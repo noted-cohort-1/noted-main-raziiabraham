@@ -19,6 +19,8 @@ When you change one of these files in a way that establishes a new pattern, upda
 | Zustand for UI-only shared state                     | `hooks/use-origin.tsx`                                                    | [state-management](../../.ai/skills/state-management/SKILL.md)                                                                           |
 | React component (Server default, client when needed) | `components/coworker/coworker-message.tsx` (structure — not type quality) | [react-components](../../.ai/skills/react-components/SKILL.md), [component-composition](../../.ai/skills/component-composition/SKILL.md) |
 | Design tokens + shadcn wrapping                      | `app/globals.css`, `components/ui/button.tsx` (wrap, don't edit)          | [design-system](../../.ai/skills/design-system/SKILL.md), [DESIGN.md](../../DESIGN.md)                                                   |
+| API hex literals (BlockNote, charts)                 | `lib/design-tokens.ts`                                                    | [eslint-self-heal](../../.ai/skills/eslint-self-heal/SKILL.md)                                                                           |
+| Tree row indent (no inline padding)                  | `lib/tree-indent-class.ts` → `app/(main)/_components/item.tsx`            | [eslint-self-heal](../../.ai/skills/eslint-self-heal/SKILL.md)                                                                           |
 | AI agent tool factory                                | `lib/agent/tools/workspace.ts`                                            | [agent-tool-authoring](../../.ai/skills/agent-tool-authoring/SKILL.md)                                                                   |
 | AI streaming API route                               | `app/api/ai/coworker/route.ts`                                            | [api-routes-and-actions](../../.ai/skills/api-routes-and-actions/SKILL.md)                                                               |
 | Zod at HTTP boundary                                 | `app/api/ai/coworker/route.ts` (request body parse)                       | [zod-schemas](../../.ai/skills/zod-schemas/SKILL.md)                                                                                     |
@@ -38,6 +40,18 @@ Custom rules in `eslint-rules/noted/` enforce patterns that skills alone cannot 
 | `noted/no-hardcoded-color`           | Hex / rgb in strings (e.g. `text-[#3F3F3F]`) | Use Tailwind tokens from `app/globals.css` — see design-system skill                                  |
 | `noted/no-inline-style`              | `style={{…}}` on JSX                         | Use Tailwind classes; see design-system skill                                                         |
 | `@typescript-eslint/no-explicit-any` | `: any`, `as any`                            | Use `unknown`, Zod, `Doc<>`, `Id<>` — see typescript-patterns skill (warn today, error after cleanup) |
+
+## Code self-healing loop
+
+When any rule above fires:
+
+1. Read the ESLint message (it names the skill).
+2. Open [eslint-self-heal](../../.ai/skills/eslint-self-heal/SKILL.md) and apply the matching recipe.
+3. Re-run `npm run lint:check` (or `npx eslint <file>`).
+4. Repeat until clean on every file you touched.
+5. Update this doc if you introduced a new canonical fix pattern.
+
+`/commit` and the [code-quality-checklist](../../.ai/skills/code-quality-checklist/SKILL.md) embed the same loop automatically.
 
 ## Architecture docs (planned)
 

@@ -36,9 +36,10 @@ See [team-os/ROSTER.md](team-os/ROSTER.md).
 This repo is set up so humans and agents can ship compliant PRs without engineer babysitting. The loop:
 
 1. **Skills + reference code** — follow `.ai/skills/`; copy patterns from [reference-implementations.md](team-os/engineering/reference-implementations.md).
-2. **Deterministic guardrails** — CI runs Prettier, TypeScript, ESLint (including custom `noted/*` rules), tests, and build. Warnings on legacy debt (`any`, hard-coded colors) ratchet to errors over time.
-3. **Before opening a PR** — run `/noted-review` (skill compliance) and the [code-quality-checklist](.ai/skills/code-quality-checklist/SKILL.md) commands.
-4. **Self-healing docs** — when you change code in an area covered by a skill or architecture doc, update that doc in the **same PR** if the change extends or contradicts the documented pattern. Update `reference-implementations.md` when you establish a new canonical example.
+2. **Deterministic guardrails** — CI runs Prettier, TypeScript, ESLint (including custom `noted/*` rules), tests, and build. Warnings on legacy debt ratchet to errors over time.
+3. **Code self-healing** — when ESLint or CI fails, read the error message, apply the fix from [eslint-self-heal](.ai/skills/eslint-self-heal/SKILL.md), re-run lint, and **loop until clean** on every file you touched. Never `eslint-disable` on product code.
+4. **Before opening a PR** — run `/noted-review` and the [code-quality-checklist](.ai/skills/code-quality-checklist/SKILL.md).
+5. **Self-healing docs** — when you change code in an area covered by a skill or architecture doc, update that doc in the **same PR** if the change extends or contradicts the documented pattern. Update `reference-implementations.md` when you establish a new canonical example.
 
 GitHub posts an [AI playground checklist](.github/pull_request_template.md) on every new PR. Non-engineers: ask the agent to _"address all items in the AI playground checklist."_
 

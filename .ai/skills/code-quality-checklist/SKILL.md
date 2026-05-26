@@ -48,7 +48,7 @@ After the quality gate passes:
 2. Fill in the [PR template](../../.github/pull_request_template.md) — GitHub also posts an AI playground checklist comment automatically.
 3. Copy patterns from [reference-implementations.md](../../team-os/engineering/reference-implementations.md), not from memory.
 
-Custom ESLint rules in `eslint-rules/noted/` enforce design tokens and `no-explicit-any` (warn today, error after legacy cleanup). Fix any new warnings before opening the PR.
+Custom ESLint rules in `eslint-rules/noted/` enforce design tokens and `no-explicit-any` (warn today, error after legacy cleanup). When a rule fires, run the [eslint-self-heal](../eslint-self-heal/SKILL.md) loop until changed files are clean — never disable rules on product code.
 
 ## Required for New Code
 
@@ -116,8 +116,9 @@ Before writing new code:
 | Issue                                                       | Fix                                                                                    |
 | ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | Prettier CI failure                                         | `npm run format` locally, then `npm run format:check` to verify                        |
-| ESLint `noted/no-hardcoded-color`                           | Replace hex/rgb with Tailwind tokens — see `design-system` skill and `app/globals.css` |
-| ESLint `@typescript-eslint/no-explicit-any`                 | Use `unknown`, Zod, `Doc<>`, `Id<>` — see `typescript-patterns` skill                  |
+| ESLint `noted/no-hardcoded-color`                           | Replace hex/rgb with Tailwind tokens — see `design-system` and `eslint-self-heal`      |
+| ESLint `noted/no-inline-style`                              | Tailwind utilities or `getTreeIndentClass` — see `eslint-self-heal`                    |
+| ESLint `@typescript-eslint/no-explicit-any`                 | Use `unknown`, Zod, `Doc<>`, `Id<>` — see `typescript-patterns` and `eslint-self-heal` |
 | Type errors                                                 | `npm run type:check` and read the message — usually missing import or wrong arg type   |
 | Convex handler crashes after deploy                         | Schema change without re-running `npx convex dev` to push it                           |
 | Test fails with "useUser" or "useQuery" undefined           | Missing Clerk/Convex mock at top of test file                                          |

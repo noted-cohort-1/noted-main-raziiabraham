@@ -9,11 +9,11 @@ This folder is the source of truth for everything Claude Code, Codex, and Cursor
 ├── INSTRUCTIONS.md     project-wide agent instructions (root CLAUDE.md and AGENTS.md symlink to this)
 ├── CONTRIBUTING.md     this file — what lives where and how to add new assets
 ├── CREDITS.md          attribution for skills/patterns adapted from public repos
-├── skills/             auto-triggering task skills (33 — loaded on keyword match)
+├── skills/             auto-triggering task skills (34 — loaded on keyword match)
 └── commands/           explicit slash commands (19)
 ```
 
-## Skills (33)
+## Skills (34)
 
 | Skill                    | Purpose                                               |
 | ------------------------ | ----------------------------------------------------- |
@@ -32,6 +32,7 @@ This folder is the source of truth for everything Claude Code, Codex, and Cursor
 | `design-system`          | shadcn + Tailwind tokens                              |
 | `effect-to-event`        | Side effects in handlers, not useEffect               |
 | `error-handling`         | throw new Error() conventions                         |
+| `eslint-self-heal`       | Fix ESLint guardrail failures in a loop until clean   |
 | `event-tracking`         | Amplitude event conventions                           |
 | `feature-status`         | Answer "what's the status of X"                       |
 | `feature-workflow`       | End-to-end feature dev workflow                       |

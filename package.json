@@ -14,7 +14,7 @@
     "test:coverage": "jest --coverage",
     "lint:check": "eslint .",
     "format": "prettier --write app components convex hooks lib scripts eslint-rules .github .ai \"*.{json,mjs,ts}\"",
-    "format:check": "prettier --check .github eslint-rules eslint.config.mjs jest.config.ts .ai/CONTRIBUTING.md .ai/INSTRUCTIONS.md .ai/commands/create-pr.md .ai/skills/code-quality-checklist .ai/skills/feature-workflow team-os/engineering/CLAUDE.md team-os/engineering/reference-implementations.md",
+    "format:check": "prettier --check .github eslint-rules eslint.config.mjs jest.config.ts lib/design-tokens.ts lib/tree-indent-class.ts .ai/CONTRIBUTING.md .ai/INSTRUCTIONS.md .ai/commands/create-pr.md .ai/commands/commit.md .ai/skills/code-quality-checklist .ai/skills/feature-workflow .ai/skills/eslint-self-heal team-os/engineering/CLAUDE.md team-os/engineering/reference-implementations.md",
     "format:check:repo": "prettier --check app components convex hooks lib scripts eslint-rules .github .ai \"*.{json,mjs,ts}\"",
     "test:eslint-rules": "node eslint-rules/noted/no-hardcoded-color.test.js && node eslint-rules/noted/no-inline-style.test.js",
     "type:check": "tsc --noEmit",
