@@ -86,7 +86,14 @@ export const updateSettings = internalMutation({
   },
   handler: async (ctx, args) => {
     // Construct patch object only with provided fields
-    const patch: any = { updatedAt: args.updatedAt };
+    const patch: {
+      updatedAt: number;
+      activeProvider?: string;
+      activeModel?: string;
+      openaiKey?: string;
+      anthropicKey?: string;
+      googleKey?: string;
+    } = { updatedAt: args.updatedAt };
     if (args.activeProvider !== undefined) patch.activeProvider = args.activeProvider;
     if (args.activeModel !== undefined) patch.activeModel = args.activeModel;
     if (args.openaiKey !== undefined) patch.openaiKey = args.openaiKey;

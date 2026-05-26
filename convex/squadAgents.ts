@@ -1,6 +1,10 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
+import {
+    extractAgentDescriptionFromContent,
+    extractTextFromBlocks,
+} from "../lib/blocknote-content";
 
 /**
  * List all squad agents for a user
@@ -23,24 +27,10 @@ export const list = query({
             if (doc && !doc.isArchived) {
                 let dynamicDescription = agent.description;
                 if (doc.content) {
-                    try {
-                        const blocks = JSON.parse(doc.content);
-                        const summaryIdx = blocks.findIndex((b: any) =>
-                            b.type === "heading" &&
-                            b.content?.[0]?.text?.toLowerCase().trim() === "summary"
-                        );
-                        if (summaryIdx !== -1 && blocks.length > summaryIdx + 1) {
-                            const pBlock = blocks[summaryIdx + 1];
-                            if (pBlock.type === "paragraph" && Array.isArray(pBlock.content)) {
-                                const rawText = pBlock.content.map((c: any) => c.text).join("");
-                                if (rawText && rawText.trim() !== "Write or Ask AI to write a short description about this AI Squad agent. This will be displayed in the card.") {
-                                    dynamicDescription = rawText;
-                                }
-                            }
-                        }
-                    } catch (error) {
-                        // Ignore JSON parse errors
-                    }
+                    dynamicDescription = extractAgentDescriptionFromContent(
+                        doc.content,
+                        agent.description ?? "",
+                    );
                 }
 
                 filteredAgents.push({
@@ -77,24 +67,10 @@ export const getById = query({
 
         let dynamicDescription = agent.description;
         if (doc.content) {
-            try {
-                const blocks = JSON.parse(doc.content);
-                const summaryIdx = blocks.findIndex((b: any) =>
-                    b.type === "heading" &&
-                    b.content?.[0]?.text?.toLowerCase().trim() === "summary"
-                );
-                if (summaryIdx !== -1 && blocks.length > summaryIdx + 1) {
-                    const pBlock = blocks[summaryIdx + 1];
-                    if (pBlock.type === "paragraph" && Array.isArray(pBlock.content)) {
-                        const rawText = pBlock.content.map((c: any) => c.text).join("");
-                        if (rawText && rawText.trim() !== "Write or Ask AI to write a short description about this AI Squad agent. This will be displayed in the card.") {
-                            dynamicDescription = rawText;
-                        }
-                    }
-                }
-            } catch (error) {
-                // Ignore JSON parse errors
-            }
+            dynamicDescription = extractAgentDescriptionFromContent(
+                doc.content,
+                agent.description ?? "",
+            );
         }
 
         return {
@@ -163,41 +139,7 @@ export const update = mutation({
     },
 });
 
-/**
- * Extract plain text from BlockNote content
- */
-export function extractTextFromBlocks(content: string): string {
-    try {
-        const blocks = JSON.parse(content);
-        let text = "";
-
-        const processBlock = (block: any) => {
-            if (Array.isArray(block.content)) {
-                block.content.forEach((item: any) => {
-                    if (typeof item === "string") text += item;
-                    else if (item.text) text += item.text;
-                });
-            } else if (typeof block.content === "string") {
-                text += block.content;
-            }
-
-            text += "\n";
-            if (block.children) {
-                block.children.forEach(processBlock);
-            }
-        };
-
-        blocks.forEach(processBlock);
-        return text;
-    } catch (e) {
-        return content; // Fallback to raw string if not JSON
-    }
-}
-
-
-/**
- * Remove an agent
- */
+export { extractTextFromBlocks };
 export const remove = mutation({
     args: { id: v.id("squadAgents") },
     handler: async (ctx, args) => {

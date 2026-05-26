@@ -27,7 +27,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
+import { DefaultChatTransport, type UIMessage } from "ai";
+import type { SquadAgentSelection, CoworkerMessagePart } from "@/lib/coworker-message-ui";
 import { useTrackedUpload } from "@/hooks/use-tracked-upload";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
@@ -56,7 +57,7 @@ export function CoworkerFloatingChat() {
     const [sourceScope, setSourceScope] = useState<"all" | "selection">("all");
 
     // Agent Selection State
-    const [activeAgent, setActiveAgent] = useState<any>(null);
+    const [activeAgent, setActiveAgent] = useState<SquadAgentSelection | null>(null);
     const [isAgentCommandOpen, setIsAgentCommandOpen] = useState(false);
 
     // The floating chat represents the general squad unless an agent is specifically addressed in input
@@ -120,26 +121,29 @@ export function CoworkerFloatingChat() {
         body: {
             agentId: activeAgent?._id
         },
-        onFinish: async ({ message }: any) => {
-            // Save assistant message to Convex on finish
+        onFinish: async ({ message }: { message: UIMessage }) => {
             const parts = message.parts || [];
-            const textPart = parts.find((p: any) => p.type === 'text');
-            const content = textPart?.text || message.content || "";
+            const textPart = parts.find((part) => part.type === "text");
+            const content =
+                textPart && "text" in textPart ? textPart.text : "";
 
-            // Extract reasoning tokens
             const reasoning = parts
-                .filter((p: any) => p.type === 'reasoning')
-                .map((p: any) => p.reasoning)
+                .filter((part) => part.type === "reasoning")
+                .map((part) => ("text" in part ? part.text : ""))
                 .join("");
 
             // Save if there's any content, reasoning, or tool invocations
-            if (content || reasoning || (message.toolInvocations && message.toolInvocations.length > 0)) {
+            if (content || reasoning) {
+                const toolInvocations = (
+                    message as UIMessage & { toolInvocations?: unknown[] }
+                ).toolInvocations;
+
                 await addMessageMutation({
                     role: "assistant",
                     content: content,
                     reasoning: reasoning,
-                    toolInvocations: message.toolInvocations,
-                    parts: message.parts
+                    toolInvocations,
+                    parts: message.parts,
                 });
             }
         },
@@ -160,7 +164,7 @@ export function CoworkerFloatingChat() {
         }
     };
 
-    const onSelectAgent = (agent: any) => {
+    const onSelectAgent = (agent: SquadAgentSelection) => {
         setActiveAgent(agent);
         // If agent is selected via slash command, clear the '/'
         if (input === "/") {
@@ -173,33 +177,30 @@ export function CoworkerFloatingChat() {
     // Sync messages from Convex on initial load
     useEffect(() => {
         if (savedMessages && messages.length === 0 && savedMessages.length > 0) {
-            const mapped = savedMessages.map(m => {
-                const messageData = m as any;
+            const mapped: UIMessage[] = savedMessages.map((m) => {
+                const storedParts = m.parts as CoworkerMessagePart[] | undefined;
+                const toolInvocations = m.toolInvocations as unknown[] | undefined;
 
-                // If parts exist in the database, use them to preserve exact order
-                if (messageData.parts && messageData.parts.length > 0) {
+                if (storedParts && storedParts.length > 0) {
                     return {
                         id: m._id,
-                        role: m.role as "user" | "assistant",
-                        parts: messageData.parts,
-                        createdAt: new Date(m.createdAt),
-                        toolInvocations: messageData.toolInvocations
+                        role: m.role,
+                        parts: storedParts as UIMessage["parts"],
                     };
                 }
 
-                // Fallback for older messages without parts
                 return {
                     id: m._id,
-                    role: m.role as "user" | "assistant",
+                    role: m.role,
                     parts: [
-                        { type: 'text', text: messageData.content },
-                        ...(messageData.reasoning ? [{ type: 'reasoning', reasoning: messageData.reasoning }] : [])
+                        { type: "text", text: m.content },
+                        ...(m.reasoning
+                            ? [{ type: "reasoning" as const, text: m.reasoning }]
+                            : []),
                     ],
-                    createdAt: new Date(m.createdAt),
-                    toolInvocations: messageData.toolInvocations
                 };
             });
-            setMessages(mapped as any);
+            setMessages(mapped);
         }
     }, [savedMessages, messages.length, setMessages]);
 
@@ -279,7 +280,7 @@ export function CoworkerFloatingChat() {
         setContextDocs([]); // Clear context after sending
         setAttachedFiles([]); // Clear files after sending
 
-        const userParts: any[] = [{ type: 'text', text: userContent }];
+        const userParts: CoworkerMessagePart[] = [{ type: "text", text: userContent }];
 
         // Add attachment parts for multimodal processing
         attachedFiles.forEach(file => {
@@ -309,7 +310,7 @@ export function CoworkerFloatingChat() {
         // Generate response using sendMessage which calls the API
         sendMessage({
             role: "user",
-            parts: userParts as any,
+            parts: userParts as UIMessage["parts"],
         });
     };
 
@@ -368,8 +369,7 @@ export function CoworkerFloatingChat() {
 
     return (
         <div
-            className={containerClasses}
-            style={isExpanded ? { width: `${sidebarWidth}px` } : {}}
+            className={cn(containerClasses, isExpanded && `w-[${sidebarWidth}px]`)}
         >
             {/* Resize Handle (Left side of sidebar) */}
             {isExpanded && (
@@ -439,7 +439,7 @@ export function CoworkerFloatingChat() {
                         <h2 className="text-xl font-semibold tracking-tight text-center">How can I help you today?</h2>
                     </div>
                 ) : (
-                    <CoworkerChat messages={messages as any} isStreaming={isLoading} />
+                    <CoworkerChat messages={messages} isStreaming={isLoading} />
                 )}
             </div>
 
@@ -588,7 +588,9 @@ export function CoworkerFloatingChat() {
             <CoworkerContextSelector
                 isOpen={isContextSelectorOpen}
                 onClose={() => setIsContextSelectorOpen(false)}
-                onSelect={(id: any, title: string, icon?: string) => onContextSelect(id, title, icon)}
+                onSelect={(id: string, title: string, icon?: string) =>
+                    onContextSelect(id, title, icon)
+                }
             />
         </div>
     );

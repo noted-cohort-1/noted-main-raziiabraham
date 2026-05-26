@@ -159,7 +159,7 @@ export const useTrackedUpload = () => {
                 }
 
                 if (typeof error === "object" && error !== null && "message" in error) {
-                    errorMessage = (error as any).message;
+                    errorMessage = error instanceof Error ? error.message : String(error);
                 }
 
                 toast.error(errorMessage, { duration: 4000 });
