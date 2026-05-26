@@ -8,11 +8,14 @@ Creates a pull request targeting `staging` (not `main`).
 2. Push the current branch to the remote with `git push -u origin <branch>`.
 3. Check if a PR already exists for this branch with `gh pr list --head <branch> --json url`. If one exists, push any new commits and report the existing URL — do not create a duplicate.
 4. If no PR exists, create one with:
+
    ```bash
    gh pr create --base staging --title "..." --body "..."
    ```
+
    - Title: short summary of the change (under 70 chars), Conventional Commits prefix (`feat:`, `fix:`, `chore:`, `docs:`).
-   - Body: what changed, why, and anything a reviewer should know. Follow the repo PR template if one exists.
+   - Body: use the repo PR template (`.github/pull_request_template.md`). Include summary, `Closes NOT-XXXX`, `/noted-review` verdict, and test plan.
+
 5. Report the PR URL wrapped in a `<pr-created>` tag on its own line:
    ```
    <pr-created>https://github.com/owner/repo/pull/123</pr-created>
