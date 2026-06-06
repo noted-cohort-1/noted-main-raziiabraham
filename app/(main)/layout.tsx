@@ -28,7 +28,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className="flex h-full dark:bg-[#1F1F1F]">
+    <div className="flex h-full dark:bg-background">
       <Navigation />
       <main className="h-full flex-1 overflow-hidden">
         <ScrollArea className="h-full w-full" type="auto">

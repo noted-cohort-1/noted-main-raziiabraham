@@ -22,6 +22,7 @@ import {
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import { useTheme } from "next-themes";
+import { BRAND_BLUE_SURFACE_HEX } from "@/lib/design-tokens";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useConvexAuth } from "convex/react";
@@ -170,7 +171,7 @@ const Editor = ({
     extensions: [
       AIExtension({
         transport: aiTransport as any, // Cast to any to avoid ai SDK version mismatch
-        agentCursor: { name: "AI", color: "#8bc6ff" },
+        agentCursor: { name: "AI", color: BRAND_BLUE_SURFACE_HEX },
       }),
     ],
   });

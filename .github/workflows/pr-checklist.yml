@@ -1,0 +1,49 @@
+name: PR Checklist
+
+on:
+  pull_request:
+    types: [opened, ready_for_review, reopened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  post-checklist:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post AI playground checklist
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = "<!-- noted-ai-playground-checklist -->";
+            const body = `${marker}
+            ## AI playground checklist
+
+            Before requesting review, complete these steps (agents: follow in order):
+
+            1. **Run \`/noted-review\`** — read-only compliance review against \`.ai/skills/\` and the [engineering constitution](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/staging/team-os/engineering/constitution.md). Paste the verdict into the PR description.
+            2. **Run the quality gate** — \`npm run format:check && npm run lint:check && npm run type:check && npm run test\`. If lint fails, follow [eslint-self-heal](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/staging/.ai/skills/eslint-self-heal/SKILL.md) until changed files are clean.
+            3. **Update docs in the same PR** if you changed patterns — see [reference implementations](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/staging/team-os/engineering/reference-implementations.md) and the matching skill under \`.ai/skills/\`.
+            4. **Linear ticket** — PR title or body must include \`Closes NOT-XXXX\` (constitution §VIII).
+
+            Non-engineers: ask your agent to *"address all items in the AI playground checklist on this PR."*
+
+            Human reviewers: focus on product correctness and architecture — skill compliance should already be covered by \`/noted-review\`.`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            if (comments.some((comment) => comment.body?.includes(marker))) {
+              core.info("Checklist comment already exists — skipping.");
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });

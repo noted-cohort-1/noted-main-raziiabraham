@@ -30,7 +30,7 @@ export default function EditorFeaturePage() {
                             {/* Icon */}
                             <div className="mb-2 text-5xl">📝</div>
                             {/* Title - matches the 5xl bold style */}
-                            <div className="mb-4 text-4xl font-bold text-[#3F3F3F] dark:text-[#CFCFCF]">
+                            <div className="mb-4 text-4xl font-bold text-foreground">
                                 Meeting Notes
                             </div>
                             {/* Add icon / Add cover buttons - matches toolbar.tsx */}

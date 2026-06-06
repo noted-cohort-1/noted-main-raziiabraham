@@ -238,7 +238,7 @@ const Navigation = () => {
       <div
         ref={navbarRef}
         className={cn(
-          "absolute left-60 top-0 z-[300] w-[calc(100%-240px)] bg-background dark:bg-[#1F1F1F]",
+          "absolute left-60 top-0 z-[300] w-[calc(100%-240px)] bg-background dark:bg-background",
           isResetting && !isResizing && "transition-all duration-300 ease-in-out",
           isMobile && "left-0 w-full"
         )}

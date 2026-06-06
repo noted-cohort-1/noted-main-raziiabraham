@@ -23,7 +23,7 @@ export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
 
   if (document === undefined) {
     return (
-      <nav className="flex w-full items-center justify-between bg-background px-3 py-2 dark:bg-[#1F1F1F]">
+      <nav className="flex w-full items-center justify-between bg-background px-3 py-2 dark:bg-background">
         <Title.Skeleton />
         <div className="flex items-center gap-x-2 ">
           <Menu.Skeleton />
@@ -38,7 +38,7 @@ export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
 
   return (
     <>
-      <nav className="flex w-full items-center gap-x-2 bg-background px-3 py-2 dark:bg-[#1F1F1F]">
+      <nav className="flex w-full items-center gap-x-2 bg-background px-3 py-2 dark:bg-background">
         {isCollapsed && (
           <button aria-label="Menu">
             <MenuIcon

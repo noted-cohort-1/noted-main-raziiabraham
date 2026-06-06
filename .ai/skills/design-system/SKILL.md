@@ -29,18 +29,18 @@ Plus a fourth, separate layer: `DESIGN.md` at the repo root — the human-readab
 
 You almost never write a color value directly — you write a token:
 
-| Token | When to use |
-|---|---|
-| `bg-background` / `text-foreground` | The default page background and primary text |
-| `bg-primary` / `text-primary-foreground` | Default-variant button, primary CTA on light surfaces |
-| `bg-secondary` / `text-secondary-foreground` | Soft button background, sidebar items |
-| `bg-muted` / `text-muted-foreground` | Subdued surfaces, secondary copy, skeleton placeholders |
-| `bg-accent` / `text-accent-foreground` | Hover states on ghost buttons, dropdown highlights |
-| `bg-card` / `text-card-foreground` | Raised surfaces — modals, cards, popovers |
-| `bg-popover` / `text-popover-foreground` | Popover and tooltip surfaces |
-| `bg-destructive` / `text-destructive-foreground` | Delete buttons, error states |
-| `border-border` / `border-input` | Default and form-input borders |
-| `ring-ring` | Focus rings — already wired into shadcn primitives' `focus-visible` |
+| Token                                            | When to use                                                         |
+| ------------------------------------------------ | ------------------------------------------------------------------- |
+| `bg-background` / `text-foreground`              | The default page background and primary text                        |
+| `bg-primary` / `text-primary-foreground`         | Default-variant button, primary CTA on light surfaces               |
+| `bg-secondary` / `text-secondary-foreground`     | Soft button background, sidebar items                               |
+| `bg-muted` / `text-muted-foreground`             | Subdued surfaces, secondary copy, skeleton placeholders             |
+| `bg-accent` / `text-accent-foreground`           | Hover states on ghost buttons, dropdown highlights                  |
+| `bg-card` / `text-card-foreground`               | Raised surfaces — modals, cards, popovers                           |
+| `bg-popover` / `text-popover-foreground`         | Popover and tooltip surfaces                                        |
+| `bg-destructive` / `text-destructive-foreground` | Delete buttons, error states                                        |
+| `border-border` / `border-input`                 | Default and form-input borders                                      |
+| `ring-ring`                                      | Focus rings — already wired into shadcn primitives' `focus-visible` |
 
 Source: `app/globals.css` (HSL triples) + `tailwind.config.ts` (token mapping). Light/dark counterparts are tied to `.dark` scope, and `next-themes` toggles the class — see `components/providers/theme-provider.tsx`.
 
@@ -48,10 +48,10 @@ Source: `app/globals.css` (HSL triples) + `tailwind.config.ts` (token mapping). 
 
 Two non-shadcn colors live alongside the neutral palette:
 
-| Token | Use |
-|---|---|
+| Token                                                 | Use                                                                                                     |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `brand-blue` (#2563EB) / `brand-blue-hover` (#1D4ED8) | AI affordances inside the editor (suggestion banner, "Ask AI" buttons), primary CTA on landing surfaces |
-| `brand-violet` (#7C3AED) | Secondary AI/marketing — squad-agent badges, AI feature cards, accent links |
+| `brand-violet` (#7C3AED)                              | Secondary AI/marketing — squad-agent badges, AI feature cards, accent links                             |
 
 These are **not** in the shadcn neutral palette by default — they're added via DESIGN.md and exposed as Tailwind utilities in `tailwind.config.ts`. Use them only on AI / marketing surfaces. The default app shell is grayscale.
 
@@ -119,7 +119,9 @@ const buttonVariants = cva("...", {
       // NEW
       cta: "bg-brand-blue text-white hover:bg-brand-blue-hover",
     },
-    size: { /* ... unchanged ... */ },
+    size: {
+      /* ... unchanged ... */
+    },
   },
   defaultVariants: { variant: "default", size: "default" },
 });
@@ -281,6 +283,21 @@ The body font is `Inter` (loaded via `next/font/google` in `app/layout.tsx`). DE
 //    (the file is a vendored shadcn primitive — drift makes upgrades painful)
 // ✅ wrap the primitive in your feature folder and override via className+cn()
 ```
+
+## ESLint guardrail fixes (self-healing)
+
+When `noted/no-hardcoded-color` or `noted/no-inline-style` fires, apply these replacements then re-run lint:
+
+| Violation                                | Fix                                                                |
+| ---------------------------------------- | ------------------------------------------------------------------ |
+| `text-[#3F3F3F]` / `dark:text-[#CFCFCF]` | `text-foreground`                                                  |
+| `dark:bg-[#1F1F1F]`                      | `dark:bg-background` (DESIGN.md dark canvas)                       |
+| `style={{ width: "40%" }}`               | `w-2/5` or `w-[40%]`                                               |
+| `style={{ animationDelay: "200ms" }}`    | `[animation-delay:200ms]`                                          |
+| Tree `paddingLeft` from `level`          | `getTreeIndentClass(level, basePx)` from `@/lib/tree-indent-class` |
+| Hex required by third-party JS API       | `@/lib/design-tokens` only                                         |
+
+Full loop: [eslint-self-heal](../eslint-self-heal/SKILL.md).
 
 ## Checklist for new UI
 

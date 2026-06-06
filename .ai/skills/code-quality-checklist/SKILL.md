@@ -13,20 +13,42 @@ removed TanStack/API-handler/design-tokens sections that don't apply here.
 
 ## Before Committing
 
-Run all four. All must pass before opening a PR.
+Run all four. All must pass before opening a PR. CI runs the same gate (`format:check` instead of `format` — no file writes in CI).
 
 ```bash
-npm run format          # Prettier
+npm run format          # Prettier (writes fixes locally)
 npm run lint:fix        # ESLint (autofix)
 npm run type:check      # TypeScript compilation
 npm run test            # Jest
 ```
 
-One-liner:
+CI parity check (no writes — scoped to playground infra until repo-wide Prettier lands):
+
+```bash
+npm run format:check && npm run test:eslint-rules && npm run lint:check && npm run type:check && npm run test:coverage
+```
+
+Full-repo format check (will fail until legacy files are formatted):
+
+```bash
+npm run format:check:repo
+```
+
+One-liner (local pre-commit):
 
 ```bash
 npm run format && npm run lint:fix && npm run type:check && npm run test
 ```
+
+## Before Opening a PR
+
+After the quality gate passes:
+
+1. Run **`/noted-review`** — compliance review against all skills and the [engineering constitution](../../team-os/engineering/constitution.md).
+2. Fill in the [PR template](../../.github/pull_request_template.md) — GitHub also posts an AI playground checklist comment automatically.
+3. Copy patterns from [reference-implementations.md](../../team-os/engineering/reference-implementations.md), not from memory.
+
+Custom ESLint rules in `eslint-rules/noted/` enforce design tokens and `no-explicit-any` (warn today, error after legacy cleanup). When a rule fires, run the [eslint-self-heal](../eslint-self-heal/SKILL.md) loop until changed files are clean — never disable rules on product code.
 
 ## Required for New Code
 
@@ -91,13 +113,16 @@ Before writing new code:
 
 ## Common Issues
 
-| Issue | Fix |
-|---|---|
-| Prettier CI failure | `npm run format` |
-| Type errors | `npm run type:check` and read the message — usually missing import or wrong arg type |
-| Convex handler crashes after deploy | Schema change without re-running `npx convex dev` to push it |
-| Test fails with "useUser" or "useQuery" undefined | Missing Clerk/Convex mock at top of test file |
-| Symlinks broken (CLAUDE.md missing on a teammate's machine) | `npm run sync-ai` |
+| Issue                                                       | Fix                                                                                    |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Prettier CI failure                                         | `npm run format` locally, then `npm run format:check` to verify                        |
+| ESLint `noted/no-hardcoded-color`                           | Replace hex/rgb with Tailwind tokens — see `design-system` and `eslint-self-heal`      |
+| ESLint `noted/no-inline-style`                              | Tailwind utilities or `getTreeIndentClass` — see `eslint-self-heal`                    |
+| ESLint `@typescript-eslint/no-explicit-any`                 | Use `unknown`, Zod, `Doc<>`, `Id<>` — see `typescript-patterns` and `eslint-self-heal` |
+| Type errors                                                 | `npm run type:check` and read the message — usually missing import or wrong arg type   |
+| Convex handler crashes after deploy                         | Schema change without re-running `npx convex dev` to push it                           |
+| Test fails with "useUser" or "useQuery" undefined           | Missing Clerk/Convex mock at top of test file                                          |
+| Symlinks broken (CLAUDE.md missing on a teammate's machine) | `npm run sync-ai`                                                                      |
 
 ## Branch Flow Reminder
 
