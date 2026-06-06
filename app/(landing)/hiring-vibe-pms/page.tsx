@@ -30,16 +30,16 @@ const BrandName = () => (
 );
 
 export const metadata: Metadata = {
-  title: "Noted is hiring Vibe Product Managers",
+  title: "Noted's Vibe PM course simulates your first 30 days",
   description:
-    "Noted is opening a founding Vibe Product Manager track for PMs who can direct agents through discovery, specs, prototypes, and shipped product work.",
+    "A 4-week live Vibe PM course framed like your first 30 days on probation at Noted: inherited context, product judgment, bring-your-own tools, and shipped PM proof.",
 };
 
 const outcomes = [
   "A working command of Noted's product, customers, roadmap, and team rituals",
   "A PM toolkit you authored from skills, commands, subagents, and MCP recipes",
-  "A discovery sprint memo with citations, personas, JTBD, synthesis, and a PRD",
-  "A shipped capstone slice with code review, instrumentation, and a retro",
+  "A first-30-days memo with citations, personas, JTBD, synthesis, and a reviewed PRD",
+  "A concrete plan for what you would ship next, with review notes and execution tradeoffs",
 ];
 
 const surfaces = [
@@ -70,57 +70,35 @@ const surfaces = [
 
 const weeks = [
   {
-    week: "Week 0",
-    title: "Get your access",
-    detail:
-      "Install Claude Code and Codex, set up your workspace, and get familiar with how Noted works.",
-  },
-  {
     week: "Week 1",
-    title: (
-      <>
-        Day 1 at <BrandName />
-      </>
-    ),
+    title: "Week 1: Inherit the seat and read the room",
     detail:
-      "Meet the product, read Sarah's hand-off, and run your first agentic workflow.",
+      "Read Sarah's hand-off, get your Week 1 materials in place, and read the room across backlog, customer signal, and product context.",
   },
   {
     week: "Week 2",
-    title: "Get oriented",
+    title: "Week 2: Build your operating system",
     detail:
-      "Triage backlog, customer calls, analytics, Slack threads, and product history into a priority memo.",
+      "Author the skills, commands, subagents, and MCP recipes you will use to direct product work without outsourcing judgment.",
   },
   {
     week: "Week 3",
-    title: "Build your toolkit",
+    title: "Week 3: Run discovery at scale",
     detail:
-      "Author the skills, commands, subagents, and MCP recipes you will use to direct product work.",
+      "Gather signal across customer calls, analytics, competitors, and product history, then turn it into a sharper priority memo.",
   },
   {
-    week: "Weeks 4-5",
-    title: "Run discovery",
+    week: "Week 4",
+    title: "Week 4: Synthesize, spec, and dispatch the agent",
     detail:
-      "Mine calls, compare competitors, synthesize interviews, and write a PRD.",
-  },
-  {
-    week: "Week 6",
-    title: "Dispatch the agent",
-    detail:
-      "Open implementation work, review diffs, catch boundary slips, and learn what to own versus hand to engineering.",
-  },
-  {
-    week: "Weeks 7-8",
-    title: "Capstone to demo",
-    detail:
-      "Pick a feature slice, ship the work, and demo the full decision arc.",
+      "Synthesize the signal, write the PRD, dispatch the agent on bounded work, and defend what should ship next.",
   },
 ];
 
 const proofPoints = [
   {
-    label: "8 weeks",
-    detail: "Cohort-based course with a Week 0 setup pack and weekly PM work.",
+    label: "4 weeks",
+    detail: "Live core framed like the first 30 days of PM probation.",
   },
   {
     label: "10 seats",
@@ -132,8 +110,9 @@ const proofPoints = [
     detail: "A realistic weekly load across live session, async work, and PRs.",
   },
   {
-    label: "2 CLIs",
-    detail: "Claude Code and Codex are the practice surfaces for agent work.",
+    label: "Any AI IDE",
+    detail:
+      "Codex, Cursor, or Claude Code all work. The track is about judgment and workflow design, not tool loyalty.",
   },
 ];
 
@@ -167,7 +146,7 @@ const artifacts = [
     id: "story",
     title: "Your hiring story",
     description:
-      "A concrete arc from inherited ambiguity to customer evidence, spec, PR review, demo, and retro.",
+      "A concrete arc from inherited ambiguity to customer evidence, spec, PR review, and a credible first-30-days plan.",
     icon: GraduationCap,
   },
 ];
@@ -226,7 +205,7 @@ const faqs = [
   {
     question: "Is this tied to one AI tool?",
     answer:
-      "No. Claude Code and Codex are the practice surfaces, but the role is about directing agents across tools, workflows, and team contexts.",
+      "No. Codex, Cursor, or Claude Code all work. The role is about directing agents across workflows and team contexts, not standardizing everyone onto one stack.",
   },
   {
     question: "Is this real hiring?",
@@ -234,19 +213,9 @@ const faqs = [
       "No. Despite the hiring-style framing, this is a cohort-based course, not a real hiring process, job opening, or promise of employment. The outcome is portfolio-grade PM proof and a sharper agentic product workflow.",
   },
   {
-    question: "What makes this different from a normal application?",
-    answer: (
-      <>
-        You are not judged on interview performance alone. You are dropped into{" "}
-        <BrandName /> context, inherit messy signal, make product calls, and
-        ship work that shows how you operate.
-      </>
-    ),
-  },
-  {
-    question: "What language is the program conducted in?",
+    question: "What makes this different from other courses?",
     answer:
-      "Everything is conducted in English so Indonesian talent can practice the product, stakeholder, and remote-work communication expected in global teams.",
+      "Most courses stay at frameworks, prompts, or case studies. This one drops you into a live-feeling PM seat with inherited context, messy signal, real tradeoffs, and a workflow you have to direct end to end.",
   },
 ];
 
@@ -264,14 +233,14 @@ export default function HiringVibePMsPage() {
               </div>
 
               <h1 className="max-w-4xl text-4xl font-bold tracking-tight text-neutral-950 dark:text-white sm:text-5xl lg:text-7xl">
-                <BrandName /> is hiring Vibe Product Managers.
+                Simulate your first 30 days as a Vibe PM at <BrandName />.
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-neutral-600 dark:text-neutral-300 sm:text-xl">
-                This is the open track for PMs who can direct agents without
-                outsourcing judgment. You inherit <BrandName />
-                {"'s"} backlog, customer evidence, analytics, agent tools, and
-                one question from the founder: what should we ship next?
+                This 4-week live course drops you into <BrandName />
+                {"'s"} PM seat. You inherit backlog, customer evidence,
+                analytics, and one probation-style question from the founder:
+                what should we ship next?
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -284,10 +253,10 @@ export default function HiringVibePMsPage() {
                     href="https://www.linkedin.com/in/raziiabraham/"
                     target="_blank"
                     rel="noreferrer"
-                    ctaLabel="Apply for the Vibe PM track"
+                    ctaLabel="Apply for the 4-week Vibe PM course"
                     destinationPath="https://www.linkedin.com/in/raziiabraham/"
                   >
-                    Apply for the Vibe PM track
+                    Apply for the 4-week course
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </TrackedHiringAnchor>
                 </Button>
@@ -298,18 +267,18 @@ export default function HiringVibePMsPage() {
                   asChild
                 >
                   <TrackedHiringLink
-                    href="#first-60-days"
-                    ctaLabel="See your first 60 days"
-                    destinationPath="#first-60-days"
+                    href="#first-30-days"
+                    ctaLabel="See the first 30 days"
+                    destinationPath="#first-30-days"
                   >
-                    See your first 60 days
+                    See the first 30 days
                   </TrackedHiringLink>
                 </Button>
               </div>
 
               <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
                 Pilot cohort timing is being finalized. Seats are capped at 10
-                people.
+                people, with prep notes sent before Week 1.
               </p>
             </div>
 
@@ -334,7 +303,7 @@ export default function HiringVibePMsPage() {
                     "12 inherited product tickets across planned, blocked, and shipped work",
                     "5 interview transcripts and 5 customer-success calls to mine",
                     "A PM toolkit with skills, commands, MCP recipes, and subagents to extend",
-                    "A draft PR with planted review issues to catch before launch",
+                    "A draft execution plan with planted review issues to catch before you recommend a ship call",
                   ].map((item) => (
                     <div
                       key={item}
@@ -350,11 +319,11 @@ export default function HiringVibePMsPage() {
 
                 <div className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900">
                   <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                    By the end, you do not just say you can work this way.
+                    By the end, you do not just say you can handle the seat.
                   </p>
                   <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-400">
-                    You have a reviewed PRD, an agent toolkit, a shipped feature
-                    slice, and a story about how you took fuzzy evidence to
+                    You have a reviewed PRD, an agent toolkit, and a defensible
+                    first-30-days recommendation grounded in fuzzy evidence and
                     product judgment.
                   </p>
                 </div>
@@ -423,22 +392,22 @@ export default function HiringVibePMsPage() {
         </section>
 
         <section
-          id="first-60-days"
+          id="first-30-days"
           className="border-y border-neutral-200 bg-neutral-50 py-20 dark:border-neutral-800 dark:bg-neutral-900/40 sm:py-24"
         >
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
-                  Your first 60 days
+                  Your first 30 days
                 </p>
                 <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-                  What probation would look like.
+                  What PM probation should feel like.
                 </h2>
                 <p className="mt-4 text-lg leading-8 text-neutral-600 dark:text-neutral-300">
-                  Each week mirrors a real probation signal. You read, decide,
-                  dispatch, review diffs, and ship against the same surfaces a{" "}
-                  <BrandName /> PM would inherit.
+                  Each week mirrors a real first-month signal. You inherit
+                  context, make judgment calls, build your operating layer, and
+                  leave with a plan you could credibly defend to a founder.
                 </p>
               </div>
 
@@ -523,7 +492,7 @@ export default function HiringVibePMsPage() {
                   What you leave with
                 </p>
                 <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Proof of work, not interview theater.
+                  Proof of judgment, not interview theater.
                 </h2>
                 <div className="mt-10 grid gap-5 sm:grid-cols-2">
                   {artifacts.map((item) => {
@@ -559,10 +528,9 @@ export default function HiringVibePMsPage() {
                 </div>
                 <div className="mt-8 border-t border-neutral-200 pt-6 dark:border-neutral-800">
                   <p className="text-sm leading-6 text-neutral-600 dark:text-neutral-400">
-                    Exceptional capstone work can be considered for{" "}
-                    <BrandName />
-                    {"'s"}
-                    live roadmap at the founder&apos;s discretion.
+                    The 4-week core stands on its own. Strong students can stay
+                    for an optional 2-week capstone sprint to turn the plan
+                    into portfolio-grade shipped work.
                   </p>
                 </div>
               </div>
@@ -636,13 +604,13 @@ export default function HiringVibePMsPage() {
         <section className="border-t border-neutral-200 bg-neutral-50 py-20 dark:border-neutral-800 dark:bg-neutral-900/40 sm:py-24">
           <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
             <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              Apply to the founding Vibe PM hiring track.
+              Apply to the 4-week Vibe PM course.
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-neutral-600 dark:text-neutral-300">
-              Founding track applications are planned through Razii&apos;s
-              LinkedIn. Send your current role, why this operating model matters
-              to you, and whether Saturdays at 7:30 PM Western Indonesian Time
-              can work for live sessions.
+              Applications are planned through Razii&apos;s LinkedIn. Send your
+              current role, why this operating model matters to you, and
+              whether Saturdays at 7:30 PM Western Indonesian Time can work for
+              live sessions.
             </p>
             <div className="mt-8">
               <Button
