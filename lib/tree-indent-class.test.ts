@@ -13,8 +13,16 @@ describe("getTreeIndentClass", () => {
     expect(getTreeIndentClass(2, 25)).toBe("pl-[49px]");
   });
 
+  it("clamps to the deepest emitted class instead of generating runtime-only Tailwind classes", () => {
+    expect(getTreeIndentClass(99, 12)).toBe("pl-[396px]");
+  });
+
   it("returns undefined when omitWhenFalsy and level is falsy", () => {
     expect(getTreeIndentClass(undefined, 25, true)).toBeUndefined();
     expect(getTreeIndentClass(0, 25, true)).toBeUndefined();
+  });
+
+  it("returns undefined for unsupported base padding values", () => {
+    expect(getTreeIndentClass(1, 18)).toBeUndefined();
   });
 });

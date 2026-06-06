@@ -25,7 +25,7 @@ npm run test            # Jest
 CI parity check (no writes — scoped to playground infra until repo-wide Prettier lands):
 
 ```bash
-npm run format:check && npm run lint:check && npm run type:check && npm run test:coverage
+npm run format:check && npm run test:eslint-rules && npm run lint:check && npm run type:check && npm run test:coverage
 ```
 
 Full-repo format check (will fail until legacy files are formatted):
