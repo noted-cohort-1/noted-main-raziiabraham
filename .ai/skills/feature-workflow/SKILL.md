@@ -171,6 +171,40 @@ After the doc plan is written into the Linear ticket, choose one of two paths:
 
 ## Phase 3 — Build & Iterate Locally
 
+### 3.0.0 Worktree decision (before branching or spinning up dev servers)
+
+Do this check before you create a branch, create a worktree, or start copying env files:
+
+- If the session is already inside a worktree, **do not create another worktree** by default. Branch in place.
+- Only create a new worktree when the session started from the main checkout and you actually need parallel isolation.
+
+**Why this rule exists:**
+
+- The user has explicitly opted into a worktree by starting the session there. Creating another worktree inside a worktree fragments the work across two directories, requires moving files back, and wastes the env cascade + `npm install` time that the current worktree already paid.
+- Worktree-from-worktree is also a common source of confusion when the user later opens an editor expecting all the work to be in the place they started.
+
+**How to check (run before any branching decision):**
+
+```bash
+# Is the session in the main checkout, or in a worktree?
+git rev-parse --git-common-dir
+git rev-parse --git-dir
+# If these two differ, the session is in a worktree (the git dir is a
+# pointer at .git/worktrees/<name> inside the common dir). If they match,
+# this is the main checkout.
+```
+
+A simpler heuristic that's almost always right: if `pwd` contains `worktrees/`, you're in a worktree.
+
+**Decision matrix:**
+
+| Where is the session? | What to do |
+|---|---|
+| Main checkout (`~/Documents/GitHub/noted-main`) | Create a new worktree off the base branch via `git worktree add` (or the `worktree` skill). |
+| Already in a worktree | **Do not create another worktree.** `git checkout -b feature/NOT-XXXX-short-slug <base-branch>` in place. Skip 3.0 if env files are already cascaded, and skip 3.0.1 if the offset is already chosen, unless the base branch's env keys changed. |
+
+If the user asks for a "new worktree" while already inside one, confirm before creating a nested worktree. Usually they meant "branch off here." The default is **branch in place**.
+
 ### 3.0 Sync env files from local main (mandatory on a fresh worktree, recommended after rebasing main)
 
 Worktrees do **not** inherit `.env*` files — they're gitignored. Before you `npm run dev` (or run any quality gate), copy the latest env files from your local main checkout. **Re-run this whenever you sync with main**, because the source-of-truth env may have new keys for a feature you're about to use.
@@ -191,6 +225,65 @@ done
 This `find`-based form picks up any new env files added to main automatically — you don't need to hand-maintain a list. `cp -p` preserves timestamps so `npm install`'s postinstall hook (`sync-ai`) doesn't re-fire unnecessarily. `.gitignore` already covers `.env*`, so nothing leaks into commits.
 
 > **When you're prompted about it:** if Claude is helping you set up a new worktree, ask it to run this step automatically. The step is also valid as a one-off later if main's env changed (e.g. a new `NEXT_PUBLIC_AMPLITUDE_API_KEY` gets added).
+
+### 3.0.1 Optional: assign a port offset (running dev servers in parallel worktrees)
+
+If you only `npm run dev` in one worktree at a time, skip this step. Kill the other dev server and you're fine.
+
+If you want to run `noted-main` concurrently across worktrees, each worktree needs its own web port so the `next dev` processes do not all collide on `3000`.
+
+**Convention:** main worktree = offset `0` ("primary"), second = `+10`, third = `+20`, etc. Use multiples of `10` for headroom and to keep the mental math easy.
+
+**One worktree should stay at offset 0**. Keep the worktree that needs any provider-registered localhost callback URI as primary. Secondary worktrees are still fine for pure UI and app-flow iteration.
+
+```bash
+# 1. In the non-primary worktree, declare an offset.
+echo 10 > .worktree-port-offset   # next worktree uses 20, then 30...
+
+# 2. After running 3.0's env cascade, apply the rewrite.
+OFFSET=$(cat .worktree-port-offset 2>/dev/null || echo 0)
+if [ "$OFFSET" != "0" ]; then
+    # noted-main currently only hardcodes localhost callbacks around the web app.
+    # Expand this list if the repo later adds more local services with fixed ports.
+    BASE_PORTS=(3000)
+    ENV_FILES=$(find . -maxdepth 4 -type f \( -name ".env" -o -name ".env.*" \) \
+        -not -path "*/node_modules/*" -not -path "*/.git/*" \
+        -not -path "*/.next/*" -not -path "*/.turbo/*")
+    for f in $ENV_FILES; do
+        for base in "${BASE_PORTS[@]}"; do
+            new=$((base + OFFSET))
+            # Rewrite localhost:<base> / 127.0.0.1:<base> (followed by non-digit OR EOL)
+            sed -i.bak -E "s#(localhost|127\\.0\\.0\\.1):${base}([^0-9])#\\1:${new}\\2#g" "$f"
+            sed -i.bak -E "s#(localhost|127\\.0\\.0\\.1):${base}\$#\\1:${new}#g" "$f"
+            # Rewrite bare PORT=<base> lines
+            sed -i.bak -E "s#^PORT=${base}([^0-9]|\$)#PORT=${new}\\1#" "$f"
+        done
+        rm -f "$f.bak"
+    done
+    echo "✓ Applied port offset +$OFFSET (web -> $((3000+OFFSET)))"
+fi
+```
+
+### Starting dev with an offset
+
+- **Next.js web app**: start the dev server on the offset port directly:
+
+```bash
+OFFSET=$(cat .worktree-port-offset 2>/dev/null || echo 0)
+npm run dev -- --port $((3000 + OFFSET))
+```
+
+`npx convex dev` can keep running in the second terminal as usual. The offset is about the web server collision, not Convex.
+
+Don't edit [package.json](/Users/raziiabraham/Documents/GitHub/noted-main/package.json) to hardcode the offset. That's per-worktree state and shouldn't be committed.
+
+### Caveats — what breaks at offset != 0
+
+- **Provider-registered localhost callbacks** break on non-primary offsets. If any OAuth or webhook redirect URI is registered upstream against `http://localhost:3000`, the rewritten secondary worktree URI will fail until the provider config is updated too.
+- **Repo docs and ad hoc scripts** may still assume `http://localhost:3000`. Adjust them mentally when testing a secondary worktree.
+- **Shared backend state** still applies. Multiple worktrees can point at the same Convex deployment and the same third-party accounts, so avoid destructive tests in parallel.
+
+> **Sanity check:** before `npm run dev`, run `lsof -i -P | grep -E ':(3000|3010|3020)\\b' | grep LISTEN` to see what's already bound. If a port you expect to use is held by another worktree, kill that one first or pick a different offset.
 
 ### 3.1 Implement & test locally
 
@@ -261,21 +354,23 @@ Always open at the start of a feature, and re-open whenever in doubt about perso
 
 ## Quick Reference: Step Order
 
-| #   | Step                                                                                         | Tool/Command                                                               |
-| --- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| 0   | **User ground against Customer OS**                                                          | Notion MCP (`notion-fetch`)                                                |
-| 1   | Brainstorm (anchored to persona + pain)                                                      | Claude Code                                                                |
-| 2   | Plan (names persona + pain)                                                                  | Claude Code Plan Mode                                                      |
-| 3   | Update ticket (includes User Grounding block)                                                | Linear MCP                                                                 |
-| 4   | Decide path                                                                                  | Doc plan vs Speckit                                                        |
-| 4.5 | **Sync env files from local main** (fresh worktree, or after rebase)                         | Phase 3.0 snippet                                                          |
-| 5   | Build & test locally (`npm run dev` + `npx convex dev`)                                      | Claude Code                                                                |
-| 6   | Quality gate                                                                                 | `npm run format && npm run lint:fix && npm run type:check && npm run test` |
-| 7   | Push + preview test (Render preview)                                                         | `git push`                                                                 |
-| 8   | Self review                                                                                  | `/noted-review`                                                            |
-| 9   | Open PR + checklist bot + BugBot (PR body includes User Grounding + `/noted-review` verdict) | `/create-pr`                                                               |
-| 10  | Human review                                                                                 | GitHub                                                                     |
-| 11  | Merge + smoke test + team-os update                                                          | GitHub + production + `/ship-log`                                          |
+| # | Step | Tool/Command |
+|---|------|-------------|
+| 0 | **User ground against Customer OS** | Notion MCP (`notion-fetch`) |
+| 1 | Brainstorm (anchored to persona + pain) | Claude Code |
+| 2 | Plan (names persona + pain) | Claude Code Plan Mode |
+| 3 | Update ticket (includes User Grounding block) | Linear MCP |
+| 4 | Decide path | Doc plan vs Speckit |
+| 4.4 | **Worktree decision** — if already in a worktree, branch in place; only create a new worktree from the main checkout | Phase 3.0.0 snippet |
+| 4.5 | **Sync env files from local main** (fresh worktree, or after rebase) | Phase 3.0 snippet |
+| 4.6 | **Optional port offset** for concurrent worktrees | Phase 3.0.1 snippet |
+| 5 | Build & test locally (`npm run dev` + `npx convex dev`) | Claude Code |
+| 6 | Quality gate | `npm run format && npm run lint:fix && npm run type:check && npm run test` |
+| 7 | Push + preview test (Render preview) | `git push` |
+| 8 | Self review | `/noted-review` |
+| 9 | Open PR + BugBot (PR body includes User Grounding + Customer OS link) | `gh pr create` or `/create-pr` |
+| 10 | Human review | GitHub |
+| 11 | Merge + smoke test + team-os update | GitHub + production + `/ship-log` |
 
 ---
 
