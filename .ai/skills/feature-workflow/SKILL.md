@@ -198,10 +198,10 @@ A simpler heuristic that's almost always right: if `pwd` contains `worktrees/`, 
 
 **Decision matrix:**
 
-| Where is the session? | What to do |
-|---|---|
-| Main checkout (`~/Documents/GitHub/noted-main`) | Create a new worktree off the base branch via `git worktree add` (or the `worktree` skill). |
-| Already in a worktree | **Do not create another worktree.** `git checkout -b feature/NOT-XXXX-short-slug <base-branch>` in place. Skip 3.0 if env files are already cascaded, and skip 3.0.1 if the offset is already chosen, unless the base branch's env keys changed. |
+| Where is the session?                           | What to do                                                                                                                                                                                                                                       |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Main checkout (`~/Documents/GitHub/noted-main`) | Create a new worktree off the base branch via `git worktree add` (or the `worktree` skill).                                                                                                                                                      |
+| Already in a worktree                           | **Do not create another worktree.** `git checkout -b feature/NOT-XXXX-short-slug <base-branch>` in place. Skip 3.0 if env files are already cascaded, and skip 3.0.1 if the offset is already chosen, unless the base branch's env keys changed. |
 
 If the user asks for a "new worktree" while already inside one, confirm before creating a nested worktree. Usually they meant "branch off here." The default is **branch in place**.
 
@@ -354,23 +354,23 @@ Always open at the start of a feature, and re-open whenever in doubt about perso
 
 ## Quick Reference: Step Order
 
-| # | Step | Tool/Command |
-|---|------|-------------|
-| 0 | **User ground against Customer OS** | Notion MCP (`notion-fetch`) |
-| 1 | Brainstorm (anchored to persona + pain) | Claude Code |
-| 2 | Plan (names persona + pain) | Claude Code Plan Mode |
-| 3 | Update ticket (includes User Grounding block) | Linear MCP |
-| 4 | Decide path | Doc plan vs Speckit |
-| 4.4 | **Worktree decision** — if already in a worktree, branch in place; only create a new worktree from the main checkout | Phase 3.0.0 snippet |
-| 4.5 | **Sync env files from local main** (fresh worktree, or after rebase) | Phase 3.0 snippet |
-| 4.6 | **Optional port offset** for concurrent worktrees | Phase 3.0.1 snippet |
-| 5 | Build & test locally (`npm run dev` + `npx convex dev`) | Claude Code |
-| 6 | Quality gate | `npm run format && npm run lint:fix && npm run type:check && npm run test` |
-| 7 | Push + preview test (Render preview) | `git push` |
-| 8 | Self review | `/noted-review` |
-| 9 | Open PR + BugBot (PR body includes User Grounding + Customer OS link) | `gh pr create` or `/create-pr` |
-| 10 | Human review | GitHub |
-| 11 | Merge + smoke test + team-os update | GitHub + production + `/ship-log` |
+| #   | Step                                                                                                                 | Tool/Command                                                               |
+| --- | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| 0   | **User ground against Customer OS**                                                                                  | Notion MCP (`notion-fetch`)                                                |
+| 1   | Brainstorm (anchored to persona + pain)                                                                              | Claude Code                                                                |
+| 2   | Plan (names persona + pain)                                                                                          | Claude Code Plan Mode                                                      |
+| 3   | Update ticket (includes User Grounding block)                                                                        | Linear MCP                                                                 |
+| 4   | Decide path                                                                                                          | Doc plan vs Speckit                                                        |
+| 4.4 | **Worktree decision** — if already in a worktree, branch in place; only create a new worktree from the main checkout | Phase 3.0.0 snippet                                                        |
+| 4.5 | **Sync env files from local main** (fresh worktree, or after rebase)                                                 | Phase 3.0 snippet                                                          |
+| 4.6 | **Optional port offset** for concurrent worktrees                                                                    | Phase 3.0.1 snippet                                                        |
+| 5   | Build & test locally (`npm run dev` + `npx convex dev`)                                                              | Claude Code                                                                |
+| 6   | Quality gate                                                                                                         | `npm run format && npm run lint:fix && npm run type:check && npm run test` |
+| 7   | Push + preview test (Render preview)                                                                                 | `git push`                                                                 |
+| 8   | Self review                                                                                                          | `/noted-review`                                                            |
+| 9   | Open PR + BugBot (PR body includes User Grounding + Customer OS link)                                                | `gh pr create` or `/create-pr`                                             |
+| 10  | Human review                                                                                                         | GitHub                                                                     |
+| 11  | Merge + smoke test + team-os update                                                                                  | GitHub + production + `/ship-log`                                          |
 
 ---
 

@@ -5,7 +5,7 @@
  * Source of truth lives in .ai/. This script creates relative symlinks at:
  *   - .claude/skills, .claude/commands  (Claude Code)
  *   - .cursor/skills, .cursor/commands  (Cursor)
- *   - .agents/skills                   (Codex)
+ *   - .agents/skills, .agents/commands (Codex)
  *   - CLAUDE.md, AGENTS.md (root)       (Claude Code, Codex)
  *
  * All symlink targets are gitignored — only .ai/ is tracked. Run automatically
@@ -34,6 +34,7 @@ const links = [
   { source: ".ai/commands", target: ".cursor/commands" },
   // Codex
   { source: ".ai/skills", target: ".agents/skills" },
+  { source: ".ai/commands", target: ".agents/commands" },
   // Root-level instruction files (Claude Code & Codex)
   { source: ".ai/INSTRUCTIONS.md", target: "CLAUDE.md" },
   { source: ".ai/INSTRUCTIONS.md", target: "AGENTS.md" },
@@ -71,7 +72,10 @@ function linkOne(sourceRel, targetRel) {
   }
 
   // Remove anything that's there (file, dir, or wrong symlink).
-  if (fs.existsSync(targetAbs) || fs.lstatSync(targetAbs, { throwIfNoEntry: false })) {
+  if (
+    fs.existsSync(targetAbs) ||
+    fs.lstatSync(targetAbs, { throwIfNoEntry: false })
+  ) {
     fs.rmSync(targetAbs, { recursive: true, force: true });
   }
 

@@ -1,6 +1,6 @@
 # `.ai/` — Shared agent configuration
 
-This folder is the source of truth for everything Claude Code, Codex, and Cursor pick up automatically when teammates open this repo. We use the `.ai/` convention so a single set of skills and commands works across every agent runtime — `.claude/` and `.cursor/` are auto-generated symlinks (see `scripts/sync-ai.mjs`).
+This folder is the source of truth for everything Claude Code, Codex, and Cursor pick up automatically when teammates open this repo. We use the `.ai/` convention so a single set of skills and commands works across every agent runtime — `.claude/`, `.cursor/`, and `.agents/` are auto-generated symlinks (see `scripts/sync-ai.mjs`).
 
 ## Structure
 
@@ -82,6 +82,7 @@ This folder is the source of truth for everything Claude Code, Codex, and Cursor
 
 - `.claude/skills/` and `.claude/commands/` (Claude Code)
 - `.cursor/skills/` and `.cursor/commands/` (Cursor)
+- `.agents/skills/` and `.agents/commands/` (Codex)
 
 It also creates root-level `CLAUDE.md` and `AGENTS.md` as symlinks to `.ai/INSTRUCTIONS.md`. All symlink targets are gitignored — only `.ai/` is tracked.
 
@@ -104,7 +105,7 @@ It also creates root-level `CLAUDE.md` and `AGENTS.md` as symlinks to `.ai/INSTR
 
 1. Create `.ai/commands/<name>.md` with a clear "Instructions" section.
 2. Run `npm run sync-ai`.
-3. Test it by typing `/<name>` in Claude Code or Cursor.
+3. Test it by typing `/<name>` in Claude Code, Cursor, and Codex.
 
 ## Deterministic enforcement
 
