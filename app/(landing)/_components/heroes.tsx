@@ -176,7 +176,7 @@ export const Heroes = () => {
               <div className="mb-2 text-left text-5xl sm:text-6xl">🚀</div>
 
               {/* Title - left aligned */}
-              <h1 className="mb-6 text-left text-3xl font-bold text-[#3F3F3F] sm:text-4xl dark:text-[#CFCFCF]">
+              <h1 className="mb-6 text-left text-3xl font-bold text-foreground sm:text-4xl">
                 Project Tracker
               </h1>
 

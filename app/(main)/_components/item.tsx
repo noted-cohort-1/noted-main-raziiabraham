@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
+import { getTreeIndentClass } from "@/lib/tree-indent-class";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useMutation } from "convex/react";
@@ -104,8 +105,8 @@ export const Item = ({
     <div
       onClick={onClick}
       role="button"
-      style={{ paddingLeft: level ? `${level * 12 + 12}px` : "12px" }}
       className={cn(
+        getTreeIndentClass(level, 12),
         "group flex min-h-[1.6875rem] w-full items-center py-1 pr-3 text-sm font-medium text-muted-foreground hover:bg-primary/5",
         active && "bg-primary/5 text-primary",
       )}
@@ -192,8 +193,10 @@ export const Item = ({
 Item.Skeleton = function ItemSkeleton({ level }: { level?: number }) {
   return (
     <div
-      style={{ paddingLeft: level ? `${level * 12 + 25}px` : "12px" }}
-      className="flex gap-x-2 py-[.1875rem]"
+      className={cn(
+        level ? getTreeIndentClass(level, 25) : "pl-[12px]",
+        "flex gap-x-2 py-[.1875rem]",
+      )}
     >
       <Skeleton className="h-4 w-4" />
       <Skeleton className="h-4 w-[30%]" />

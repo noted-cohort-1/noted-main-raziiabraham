@@ -24,12 +24,8 @@ function encrypt(text: string): string {
   const key = getEncryptionKey();
   const salt = crypto.randomBytes(SALT_LENGTH);
   const iv = crypto.randomBytes(IV_LENGTH);
-  const derivedKey = crypto.scryptSync(key, salt as any, 32);
-  const cipher = crypto.createCipheriv(
-    ENCRYPTION_ALGORITHM,
-    derivedKey as any,
-    iv as any,
-  );
+  const derivedKey = crypto.scryptSync(key, salt, 32);
+  const cipher = crypto.createCipheriv(ENCRYPTION_ALGORITHM, derivedKey, iv);
 
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
@@ -51,13 +47,9 @@ function decrypt(encryptedText: string): string {
   );
   const encrypted = encryptedText.slice(ENCRYPTED_POSITION * 2);
 
-  const derivedKey = crypto.scryptSync(key, salt as any, 32);
-  const decipher = crypto.createDecipheriv(
-    ENCRYPTION_ALGORITHM,
-    derivedKey as any,
-    iv as any,
-  );
-  decipher.setAuthTag(tag as any);
+  const derivedKey = crypto.scryptSync(key, salt, 32);
+  const decipher = crypto.createDecipheriv(ENCRYPTION_ALGORITHM, derivedKey, iv);
+  decipher.setAuthTag(tag);
 
   let decrypted = decipher.update(encrypted, "hex", "utf8");
   decrypted += decipher.final("utf8");
@@ -142,7 +134,14 @@ export const saveSettings = action({
     const now = Date.now();
     const existing = await ctx.runQuery(api.aiSettings.getSettings);
 
-    const updateFields: any = { updatedAt: now };
+    const updateFields: {
+      updatedAt: number;
+      activeProvider?: string;
+      activeModel?: string;
+      openaiKey?: string;
+      anthropicKey?: string;
+      googleKey?: string;
+    } = { updatedAt: now };
 
     // If apiKey is provided, encrypt and save it for the specific provider
     if (args.apiKey) {

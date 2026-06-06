@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 // Force sync
 import { mutation, query } from "./_generated/server";
+import type { Doc } from "./_generated/dataModel";
 
 export const save = mutation({
     args: {
@@ -100,12 +101,14 @@ export const get = query({
 
         const filesWithDocuments = await Promise.all(
             files.map(async (file) => {
-                let documents: any[] = [];
+                let documents: Doc<"documents">[] = [];
                 const docIds = file.documentIds || (file.documentId ? [file.documentId] : []);
 
                 if (docIds.length > 0) {
                     const docs = await Promise.all(docIds.map((id) => ctx.db.get(id)));
-                    documents = docs.filter((doc) => doc !== null);
+                    documents = docs.filter(
+                        (doc): doc is Doc<"documents"> => doc !== null,
+                    );
                 }
 
                 return {

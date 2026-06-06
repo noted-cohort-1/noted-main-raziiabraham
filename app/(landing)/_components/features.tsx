@@ -18,7 +18,7 @@ const features = [
           {/* Icon */}
           <div className="mb-2 text-5xl">📝</div>
           {/* Title - matches the 5xl bold style */}
-          <div className="mb-4 text-4xl font-bold text-[#3F3F3F] dark:text-[#CFCFCF]">
+          <div className="mb-4 text-4xl font-bold text-foreground">
             Meeting Notes
           </div>
           {/* Add icon / Add cover buttons - matches toolbar.tsx */}
@@ -297,7 +297,7 @@ const features = [
                 <span>40%</span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
-                <div className="h-full bg-blue-600 dark:bg-blue-500" style={{ width: "40%" }} />
+                <div className="h-full w-2/5 bg-blue-600 dark:bg-blue-500" />
               </div>
             </div>
           </div>

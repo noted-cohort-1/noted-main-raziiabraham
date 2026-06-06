@@ -1,120 +1,116 @@
 "use client";
 
-import Image from "next/image";
-
 import { useRef, useEffect } from "react";
-import { useCoworker, CoworkerMessage as CoworkerMessageType } from "@/hooks/use-coworker";
+import type { UIMessage } from "ai";
 import { CoworkerMessage } from "./coworker-message";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useCoworkerConfig } from "@/hooks/use-coworker-config";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Bot, Sparkles } from "lucide-react";
+import { Bot } from "lucide-react";
+import type { CoworkerMessagePart } from "@/lib/coworker-message-ui";
 
 interface CoworkerChatProps {
-    messages: CoworkerMessageType[];
-    isStreaming?: boolean;
+  messages: UIMessage[];
+  isStreaming?: boolean;
+}
+
+function getMessageParts(message: UIMessage): CoworkerMessagePart[] {
+  return (message.parts ?? []) as CoworkerMessagePart[];
 }
 
 export function CoworkerChat({ messages, isStreaming }: CoworkerChatProps) {
-    const bottomRef = useRef<HTMLDivElement>(null);
-    // The general chat falls back to the collective AI Squad name
-    const coworkerName = "AI Squad";
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const coworkerName = "AI Squad";
 
-    // Auto-scroll to bottom when new messages arrive or while streaming
-    useEffect(() => {
-        if (bottomRef.current) {
-            bottomRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-    }, [messages, isStreaming]);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isStreaming]);
 
-    if (messages.length === 0) {
-        return (
-            <div className="flex h-full flex-col items-center justify-center p-4 text-center">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 border shadow-sm">
-                    <Bot className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="mb-1 font-medium">{coworkerName}</h3>
-                <p className="text-sm text-muted-foreground">
-                    I&apos;m here to help you work with your documents. Ask me to research information,
-                    summarize your workspace, or create new content for you.
-                </p>
-            </div>
-        );
-    }
-
+  if (messages.length === 0) {
     return (
-        <ScrollArea className="h-full p-4">
-            <div className="flex flex-col gap-3 pb-2">
-                {messages.map((message) => {
-                    // For user messages, extract content from parts or content field
-                    if (message.role === "user") {
-                        // User message content can be in parts[0].text or directly in content
-                        const parts = (message as any).parts || [];
-                        const textPart = parts.find((p: any) => p.type === 'text');
-                        const userContent = textPart?.text || message.content || "";
-
-                        return (
-                            <CoworkerMessage
-                                key={message.id}
-                                role="user"
-                                content={userContent}
-                                parts={[]}
-                                isStreaming={false}
-                            />
-                        );
-                    }
-
-                    // For assistant messages, pass raw parts for in-order rendering
-                    const parts = (message as any).parts || [];
-                    const toolInvocations = (message as any).toolInvocations || [];
-
-                    // Merge toolInvocations into parts if they exist and aren't already in parts
-                    // This handles cases where SDK provides toolInvocations separately
-                    const enrichedParts = [...parts];
-
-                    // If we have toolInvocations but no tool-call parts, add them
-                    if (toolInvocations.length > 0) {
-                        const hasToolParts = parts.some((p: any) =>
-                            p.type === 'tool-call' || p.type?.startsWith('tool-')
-                        );
-
-                        if (!hasToolParts) {
-                            // Add tool invocations as parts at the end (will be sorted by the component if needed)
-                            toolInvocations.forEach((ti: any) => {
-                                enrichedParts.push({
-                                    type: 'tool-invocation',
-                                    ...ti
-                                });
-                            });
-                        }
-                    }
-
-                    return (
-                        <CoworkerMessage
-                            key={message.id}
-                            role="assistant"
-                            content={message.content || ""}
-                            parts={enrichedParts}
-                            isStreaming={isStreaming && message === messages[messages.length - 1]}
-                        />
-                    );
-                })}
-
-                {/* Show thinking placeholder when waiting for response */}
-                {isStreaming && messages[messages.length - 1]?.role === "user" && (
-                    <CoworkerMessage
-                        key="thinking-placeholder"
-                        role="assistant"
-                        content=""
-                        parts={[]}
-                        isStreaming={true}
-                    />
-                )}
-
-                {/* Scroll Anchor */}
-                <div ref={bottomRef} className="h-px w-full" />
-            </div>
-        </ScrollArea>
+      <div className="flex h-full flex-col items-center justify-center p-4 text-center">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full border bg-primary/10 shadow-sm">
+          <Bot className="h-8 w-8 text-primary" />
+        </div>
+        <h3 className="mb-1 font-medium">{coworkerName}</h3>
+        <p className="text-sm text-muted-foreground">
+          I&apos;m here to help you work with your documents. Ask me to research
+          information, summarize your workspace, or create new content for you.
+        </p>
+      </div>
     );
+  }
+
+  return (
+    <ScrollArea className="h-full p-4">
+      <div className="flex flex-col gap-3 pb-2">
+        {messages.map((message) => {
+          if (message.role === "user") {
+            const parts = getMessageParts(message);
+            const textPart = parts.find((part) => part.type === "text");
+            const userContent = textPart?.text ?? "";
+
+            return (
+              <CoworkerMessage
+                key={message.id}
+                role="user"
+                content={userContent}
+                parts={[]}
+                isStreaming={false}
+              />
+            );
+          }
+
+          const parts = getMessageParts(message);
+          const toolInvocations =
+            (message as UIMessage & { toolInvocations?: CoworkerMessagePart[] })
+              .toolInvocations ?? [];
+          const enrichedParts = [...parts];
+
+          if (toolInvocations.length > 0) {
+            const hasToolParts = parts.some(
+              (part) =>
+                part.type === "tool-call" || part.type?.startsWith("tool-"),
+            );
+
+            if (!hasToolParts) {
+              toolInvocations.forEach((invocation) => {
+                enrichedParts.push({
+                  ...invocation,
+                  type: invocation.type ?? "tool-invocation",
+                });
+              });
+            }
+          }
+
+          const textContent = parts
+            .filter((part) => part.type === "text")
+            .map((part) => part.text ?? "")
+            .join("");
+
+          return (
+            <CoworkerMessage
+              key={message.id}
+              role="assistant"
+              content={textContent}
+              parts={enrichedParts}
+              isStreaming={
+                isStreaming && message === messages[messages.length - 1]
+              }
+            />
+          );
+        })}
+
+        {isStreaming && messages[messages.length - 1]?.role === "user" && (
+          <CoworkerMessage
+            key="thinking-placeholder"
+            role="assistant"
+            content=""
+            parts={[]}
+            isStreaming={true}
+          />
+        )}
+
+        <div ref={bottomRef} className="h-px w-full" />
+      </div>
+    </ScrollArea>
+  );
 }

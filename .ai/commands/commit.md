@@ -32,13 +32,13 @@ Automated commit workflow that validates the working branch, runs pre-commit qua
 - If `$ARGUMENTS` is non-empty, treat it as a **Linear ticket identifier** (case-insensitive, expected format `NOT-<number>`, e.g. `NOT-123`).
 - Normalize to uppercase (`not-123` → `NOT-123`).
 - If the value does not match `NOT-\d+`, **STOP**:
-    > "Invalid ticket identifier `<value>`. Expected format: `NOT-<number>` (e.g. `NOT-123`)."
+  > "Invalid ticket identifier `<value>`. Expected format: `NOT-<number>` (e.g. `NOT-123`)."
 
 ### 2. Validate Linear Ticket (if provided)
 
 - Use the Linear MCP to fetch the issue. If MCP is unavailable, **warn but don't block** — proceed without the verification step (note: this is a deliberate departure from heatseeker, since MCP may not be wired up).
 - If the ticket **does not exist**, **STOP**:
-    > "Linear ticket `<identifier>` was not found. Verify the ID and try again."
+  > "Linear ticket `<identifier>` was not found. Verify the ID and try again."
 - If it exists, store **ID**, **title**, **identifier** for later.
 
 ### 3. Determine Current Branch
@@ -48,6 +48,7 @@ Automated commit workflow that validates the working branch, runs pre-commit qua
 #### Case A — On `main` or `staging` WITH a ticket parameter
 
 **STOP**:
+
 > "You're on `<branch>` with a ticket parameter (`<identifier>`). Direct commits to integration branches aren't allowed.
 > Switch to or create a feature branch first, then re-run `/commit`."
 
@@ -57,20 +58,20 @@ The user has uncommitted work on an integration branch that needs a proper featu
 
 1. **Show staged/unstaged changes**: `git status` and `git diff --stat`.
 2. **Create a new Linear ticket** (best-effort — if MCP unavailable, ask the user for a ticket ID instead):
-    - Team: `Noted`
-    - Title: ask user (or infer from diff if obvious)
-    - State: `In Progress`
-    - Assignee: `me`
+   - Team: `Noted`
+   - Title: ask user (or infer from diff if obvious)
+   - State: `In Progress`
+   - Assignee: `me`
 3. Derive branch name:
-    - Format: `feature/<ticket-identifier-lowercase>-<slugified-title>`
-    - Example: `feature/not-456-add-presence-indicator`
-    - Slugify: lowercase, spaces → hyphens, strip non-alphanumeric except hyphens, max 60 chars
+   - Format: `feature/<ticket-identifier-lowercase>-<slugified-title>`
+   - Example: `feature/not-456-add-presence-indicator`
+   - Slugify: lowercase, spaces → hyphens, strip non-alphanumeric except hyphens, max 60 chars
 4. **Create the branch** based on the current integration branch (current changes carry over):
-    ```bash
-    git checkout -b <branch-name>
-    ```
+   ```bash
+   git checkout -b <branch-name>
+   ```
 5. Confirm:
-    > "Created Linear ticket `<identifier>` and switched to branch `<branch-name>`. Proceeding."
+   > "Created Linear ticket `<identifier>` and switched to branch `<branch-name>`. Proceeding."
 6. Continue to **Step 4**.
 
 #### Case C — On a feature/bugfix/hotfix branch
@@ -82,6 +83,7 @@ Proceed to **Step 4**.
 **Quick check**: if branch contains `not-` (case-insensitive), it's valid — extract the ticket ID and skip to Step 5.
 
 Otherwise, the branch must match:
+
 - `feature/<ticket-id>-<description>`
 - `bugfix/<ticket-id>-<description>`
 - `hotfix/<ticket-id>-<description>`
@@ -93,6 +95,7 @@ If the branch name doesn't match and **no ticket parameter was provided**:
 1. Auto-create a Linear ticket and rename branch (same as Case B in Step 3, but using `git stash` + `git checkout -b` + `git stash pop`).
 
 If the branch name doesn't match and **a ticket parameter WAS provided**, **STOP**:
+
 > "Branch `<current-branch>` doesn't follow the naming convention. Expected: `feature/not-123-add-user-auth`.
 > Want me to rename it? Provide the correct branch name."
 
@@ -138,26 +141,29 @@ git add -u
 
 Report: "Prettier: ✓ Formatting issues fixed and staged."
 
-#### 5b. ESLint (changed files only)
+#### 5b. ESLint guardrail loop (changed files only)
 
 Reuse `CHANGED_TS_FILES`. If empty: skip with note.
 
-Check first:
-
-```bash
-echo "$CHANGED_TS_FILES" | xargs npx eslint
-```
-
-If pass: report "ESLint: ✓ No issues".
-
-If fail: auto-fix:
+Run the **eslint-self-heal loop** (see `.ai/skills/eslint-self-heal/SKILL.md`):
 
 ```bash
 echo "$CHANGED_TS_FILES" | xargs npx eslint --fix
-git add -u
+echo "$CHANGED_TS_FILES" | xargs npx eslint
 ```
 
-If errors remain after auto-fix, list them but **do not stop** — collect for Step 6.
+If pass: report "ESLint: ✓ No issues on changed files".
+
+If fail after `--fix`:
+
+1. Read each error — messages link to skills (`design-system`, `typescript-patterns`, `eslint-self-heal`).
+2. Apply the matching fix recipe (hex → token, inline style → Tailwind, `any` → proper type).
+3. Re-run `echo "$CHANGED_TS_FILES" | xargs npx eslint` until clean on changed files.
+4. Stage fixes: `git add -u`.
+
+If errors remain on **unchanged legacy files** outside the diff, note them but do not block — only changed files must be clean.
+
+If errors remain on **changed files** after the loop, list them and collect for Step 6.
 
 #### 5c. TypeScript type check
 
@@ -189,9 +195,11 @@ Present:
 ```
 
 If any check failed:
-- Suggest fixes per failing check, referencing relevant skills under `.ai/skills/` (e.g., `error-handling` for missing/inconsistent error messages, `derived-state` for `useEffect` + `setState` patterns).
+
+- For ESLint / guardrail failures: follow [eslint-self-heal](../skills/eslint-self-heal/SKILL.md) — fix code, re-run lint, loop until changed files are clean.
+- For other failures: suggest fixes referencing relevant skills (`error-handling`, `derived-state`, `typescript-patterns`, etc.).
 - Ask: "Fix these automatically? (yes/no)"
-- If yes: apply, re-run failing checks, update summary.
+- If yes: apply fixes, re-run failing checks, **loop until pass or blocked**, update summary.
 - If no: **STOP** — fix manually and re-run `/commit`.
 
 ### 7. Code Review
@@ -202,6 +210,7 @@ Review staged + unstaged changes (`git diff`, `git diff --cached`) against:
 - **Effect-to-event** (`effect-to-event`): side effects in handlers, not effects
 - **Error handling** (`error-handling`): conventional `throw new Error("...")` vocabulary; auth → existence → ownership → validation order in Convex handlers
 - **TypeScript patterns** (`typescript-patterns`): no `any`, proper type narrowing, branded `Doc<>`/`Id<>` types
+- **ESLint guardrails** (`eslint-self-heal`): no hard-coded hex/rgb, no inline styles, fix loop until changed files are clean
 - **File naming** (`file-naming`): kebab-case files, PascalCase component exports, camelCase Convex modules
 - **Code quality checklist** (`code-quality-checklist`): coverage on touched files, no commented-out code, no `TODO` without `NOT-XXXX`
 - **Unit testing** (`unit-testing`): tests earn their keep, Clerk + Convex mocked at top, factories for domain objects
@@ -228,44 +237,45 @@ If all checks pass and verdict is **PASS**:
 
 1. Stage all: `git add -A`.
 2. Analyze full branch diff:
-    - `git diff staging...HEAD --stat`
-    - `git diff --cached --stat`
-    - `git diff --cached`
+   - `git diff staging...HEAD --stat`
+   - `git diff --cached --stat`
+   - `git diff --cached`
 3. Generate commit message:
 
-    **Subject** (≤72 chars):
-    - Conventional commit format: `type(scope): description`
-    - Types: `feat`, `fix`, `refactor`, `test`, `docs`, `style`, `chore`, `perf`
-    - Scope: primary area (e.g., `documents`, `ai`, `editor`, `auth`)
-    - Imperative mood, no period
-    - Append Linear ticket: `feat(documents): add presence indicator [NOT-123]`
+   **Subject** (≤72 chars):
+   - Conventional commit format: `type(scope): description`
+   - Types: `feat`, `fix`, `refactor`, `test`, `docs`, `style`, `chore`, `perf`
+   - Scope: primary area (e.g., `documents`, `ai`, `editor`, `auth`)
+   - Imperative mood, no period
+   - Append Linear ticket: `feat(documents): add presence indicator [NOT-123]`
 
-    **Body** (after blank line, wrap at 72):
-    - 2–5 bullets summarizing what + why
-    - High-level files/areas (e.g., "convex/, components/, hooks/")
-    - Note breaking changes prefixed `BREAKING CHANGE:`
+   **Body** (after blank line, wrap at 72):
+   - 2–5 bullets summarizing what + why
+   - High-level files/areas (e.g., "convex/, components/, hooks/")
+   - Note breaking changes prefixed `BREAKING CHANGE:`
 
-    **Example**:
-    ```
-    feat(documents): add presence indicator [NOT-123]
+   **Example**:
 
-    - Add presence table + by_doc index in convex/schema.ts
-    - New query/mutation in convex/presence.ts (auth + ownership)
-    - usePresence hook + PresenceIndicator component
-    - Document Viewed event added in app/(main)/(routes)/documents/[documentId]/
-    ```
+   ```
+   feat(documents): add presence indicator [NOT-123]
+
+   - Add presence table + by_doc index in convex/schema.ts
+   - New query/mutation in convex/presence.ts (auth + ownership)
+   - usePresence hook + PresenceIndicator component
+   - Document Viewed event added in app/(main)/(routes)/documents/[documentId]/
+   ```
 
 4. Show proposed message. Use `AskQuestion`: **"Yes, commit"** / **"No, I want to edit"**.
 5. Commit with HEREDOC to preserve formatting:
 
-    ```bash
-    git commit -m "$(cat <<'EOF'
-    <subject line>
+   ```bash
+   git commit -m "$(cat <<'EOF'
+   <subject line>
 
-    <body bullets>
-    EOF
-    )"
-    ```
+   <body bullets>
+   EOF
+   )"
+   ```
 
 6. Verify with `git status`. Report: "Committed on `<branch>`."
 
@@ -294,35 +304,35 @@ Ask via `AskQuestion`: **"Yes, create a PR"** / **"No, skip PR"**.
 
 - No: "No PR. Run `gh pr create --base staging` later." **STOP**.
 - Yes:
-    - **Title**: commit subject without `[NOT-xxx]` suffix
-    - **Body** template (populate from commit + Linear ticket):
+  - **Title**: commit subject without `[NOT-xxx]` suffix
+  - **Body** template (populate from commit + Linear ticket):
 
-        ```markdown
-        ## Summary
+    ```markdown
+    ## Summary
 
-        <2-4 bullets from commit body>
+    <2-4 bullets from commit body>
 
-        ## Linear Ticket
+    ## Linear Ticket
 
-        Closes <NOT-XXX> — <ticket title>
+    Closes <NOT-XXX> — <ticket title>
 
-        ## Test Plan
+    ## Test Plan
 
-        - [ ] Verify <primary change>
-        - [ ] Check for regressions in <affected area>
-        ```
+    - [ ] Verify <primary change>
+    - [ ] Check for regressions in <affected area>
+    ```
 
-    - Show proposed PR. `AskQuestion`: **"Looks good, create it"** / **"I want to edit"**.
-    - Create with `gh` (target `staging`):
+  - Show proposed PR. `AskQuestion`: **"Looks good, create it"** / **"I want to edit"**.
+  - Create with `gh` (target `staging`):
 
-        ```bash
-        gh pr create --base staging --title "<title>" --body "$(cat <<'EOF'
-        <body>
-        EOF
-        )"
-        ```
+    ```bash
+    gh pr create --base staging --title "<title>" --body "$(cat <<'EOF'
+    <body>
+    EOF
+    )"
+    ```
 
-    - Report new PR URL.
+  - Report new PR URL.
 
 ## Behavior Rules
 

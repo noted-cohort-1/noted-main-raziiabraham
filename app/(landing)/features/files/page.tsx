@@ -32,7 +32,7 @@ export default function FilesFeaturePage() {
                                         <span>40%</span>
                                     </div>
                                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
-                                        <div className="h-full bg-blue-600 dark:bg-blue-500" style={{ width: "40%" }} />
+                                        <div className="h-full w-2/5 bg-blue-600 dark:bg-blue-500" />
                                     </div>
                                 </div>
                             </div>

@@ -28,7 +28,7 @@ A complete end-to-end guide for shipping a feature in noted-main — from raw id
 
 **Non-negotiable:** Every feature must be user-grounded before any planning begins. No feature gets built on a hunch. If Phase 0 cannot be completed, pause and flag it — do not proceed to Phase 1.
 
-> **Status:** the *phases* are noted-ready and match the rest of the .ai stack (Speckit, `/noted-review`, the skills suite). The *user-grounding content* — Customer Understanding OS link, persona list, pain themes, Amplitude cohorts — is marked `[NEED: ...]` until the noted Customer Understanding OS exists. See "Activating this skill" at the bottom for the one-time fill-in steps.
+> **Status:** the _phases_ are noted-ready and match the rest of the .ai stack (Speckit, `/noted-review`, the skills suite). The _user-grounding content_ — Customer Understanding OS link, persona list, pain themes, Amplitude cohorts — is marked `[NEED: ...]` until the noted Customer Understanding OS exists. See "Activating this skill" at the bottom for the one-time fill-in steps.
 
 ---
 
@@ -81,23 +81,23 @@ Quote the evidence. Which interview, which customer, which Amplitude signal surf
 
 Use real user words from the Customer Understanding OS, or a specific Amplitude cohort behaviour. **No quote = no grounding = stop.**
 
-Examples (the *shape*; replace with noted-specific evidence once the OS exists):
+Examples (the _shape_; replace with noted-specific evidence once the OS exists):
 
-- > *`[NEED: noted user quote — interview source + customer name]`*
+- > _`[NEED: noted user quote — interview source + customer name]`_
 - `[NEED: noted Amplitude behavioural signal — e.g. "X events to Y events ratio across N orgs over T days"]`
 
 ### 4. What action should this feature trigger, and how will we measure it?
 
-Map to the **Closed Loop: Insight → Action** table in the Customer OS. The framework is universal and usable today; the *specific Amplitude events* will fill in as the SDK accumulates data (see `event-tracking` skill):
+Map to the **Closed Loop: Insight → Action** table in the Customer OS. The framework is universal and usable today; the _specific Amplitude events_ will fill in as the SDK accumulates data (see `event-tracking` skill):
 
-| Insight type | Action | Amplitude signal to watch |
-|---|---|---|
-| Usability friction | UX iteration | Reduced time-on-screen, higher conversion on the affected flow |
-| Feature gap | New feature | New `track*` event fires after ship (see `event-tracking`) |
-| JTBD misalignment | Onboarding copy / CTA change | Improved `Onboarding Completed` |
-| Persona signal | Cohort tag + research flag | Org-level property in Amplitude |
-| Blocking behaviour | Fix friction point | Drop-off event drops, success event rises |
-| Champion loss | Re-engagement + multi-user onboarding | Second user activated within 30 days |
+| Insight type       | Action                                | Amplitude signal to watch                                      |
+| ------------------ | ------------------------------------- | -------------------------------------------------------------- |
+| Usability friction | UX iteration                          | Reduced time-on-screen, higher conversion on the affected flow |
+| Feature gap        | New feature                           | New `track*` event fires after ship (see `event-tracking`)     |
+| JTBD misalignment  | Onboarding copy / CTA change          | Improved `Onboarding Completed`                                |
+| Persona signal     | Cohort tag + research flag            | Org-level property in Amplitude                                |
+| Blocking behaviour | Fix friction point                    | Drop-off event drops, success event rises                      |
+| Champion loss      | Re-engagement + multi-user onboarding | Second user activated within 30 days                           |
 
 ### Output of Phase 0
 
@@ -105,6 +105,7 @@ Write a short **User Grounding block** into the Linear ticket description at the
 
 ```markdown
 ## User Grounding
+
 - **Persona:** [01 / 02 / 03 / 04]
 - **Pain:** [# from Pain Landscape + one-line rephrasing]
 - **Evidence:** [Quote or Amplitude signal]
@@ -197,10 +198,10 @@ A simpler heuristic that's almost always right: if `pwd` contains `worktrees/`, 
 
 **Decision matrix:**
 
-| Where is the session? | What to do |
-|---|---|
-| Main checkout (`~/Documents/GitHub/noted-main`) | Create a new worktree off the base branch via `git worktree add` (or the `worktree` skill). |
-| Already in a worktree | **Do not create another worktree.** `git checkout -b feature/NOT-XXXX-short-slug <base-branch>` in place. Skip 3.0 if env files are already cascaded, and skip 3.0.1 if the offset is already chosen, unless the base branch's env keys changed. |
+| Where is the session?                           | What to do                                                                                                                                                                                                                                       |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Main checkout (`~/Documents/GitHub/noted-main`) | Create a new worktree off the base branch via `git worktree add` (or the `worktree` skill).                                                                                                                                                      |
+| Already in a worktree                           | **Do not create another worktree.** `git checkout -b feature/NOT-XXXX-short-slug <base-branch>` in place. Skip 3.0 if env files are already cascaded, and skip 3.0.1 if the offset is already chosen, unless the base branch's env keys changed. |
 
 If the user asks for a "new worktree" while already inside one, confirm before creating a nested worktree. Usually they meant "branch off here." The default is **branch in place**.
 
@@ -312,15 +313,16 @@ Don't edit [package.json](/Users/raziiabraham/Documents/GitHub/noted-main/packag
 
 ---
 
-## Phase 6 — Open PR & BugBot
+## Phase 6 — Open PR & automated checklist
 
-1. Open a PR (or use `/create-pr`). **The PR description must include:**
+1. Open a PR with `/create-pr` (targets `staging`). GitHub applies `.github/pull_request_template.md` and posts an **AI playground checklist** comment — complete every item before requesting human review.
+2. **PR description must include:**
    - The User Grounding block from Phase 0 (persona, pain, evidence, expected signal)
    - A link to the Customer Understanding OS so reviewers can verify the grounding
    - A link to the Linear ticket as a `Closes NOT-XXXX` line so Linear auto-transitions on merge
-2. **BugBot** will automatically run on the PR.
-3. Read the BugBot comments.
-4. Ask Claude Code to **explain what each comment catches and what the proposed solution is**.
+   - The **`/noted-review` verdict** (paste ✅ or 🛑 from Phase 5)
+3. **BugBot** will automatically run on the PR (if enabled for the org).
+4. Read BugBot comments and the AI playground checklist. Ask your agent to _"address all items in the AI playground checklist on this PR"_ if anything is incomplete.
 5. Add context where needed (e.g. "this refactor suggestion is about pre-existing code, not my change — out of scope").
 6. **Push back on invalid comments** with reasoning grounded in the feature's context.
 
@@ -332,7 +334,7 @@ Don't edit [package.json](/Users/raziiabraham/Documents/GitHub/noted-main/packag
 2. Address any additional comments from the reviewer.
 3. Once approved → **Merge** (feature → staging → main, per noted's branch flow).
 4. After deploy → **Smoke Test** in production.
-5. **Update team-os** (per noted's CLAUDE.md — *"Feature not 'done' until team-os updated"*):
+5. **Update team-os** (per noted's CLAUDE.md — _"Feature not 'done' until team-os updated"_):
    - Use `/ship-log` to append an entry to `team-os/features/<slug>/ship-log.md` (PR link, merge date, coverage delta, deploy status).
    - Update the feature dossier's status if it changed (`planned` → `in-development` → `live`).
    - Add the feature to `team-os/feature-index.yaml` if it's a new entry.
@@ -352,23 +354,23 @@ Always open at the start of a feature, and re-open whenever in doubt about perso
 
 ## Quick Reference: Step Order
 
-| # | Step | Tool/Command |
-|---|------|-------------|
-| 0 | **User ground against Customer OS** | Notion MCP (`notion-fetch`) |
-| 1 | Brainstorm (anchored to persona + pain) | Claude Code |
-| 2 | Plan (names persona + pain) | Claude Code Plan Mode |
-| 3 | Update ticket (includes User Grounding block) | Linear MCP |
-| 4 | Decide path | Doc plan vs Speckit |
-| 4.4 | **Worktree decision** — if already in a worktree, branch in place; only create a new worktree from the main checkout | Phase 3.0.0 snippet |
-| 4.5 | **Sync env files from local main** (fresh worktree, or after rebase) | Phase 3.0 snippet |
-| 4.6 | **Optional port offset** for concurrent worktrees | Phase 3.0.1 snippet |
-| 5 | Build & test locally (`npm run dev` + `npx convex dev`) | Claude Code |
-| 6 | Quality gate | `npm run format && npm run lint:fix && npm run type:check && npm run test` |
-| 7 | Push + preview test (Render preview) | `git push` |
-| 8 | Self review | `/noted-review` |
-| 9 | Open PR + BugBot (PR body includes User Grounding + Customer OS link) | `gh pr create` or `/create-pr` |
-| 10 | Human review | GitHub |
-| 11 | Merge + smoke test + team-os update | GitHub + production + `/ship-log` |
+| #   | Step                                                                                                                 | Tool/Command                                                               |
+| --- | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| 0   | **User ground against Customer OS**                                                                                  | Notion MCP (`notion-fetch`)                                                |
+| 1   | Brainstorm (anchored to persona + pain)                                                                              | Claude Code                                                                |
+| 2   | Plan (names persona + pain)                                                                                          | Claude Code Plan Mode                                                      |
+| 3   | Update ticket (includes User Grounding block)                                                                        | Linear MCP                                                                 |
+| 4   | Decide path                                                                                                          | Doc plan vs Speckit                                                        |
+| 4.4 | **Worktree decision** — if already in a worktree, branch in place; only create a new worktree from the main checkout | Phase 3.0.0 snippet                                                        |
+| 4.5 | **Sync env files from local main** (fresh worktree, or after rebase)                                                 | Phase 3.0 snippet                                                          |
+| 4.6 | **Optional port offset** for concurrent worktrees                                                                    | Phase 3.0.1 snippet                                                        |
+| 5   | Build & test locally (`npm run dev` + `npx convex dev`)                                                              | Claude Code                                                                |
+| 6   | Quality gate                                                                                                         | `npm run format && npm run lint:fix && npm run type:check && npm run test` |
+| 7   | Push + preview test (Render preview)                                                                                 | `git push`                                                                 |
+| 8   | Self review                                                                                                          | `/noted-review`                                                            |
+| 9   | Open PR + BugBot (PR body includes User Grounding + Customer OS link)                                                | `gh pr create` or `/create-pr`                                             |
+| 10  | Human review                                                                                                         | GitHub                                                                     |
+| 11  | Merge + smoke test + team-os update                                                                                  | GitHub + production + `/ship-log`                                          |
 
 ---
 
@@ -391,4 +393,4 @@ This skill is structurally complete but has placeholder content for the noted-sp
    - The Amplitude project ID and per-persona cohort URLs
 3. **Sanity-check the Closed Loop table.** The framework template is universal, but each row's "Amplitude signal to watch" should map to actual `track*` events from `lib/analytics.ts`. If a row has no concrete event today, leave a `[NEED: event]` note rather than aspirational text.
 
-Until step 1 happens, treat the skill as a *framework* — agents should not pretend they have grounding evidence they don't. The **mandatory** rule still holds: features without grounding don't get built. If the Customer OS doesn't exist yet for a given feature area, **the feature gets paused** while a grounding interview happens — not the other way around.
+Until step 1 happens, treat the skill as a _framework_ — agents should not pretend they have grounding evidence they don't. The **mandatory** rule still holds: features without grounding don't get built. If the Customer OS doesn't exist yet for a given feature area, **the feature gets paused** while a grounding interview happens — not the other way around.

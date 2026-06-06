@@ -4,15 +4,17 @@ Engineering knowledge for the Noted codebase.
 
 ## Doc index
 
-| Path | What it is |
-|---|---|
-| `rfcs/` | Architecture decisions, cross-cutting design proposals |
-| `plans/` | Per-feature implementation plans (lighter than RFCs) |
-| `runbooks/` | "If X breaks, do Y" — Clerk JWT, Convex schema migrations, EdgeStore issues |
-| `bug-investigations/` | Dated folders per bug — investigation plan, findings, fix link |
-| `adr/` | Architecture Decision Records — a short-form log of decisions |
+| Path                                                         | What it is                                                                      |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| [constitution.md](constitution.md)                           | Non-negotiable engineering principles — binding for `/noted-review` and Speckit |
+| [reference-implementations.md](reference-implementations.md) | Canonical code paths for every enforced pattern (copy these, don't invent)      |
+| `rfcs/`                                                      | Architecture decisions, cross-cutting design proposals                          |
+| `plans/`                                                     | Per-feature implementation plans (lighter than RFCs)                            |
+| `runbooks/`                                                  | "If X breaks, do Y" — Clerk JWT, Convex schema migrations, EdgeStore issues     |
+| `bug-investigations/`                                        | Dated folders per bug — investigation plan, findings, fix link                  |
+| `adr/`                                                       | Architecture Decision Records — a short-form log of decisions                   |
 
-*Populate as real work happens. The first bug investigation or RFC should be templated so future ones follow the same shape.*
+_Populate as real work happens. The first bug investigation or RFC should be templated so future ones follow the same shape._
 
 ## What counts as engineering knowledge (belongs here)
 

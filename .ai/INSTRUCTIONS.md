@@ -2,21 +2,22 @@
 
 Collaborative, AI-native note-taking app (Notion-style) by avidx-app. This repo holds both the **code** that ships the product and the **Team OS** — a shared knowledge base every team member (engineering, product, design, customer service, leadership) reads, queries, and contributes to.
 
-> This file is the source of truth for project-wide agent instructions. Root `CLAUDE.md` and `AGENTS.md` are auto-generated symlinks pointing here. Run `npm run sync-ai` to (re)materialize the symlinks across `.claude/` and `.cursor/`.
+> This file is the source of truth for project-wide agent instructions. Root `CLAUDE.md` and `AGENTS.md` are auto-generated symlinks pointing here. Run `npm run sync-ai` to (re)materialize the symlinks across `.claude/`, `.cursor/`, and `.agents/`.
 
 ## Doc index
 
-| Area | Path | What lives here |
-|---|---|---|
-| **Team OS** | [team-os/](team-os/) | PRDs, feature dossiers, research, metrics, support knowledge, team rituals |
-| **Feature dossiers** | [team-os/features/](team-os/features/) | One folder per live feature — status, FAQ, talking points, linked artifacts |
-| **Feature index** | [team-os/feature-index.yaml](team-os/feature-index.yaml) | Master map: every feature → dossier, code paths, owners, ship log |
-| **Code** | `app/` `components/` `convex/` `hooks/` `lib/` | Next.js App Router frontend + Convex backend |
-| **Tech stack** | [TECH_STACK.md](TECH_STACK.md) | What each dependency does and where it's wired |
-| **Deployment** | [DEPLOYMENT.md](DEPLOYMENT.md) | How the app ships, env setup |
-| **Setup** | [README.md](README.md) | Local dev instructions |
-| **Agent config** | [.ai/CONTRIBUTING.md](.ai/CONTRIBUTING.md) | Skills, slash commands, and how to add new ones |
-| **Claude playbook** | [team-os/team/claude-playbook.md](team-os/team/claude-playbook.md) | How we use Claude products (Chat, Cowork, Code, Design, Routines) |
+| Area                          | Path                                                                                                 | What lives here                                                             |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| **Team OS**                   | [team-os/](team-os/)                                                                                 | PRDs, feature dossiers, research, metrics, support knowledge, team rituals  |
+| **Feature dossiers**          | [team-os/features/](team-os/features/)                                                               | One folder per live feature — status, FAQ, talking points, linked artifacts |
+| **Feature index**             | [team-os/feature-index.yaml](team-os/feature-index.yaml)                                             | Master map: every feature → dossier, code paths, owners, ship log           |
+| **Code**                      | `app/` `components/` `convex/` `hooks/` `lib/`                                                       | Next.js App Router frontend + Convex backend                                |
+| **Tech stack**                | [TECH_STACK.md](TECH_STACK.md)                                                                       | What each dependency does and where it's wired                              |
+| **Deployment**                | [DEPLOYMENT.md](DEPLOYMENT.md)                                                                       | How the app ships, env setup                                                |
+| **Setup**                     | [README.md](README.md)                                                                               | Local dev instructions                                                      |
+| **Agent config**              | [.ai/CONTRIBUTING.md](.ai/CONTRIBUTING.md)                                                           | Skills, slash commands, and how to add new ones                             |
+| **Reference implementations** | [team-os/engineering/reference-implementations.md](team-os/engineering/reference-implementations.md) | Canonical code paths for every enforced pattern                             |
+| **Claude playbook**           | [team-os/team/claude-playbook.md](team-os/team/claude-playbook.md)                                   | How we use Claude products (Chat, Cowork, Code, Design, Routines)           |
 
 ## Team
 
@@ -30,6 +31,18 @@ See [team-os/ROSTER.md](team-os/ROSTER.md).
 - **When switching tasks, `/clear` first.** Leftover context pollutes results.
 - **Never fabricate data, quotes, or metrics.** Flag gaps with `[NEED: data from X]`.
 
+## AI playground (self-healing loop)
+
+This repo is set up so humans and agents can ship compliant PRs without engineer babysitting. The loop:
+
+1. **Skills + reference code** — follow `.ai/skills/`; copy patterns from [reference-implementations.md](team-os/engineering/reference-implementations.md).
+2. **Deterministic guardrails** — CI runs Prettier, TypeScript, ESLint (including custom `noted/*` rules), tests, and build. Warnings on legacy debt ratchet to errors over time.
+3. **Code self-healing** — when ESLint or CI fails, read the error message, apply the fix from [eslint-self-heal](.ai/skills/eslint-self-heal/SKILL.md), re-run lint, and **loop until clean** on every file you touched. Never `eslint-disable` on product code.
+4. **Before opening a PR** — run `/noted-review` in Claude/Cursor or `$noted-review` in Codex, then follow the [code-quality-checklist](.ai/skills/code-quality-checklist/SKILL.md).
+5. **Self-healing docs** — when you change code in an area covered by a skill or architecture doc, update that doc in the **same PR** if the change extends or contradicts the documented pattern. Update `reference-implementations.md` when you establish a new canonical example.
+
+GitHub posts an [AI playground checklist](.github/pull_request_template.md) on every new PR. Non-engineers: ask the agent to _"address all items in the AI playground checklist."_
+
 ## Code conventions (all agents)
 
 - **File naming**: kebab-case for files and directories (e.g., `coworker-message.tsx`).
@@ -38,7 +51,7 @@ See [team-os/ROSTER.md](team-os/ROSTER.md).
 - **Styling**: Tailwind CSS + shadcn/ui. Reuse components from `components/ui/` before building custom ones. Avoid inline styles.
 - **Tests**: Colocated (`foo.tsx` next to `foo.test.tsx`). Jest + React Testing Library. Mock Clerk and Convex at test top.
 - **Coverage**: maintain >50% frontend coverage (`npm run test:coverage`).
-- **Setup**: `npm install` → `npm run dev` (with `npx convex dev` in a second terminal). `npm install` also runs `npm run sync-ai`, which materializes `.ai/skills/` and `.ai/commands/` as symlinks under `.claude/` and `.cursor/`. Re-run manually with `npm run sync-ai` if you add or rename a skill/command without reinstalling.
+- **Setup**: `npm install` → `npm run dev` (with `npx convex dev` in a second terminal). `npm install` also runs `npm run sync-ai`, which materializes `.ai/skills/` and `.ai/commands/` as symlinks under `.claude/`, `.cursor/`, and `.agents/`. Re-run manually with `npm run sync-ai` if you add or rename a skill/command without reinstalling.
 
 ## Merge policy
 
