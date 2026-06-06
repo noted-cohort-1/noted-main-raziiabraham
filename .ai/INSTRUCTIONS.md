@@ -2,7 +2,7 @@
 
 Collaborative, AI-native note-taking app (Notion-style) by avidx-app. This repo holds both the **code** that ships the product and the **Team OS** — a shared knowledge base every team member (engineering, product, design, customer service, leadership) reads, queries, and contributes to.
 
-> This file is the source of truth for project-wide agent instructions. Root `CLAUDE.md` and `AGENTS.md` are auto-generated symlinks pointing here. Run `npm run sync-ai` to (re)materialize the symlinks across `.claude/` and `.cursor/`.
+> This file is the source of truth for project-wide agent instructions. Root `CLAUDE.md` and `AGENTS.md` are auto-generated symlinks pointing here. Run `npm run sync-ai` to (re)materialize the symlinks across `.claude/`, `.cursor/`, and `.agents/`.
 
 ## Doc index
 
@@ -51,7 +51,7 @@ GitHub posts an [AI playground checklist](.github/pull_request_template.md) on e
 - **Styling**: Tailwind CSS + shadcn/ui. Reuse components from `components/ui/` before building custom ones. Avoid inline styles.
 - **Tests**: Colocated (`foo.tsx` next to `foo.test.tsx`). Jest + React Testing Library. Mock Clerk and Convex at test top.
 - **Coverage**: maintain >50% frontend coverage (`npm run test:coverage`).
-- **Setup**: `npm install` → `npm run dev` (with `npx convex dev` in a second terminal). `npm install` also runs `npm run sync-ai`, which materializes `.ai/skills/` and `.ai/commands/` as symlinks under `.claude/` and `.cursor/`. Re-run manually with `npm run sync-ai` if you add or rename a skill/command without reinstalling.
+- **Setup**: `npm install` → `npm run dev` (with `npx convex dev` in a second terminal). `npm install` also runs `npm run sync-ai`, which materializes `.ai/skills/` and `.ai/commands/` as symlinks under `.claude/`, `.cursor/`, and `.agents/`. Re-run manually with `npm run sync-ai` if you add or rename a skill/command without reinstalling.
 
 ## Merge policy
 

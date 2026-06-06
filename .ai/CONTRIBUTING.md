@@ -9,11 +9,11 @@ This folder is the source of truth for everything Claude Code, Codex, and Cursor
 ├── INSTRUCTIONS.md     project-wide agent instructions (root CLAUDE.md and AGENTS.md symlink to this)
 ├── CONTRIBUTING.md     this file — what lives where and how to add new assets
 ├── CREDITS.md          attribution for skills/patterns adapted from public repos
-├── skills/             auto-triggering task skills (34 — loaded on keyword match)
-└── commands/           explicit slash commands (19)
+├── skills/             auto-triggering and explicit-invocation skills
+└── commands/           explicit slash commands for runtimes that support repo commands
 ```
 
-## Skills (34)
+## Skills
 
 | Skill                    | Purpose                                               |
 | ------------------------ | ----------------------------------------------------- |
@@ -52,7 +52,7 @@ This folder is the source of truth for everything Claude Code, Codex, and Cursor
 | `user-research`          | Synthesize research into insights                     |
 | `zod-schemas`            | Zod at HTTP/AI boundaries                             |
 
-## Commands (19)
+## Commands
 
 | Command              | Purpose                                     |
 | -------------------- | ------------------------------------------- |
@@ -76,6 +76,17 @@ This folder is the source of truth for everything Claude Code, Codex, and Cursor
 | `/weekly-digest`     | Team weekly digest                          |
 | `/worktree`          | Git worktree helper                         |
 
+## Runtime parity
+
+- **Claude Code / Cursor**: use repo slash commands from `.ai/commands/` and skills from `.ai/skills/`.
+- **Codex**: use skills from `.ai/skills/`. Built-in slash commands are product-level, but repo-local command files are not a reliable invocation surface in Codex today.
+- **Rule for parity**: if a workflow should be invokable everywhere, it must exist as a skill. Command files can remain as the canonical slash-command surface for Claude/Cursor, but Codex-compatible same-name skills must exist for command-only workflows.
+
+Examples:
+
+- Claude/Cursor: `/noted-review`, `/create-pr`, `/worktree`
+- Codex: `$noted-review`, `$create-pr`, `$worktree`
+
 ## How it gets to each runtime
 
 `scripts/sync-ai.mjs` — runs automatically after `npm install` (postinstall hook), and can be run manually with `npm run sync-ai`. It materializes `.ai/skills/` and `.ai/commands/` as symlinks at:
@@ -89,7 +100,8 @@ It also creates root-level `CLAUDE.md` and `AGENTS.md` as symlinks to `.ai/INSTR
 ## When to use which
 
 - **Skill** — you're in the middle of a task (writing a PRD, defining metrics, summarizing a market scan) and want the agent to follow a team-agreed structure automatically. Triggered by phrasing.
-- **Command** — you want to run a named workflow explicitly (`/prd-new`, `/ship-log`, `/noted-review`). Shows up in the `/` menu in Claude Code and Cursor.
+- **Command** — you want to run a named workflow explicitly (`/prd-new`, `/ship-log`, `/noted-review`). This is the repo-local slash-command surface for Claude Code and Cursor.
+- **Command-mirror skill** — same workflow, but invokable in Codex as `$name` when repo slash commands are unavailable there.
 - **`INSTRUCTIONS.md`** — passive context. Loaded every session so the agent knows the map.
 - **Reference implementations** — [team-os/engineering/reference-implementations.md](../team-os/engineering/reference-implementations.md) — canonical code to copy, not prose alone.
 
@@ -104,8 +116,9 @@ It also creates root-level `CLAUDE.md` and `AGENTS.md` as symlinks to `.ai/INSTR
 ## Adding a new command
 
 1. Create `.ai/commands/<name>.md` with a clear "Instructions" section.
-2. Run `npm run sync-ai`.
-3. Test it by typing `/<name>` in Claude Code, Cursor, and Codex.
+2. If there is no same-name skill already, create `.ai/skills/<name>/SKILL.md` as the Codex-compatible mirror. The skill should point to the command file as the source of truth and explicitly trigger on `/<name>` and `$<name>`.
+3. Run `npm run sync-ai`.
+4. Test it by typing `/<name>` in Claude Code and Cursor, and `$<name>` in Codex.
 
 ## Deterministic enforcement
 
