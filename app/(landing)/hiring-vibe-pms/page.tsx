@@ -608,9 +608,8 @@ export default function HiringVibePMsPage() {
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-neutral-600 dark:text-neutral-300">
               Applications are planned through Razii&apos;s LinkedIn. Send your
-              current role, why this operating model matters to you, and
-              whether Saturdays at 7:30 PM Western Indonesian Time can work for
-              live sessions.
+              current role, why this operating model matters to you, and what
+              do you expect to get out of this course.
             </p>
             <div className="mt-8">
               <Button
