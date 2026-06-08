@@ -2,15 +2,17 @@
 
 This guide will walk you through deploying your Noted application to Render with **Staging** and **Production** environments.
 
-> 💡 **Note**: By default, this guide uses Render's **Free tier** plan. Free tier services spin down after 15 minutes of inactivity and may take up to 1 minute to spin back up. For production apps, consider upgrading to the Starter plan ($7/month) for always-on availability. 
+> 💡 **Note**: By default, this guide uses Render's **Free tier** plan. Free tier services spin down after 15 minutes of inactivity and may take up to 1 minute to spin back up. For production apps, consider upgrading to the Starter plan ($7/month) for always-on availability.
 
 ## 🎯 Deployment Strategy
 
 **Your deployment setup:**
+
 - ✅ **Production**: Auto-deploys from `main` branch
 - ✅ **Staging**: Separate staging service that auto-deploys from `staging` branch
 
 **How it works:**
+
 - Merge to `main` → Automatically deploys to **Production**
 - Push to `staging` → Automatically deploys to **Staging**
 - Both services connect to different third-party services (Production uses Production Convex/Clerk, Staging uses Development Convex/Clerk)
@@ -29,6 +31,8 @@ Before you begin, make sure you have:
    - Both deployments can be in the same Convex project (recommended, similar to Clerk setup)
 4. ✅ Clerk application set up with Development and Production instances (recommended)
 5. ✅ EdgeStore account with access keys (can use same for both production and staging)
+6. ✅ Amplitude project API key for analytics
+7. ✅ Amplitude Experiment server deployment with the `hiring-vibe-pms-page` flag
 
 ---
 
@@ -123,6 +127,24 @@ Clerk allows you to have both **Development** and **Production** instances withi
 
 ---
 
+## Step 3.5: Set Up Amplitude Analytics, Flags, and Experiments
+
+1. Create an Amplitude project for the environment
+2. Copy the project API key
+3. Use that value for `NEXT_PUBLIC_AMPLITUDE_API_KEY`
+4. Go to **Experiment** → **Deployments**
+5. Create a **Server-side** deployment named `server`
+6. Use that deployment key for `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY`
+7. Go to **Experiment** → **Feature Flags**
+8. Create a feature flag with this exact key:
+   ```
+   hiring-vibe-pms-page
+   ```
+9. Use `on` as the enabled variant and `off` as the disabled/default variant
+10. Set `HIRING_VIBE_PMS_PAGE_DEFAULT=true` unless you want the page hidden when Amplitude Experiment is unavailable
+
+---
+
 ## Step 4: Deploy to Render
 
 ### Method 1: Using render.yaml (Recommended)
@@ -140,7 +162,7 @@ Render can automatically detect and use the `render.yaml` file in your repositor
    - Click **"Apply"**
 
 4. **Configure Environment Variables**:
-   
+
    **For Production Service** (`noted-production`):
    - Click on the production service
    - Go to **Environment** tab
@@ -151,8 +173,11 @@ Render can automatically detect and use the `render.yaml` file in your repositor
      CLERK_SECRET_KEY=<your-clerk-production-secret-key>  # sk_live_... from Production instance
      EDGE_STORE_ACCESS_KEY=<your-edgestore-access-key>
      EDGE_STORE_SECRET_KEY=<your-edgestore-secret-key>
+     NEXT_PUBLIC_AMPLITUDE_API_KEY=<your-production-amplitude-api-key>
+     AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=<your-production-amplitude-experiment-server-deployment-key>
+     HIRING_VIBE_PMS_PAGE_DEFAULT=true
      ```
-   
+
    **For Staging Service** (`noted-staging`) - **Free Tier Alternative**:
    - Click on the staging service
    - Go to **Environment** tab
@@ -163,8 +188,11 @@ Render can automatically detect and use the `render.yaml` file in your repositor
      CLERK_SECRET_KEY=<your-clerk-development-secret-key>  # sk_test_... from Development instance
      EDGE_STORE_ACCESS_KEY=<your-edgestore-access-key>  # Can use same as production
      EDGE_STORE_SECRET_KEY=<your-edgestore-secret-key>  # Can use same as production
+     NEXT_PUBLIC_AMPLITUDE_API_KEY=<your-staging-amplitude-api-key>
+     AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=<your-staging-amplitude-experiment-server-deployment-key>
+     HIRING_VIBE_PMS_PAGE_DEFAULT=true
      ```
-   
+
 5. **Deploy**:
    - **Production**: Will automatically deploy when code is merged to `main` branch
    - **Staging**: Will automatically deploy when code is pushed to `staging` branch
@@ -185,12 +213,14 @@ Render can automatically detect and use the `render.yaml` file in your repositor
 ### Setup Steps:
 
 1. **Create a Staging Branch** (if you don't have one):
+
    ```bash
    git checkout -b staging
    git push -u origin staging
    ```
 
 2. **The `render.yaml` file already includes the staging service**:
+
    ```yaml
    - type: web
      name: noted-staging
@@ -204,11 +234,12 @@ Render can automatically detect and use the `render.yaml` file in your repositor
 4. **Workflow**:
 
    **Option A: Direct Push (Quick Testing)**
+
    ```bash
    # Work on your feature branch
    git checkout -b feature/my-feature
    # ... make your changes ...
-   
+
    # Push directly to staging to test
    git checkout staging
    git merge feature/my-feature  # or cherry-pick specific commits
@@ -217,18 +248,20 @@ Render can automatically detect and use the `render.yaml` file in your repositor
    ```
 
    **Option B: PR Workflow (Recommended for Code Review)**
+
    ```bash
    # Work on your feature branch
    git checkout -b feature/my-feature
    # ... make your changes ...
    git push origin feature/my-feature
-   
+
    # Create PR: feature/my-feature → staging
    # Review code, then merge PR
    # → Staging automatically deploys! Test at staging URL
    ```
 
    **Then, when ready for production:**
+
    ```bash
    # Merge staging to main
    git checkout main
@@ -243,6 +276,7 @@ Render can automatically detect and use the `render.yaml` file in your repositor
    - Test features in staging before merging to production!
 
 ### Benefits:
+
 - ✅ **Always Available**: Fixed staging URL for testing
 - ✅ **Isolated**: Separate from production, uses staging services
 - ✅ **Simple**: Just push to staging branch to deploy
@@ -330,8 +364,8 @@ After deployment, you need to update your Convex auth configuration to match the
 export default {
   providers: [
     {
-      domain: "https://your-clerk-domain.clerk.accounts.dev",  // Or custom domain like https://clerk.yourdomain.com
-      applicationID: "convex",  // Must be exactly "convex" (lowercase)
+      domain: "https://your-clerk-domain.clerk.accounts.dev", // Or custom domain like https://clerk.yourdomain.com
+      applicationID: "convex", // Must be exactly "convex" (lowercase)
     },
   ],
 };
@@ -393,18 +427,26 @@ After deployment completes:
 Here's a checklist of all environment variables you need:
 
 ### Production Service (Render):
+
 - [ ] `NEXT_PUBLIC_CONVEX_URL` - Production Convex deployment URL
 - [ ] `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk Production instance publishable key (`pk_live_...`)
 - [ ] `CLERK_SECRET_KEY` - Clerk Production instance secret key (`sk_live_...`)
 - [ ] `EDGE_STORE_ACCESS_KEY` - EdgeStore access key
 - [ ] `EDGE_STORE_SECRET_KEY` - EdgeStore secret key
+- [ ] `NEXT_PUBLIC_AMPLITUDE_API_KEY` - Production Amplitude project API key
+- [ ] `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` - Production Amplitude Experiment server deployment key
+- [ ] `HIRING_VIBE_PMS_PAGE_DEFAULT` - Local/outage fallback for the hiring page flag
 
 ### Staging Service (Free Tier Alternative - Render):
+
 - [ ] `NEXT_PUBLIC_CONVEX_URL` - **Development Convex deployment URL** (same project, different deployment)
 - [ ] `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk Development instance publishable key (`pk_test_...`)
 - [ ] `CLERK_SECRET_KEY` - Clerk Development instance secret key (`sk_test_...`)
 - [ ] `EDGE_STORE_ACCESS_KEY` - EdgeStore access key (can be same as production)
 - [ ] `EDGE_STORE_SECRET_KEY` - EdgeStore secret key (can be same as production)
+- [ ] `NEXT_PUBLIC_AMPLITUDE_API_KEY` - Staging Amplitude project API key
+- [ ] `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` - Staging Amplitude Experiment server deployment key
+- [ ] `HIRING_VIBE_PMS_PAGE_DEFAULT` - Local/outage fallback for the hiring page flag
 
 **Important**: Configure these at the service level in Render dashboard for the staging service.
 
@@ -423,9 +465,13 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...  # From Development instance
 CLERK_SECRET_KEY=sk_test_...  # From Development instance
 EDGE_STORE_ACCESS_KEY=...
 EDGE_STORE_SECRET_KEY=...
+NEXT_PUBLIC_AMPLITUDE_API_KEY=...
+AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=...
+HIRING_VIBE_PMS_PAGE_DEFAULT=true
 ```
 
 **Why use staging for local development?**
+
 - ✅ Matches your staging environment (easier to test)
 - ✅ Safer - won't accidentally affect production data
 - ✅ Can test with real staging data
@@ -438,20 +484,26 @@ EDGE_STORE_SECRET_KEY=...
 If you need to test against production services from your local machine:
 
 1. **Create `.env.production.local`** file with production values:
+
    ```env
    NEXT_PUBLIC_CONVEX_URL=https://your-production-project.convex.cloud
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...  # From Production instance
    CLERK_SECRET_KEY=sk_live_...  # From Production instance
+   NEXT_PUBLIC_AMPLITUDE_API_KEY=...
+   AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=...
+   HIRING_VIBE_PMS_PAGE_DEFAULT=true
    EDGE_STORE_ACCESS_KEY=...
    EDGE_STORE_SECRET_KEY=...
    ```
 
 2. **Install dotenv-cli**:
+
    ```bash
    npm install --save-dev dotenv-cli
    ```
 
 3. **Run with production env vars**:
+
    ```bash
    npm run dev:prod
    ```
@@ -465,26 +517,30 @@ If you need to test against production services from your local machine:
 ### Build Fails
 
 **Error**: "Build command failed"
+
 - **Solution**: Check that all dependencies are in `package.json`. Run `npm install` locally to verify.
 
 **Error**: "Module not found"
+
 - **Solution**: Make sure all imports are correct. Check for case-sensitive file names.
 
 ### Runtime Errors
 
 **Error**: "Convex connection failed"
-- **Solution**: 
+
+- **Solution**:
   - Verify `NEXT_PUBLIC_CONVEX_URL` is set correctly
   - Check that Convex deployment is active
   - Verify `convex/auth.config.js` has correct Clerk domain
 
 **Error**: "Clerk authentication failed" or "No auth provider found matching the given token"
+
 - **Solution**:
   - ⚠️ **Most Common Issue**: The `convex/auth.config.js` in your Convex deployment doesn't match your Clerk instance **OR you haven't deployed the updated file**
-  - **For Production**: 
+  - **For Production**:
     1. Make sure your Production Convex deployment's `auth.config.js` uses your **Production Clerk domain**
     2. **CRITICAL**: Deploy the updated file: `CONVEX_DEPLOYMENT=prod:your-deployment-name npx convex deploy`
-  - **For Staging**: 
+  - **For Staging**:
     1. Make sure your Development Convex deployment's `auth.config.js` uses your **Development Clerk domain**
     2. **CRITICAL**: Deploy the updated file to Development deployment
   - Verify `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is correct
@@ -492,13 +548,14 @@ If you need to test against production services from your local machine:
   - **Remember**: Updating the file locally or in dashboard is NOT enough - you MUST deploy it!
 
 **Error**: "EdgeStore upload failed"
+
 - **Solution**:
   - Verify `EDGE_STORE_ACCESS_KEY` and `EDGE_STORE_SECRET_KEY` are set
   - Check EdgeStore dashboard to ensure keys are active
 
 ### Environment Variables Not Loading
 
-- **Solution**: 
+- **Solution**:
   - Make sure variables are set in Render dashboard (not just in `.env.local`)
   - Restart the service after adding new variables
   - Variables starting with `NEXT_PUBLIC_` are exposed to the browser
@@ -536,7 +593,7 @@ If you need to test against production services from your local machine:
 
 After successful deployment:
 
-1. ✅ **Update Convex auth configuration** (Step 6) - **CRITICAL**: 
+1. ✅ **Update Convex auth configuration** (Step 6) - **CRITICAL**:
    - Update `convex/auth.config.js` with Production Clerk domain
    - **DEPLOY IT**: Run `CONVEX_DEPLOYMENT=prod:your-deployment-name npx convex deploy`
    - Do NOT skip the deployment step - updating the file is not enough!
@@ -559,4 +616,3 @@ After successful deployment:
 ---
 
 **Happy Deploying! 🚀**
-

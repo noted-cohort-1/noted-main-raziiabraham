@@ -76,9 +76,15 @@ CLERK_SECRET_KEY=
 # EdgeStore File Storage (can use same for local/staging/production)
 EDGE_STORE_ACCESS_KEY=
 EDGE_STORE_SECRET_KEY=
+
+# Amplitude Analytics, Feature Flags, and Experiments (free Starter project)
+NEXT_PUBLIC_AMPLITUDE_API_KEY=
+AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=
+HIRING_VIBE_PMS_PAGE_DEFAULT=true
 ```
 
 **Why use staging services for local development?**
+
 - ✅ Matches your preview environments (easier to test)
 - ✅ Safer - won't accidentally affect production data
 - ✅ Can test with real staging data
@@ -125,6 +131,47 @@ EDGE_STORE_SECRET_KEY=
    - `EDGE_STORE_ACCESS_KEY`
    - `EDGE_STORE_SECRET_KEY`
 
+#### Amplitude (Analytics, Feature Flags, and Experiments)
+
+Each cohort student should create their own Amplitude project so Week 3 and Week 4 analytics, flagging, and experiment work happens inside their own workspace.
+
+1. Go to [https://amplitude.com](https://amplitude.com) and create a free Starter account
+2. Create a project called `noted-<your-handle>`
+3. Copy the project's API key into `.env.local` for analytics:
+   - `NEXT_PUBLIC_AMPLITUDE_API_KEY`
+4. Go to **Experiment** → **Deployments**
+5. Create a deployment named `server` with type **Server-side**
+6. Copy the deployment key into `.env.local`:
+   - `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY`
+7. Go to **Experiment** → **Feature Flags**
+8. Create a feature flag with this exact key:
+   - `hiring-vibe-pms-page`
+9. Use `on` as the enabled variant and `off` as the disabled/default variant
+10. Keep this local fallback unless you intentionally want the page hidden when Amplitude Experiment is not configured:
+    - `HIRING_VIBE_PMS_PAGE_DEFAULT=true`
+11. Restart `npm run dev` after adding or changing the keys
+
+The app silently drops events when `NEXT_PUBLIC_AMPLITUDE_API_KEY` is missing, so local setup still works before analytics is configured. The `/hiring-vibe-pms` page is served only when the Amplitude flag evaluates to `on`. If `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` is missing or Amplitude cannot evaluate the flag, the app falls back to `HIRING_VIBE_PMS_PAGE_DEFAULT`.
+
+Set the Amplitude keys in both local development and deployed environments:
+
+| Where                        | Why                                                   | Variables                                                                                                     |
+| ---------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `.env.local`                 | Runs analytics and feature flags on your local app    | `NEXT_PUBLIC_AMPLITUDE_API_KEY`, `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY`, `HIRING_VIBE_PMS_PAGE_DEFAULT` |
+| Render service → Environment | Runs analytics and feature flags on your deployed URL | `NEXT_PUBLIC_AMPLITUDE_API_KEY`, `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY`, `HIRING_VIBE_PMS_PAGE_DEFAULT` |
+| Terminal command only        | Seeds synthetic Amplitude events                      | `AMPLITUDE_API_KEY=<same project API key as NEXT_PUBLIC_AMPLITUDE_API_KEY>`                                   |
+
+Seed the sample Amplitude events after your project exists:
+
+```bash
+npm run seed:amplitude:plan
+AMPLITUDE_API_KEY=<your-amplitude-api-key> npm run seed:amplitude
+```
+
+The seeder emits synthetic product events that line up with the Convex cohort sample. Use them for Week 3 data memos and Week 4 starter-project planning.
+
+Feature flag and experiment conventions live in [`docs/feature-flags-and-experiments.md`](docs/feature-flags-and-experiments.md).
+
 ### 5. Configure Convex Authentication
 
 The `convex/auth.config.js` file should already be configured with your Clerk domain. Verify it matches your Clerk Frontend API URL:
@@ -145,6 +192,7 @@ Replace `your-clerk-domain` with your actual Clerk domain (found in your Clerk D
 ### 6. Run the application
 
 **Terminal 1 - Start Convex:**
+
 ```bash
 npx convex dev
 ```
@@ -152,11 +200,33 @@ npx convex dev
 Wait until you see "Convex functions ready!" before proceeding.
 
 **Terminal 2 - Start Next.js:**
+
 ```bash
 npm run dev
 ```
 
 The application will be available at [http://localhost:3000](http://localhost:3000)
+
+### 7. Seed the cohort sample data
+
+After Convex is connected and `npx convex dev` has run successfully, seed your own Convex deployment:
+
+```bash
+npm run seed:convex:plan
+npm run seed:convex
+npm run seed:convex:clean
+```
+
+The Convex seeder temporarily writes `convex/cohortSampleSeed.ts`, pushes it to your Convex deployment, runs the seed mutation, and prints a summary. The cleanup command removes the temporary seed module from your working tree.
+
+After Amplitude is configured, seed matching analytics events:
+
+```bash
+npm run seed:amplitude:plan
+AMPLITUDE_API_KEY=<your-amplitude-api-key> npm run seed:amplitude
+```
+
+Use your Amplitude project API key for `AMPLITUDE_API_KEY`. This is the same value you put in `NEXT_PUBLIC_AMPLITUDE_API_KEY`, but the seeder uses the non-public name because it runs from your terminal.
 
 ### Troubleshooting
 
@@ -164,16 +234,19 @@ The application will be available at [http://localhost:3000](http://localhost:30
 - **Convex not connecting**: Ensure `npx convex dev` is running and shows "Convex functions ready!"
 - **Environment variables not loading**: Restart your Next.js dev server after adding/changing `.env.local`
 - **Clerk authentication errors**: Verify your Clerk domain in `convex/auth.config.js` matches your Clerk Dashboard Frontend API URL
+- **No Amplitude events**: Confirm `NEXT_PUBLIC_AMPLITUDE_API_KEY` is set, restart `npm run dev`, and use `AMPLITUDE_API_KEY=... npm run seed:amplitude` for synthetic sample data
+- **`/hiring-vibe-pms` hidden unexpectedly**: Confirm Amplitude flag `hiring-vibe-pms-page` serves the `on` variant, `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` is set, or set `HIRING_VIBE_PMS_PAGE_DEFAULT=true` for local fallback
 
 **Testing Production Locally:**
 
 If you need to test against production services from your local machine:
 
 1. **Create `.env.production.local`** file with production values:
+
    ```env
    # Production Convex URL
    NEXT_PUBLIC_CONVEX_URL=https://your-production-project.convex.cloud
-   
+
    # Production Clerk and EdgeStore (same as staging, or separate if you have them)
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...  # or pk_test_... if same
    CLERK_SECRET_KEY=sk_live_...  # or sk_test_... if same
@@ -182,11 +255,13 @@ If you need to test against production services from your local machine:
    ```
 
 2. **Install dotenv-cli** (if not already installed):
+
    ```bash
    npm install --save-dev dotenv-cli
    ```
 
 3. **Run with production env vars**:
+
    ```bash
    npm run dev:prod
    ```
@@ -198,6 +273,7 @@ If you need to test against production services from your local machine:
 **Alternative: Quick Switch Method**
 
 If you don't want to install dotenv-cli, you can temporarily:
+
 1. Rename `.env.local` to `.env.local.backup`
 2. Copy `.env.production.local` to `.env.local`
 3. Run `npm run dev`

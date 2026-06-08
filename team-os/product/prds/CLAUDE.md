@@ -23,8 +23,8 @@ A PRD evolves. Each stage has a different audience and depth:
 1. **Team Kickoff** — a "speclet": hypothesis + 2–3 open questions. A paragraph.
 2. **Planning Review** — 1-pager for leadership prioritization.
 3. **XFN Kickoff** — expanded with cross-functional inputs (eng, design, support).
-4. **Solution Review** — full PRD with solution details, flows, edge cases.
-5. **Launch Readiness** — engineering handoff, edge cases, rollout.
+4. **Solution Review** — hand-off PRD with assumptions, scope, flows, edge cases, metrics, and experiment design.
+5. **Launch Readiness** — engineering handoff, QA, tracking, rollout, and decision criteria.
 6. **Impact Review** — post-launch, link results, what worked / didn't.
 
-Stage is set in the PRD's Status line.
+Use the hand-off template for every stage. For early-stage PRDs, keep unknown sections visible and mark them with `[NEED: owner/source]` rather than deleting them.

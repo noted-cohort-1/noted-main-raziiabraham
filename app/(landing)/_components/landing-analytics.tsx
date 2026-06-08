@@ -41,10 +41,22 @@ export const LandingFeaturePageVisitTracker = () => {
   return null;
 };
 
-export const HiringVibePmsPageVisitTracker = () => {
+type HiringVibePmsPageVisitTrackerProps = {
+  featureFlagKey?: string;
+  featureFlagVariant?: string;
+};
+
+export const HiringVibePmsPageVisitTracker = ({
+  featureFlagKey,
+  featureFlagVariant,
+}: HiringVibePmsPageVisitTrackerProps) => {
   useEffect(() => {
-    trackHiringVibePmsPageVisited({ page_path: "/hiring-vibe-pms" });
-  }, []);
+    trackHiringVibePmsPageVisited({
+      page_path: "/hiring-vibe-pms",
+      feature_flag_key: featureFlagKey,
+      feature_flag_variant: featureFlagVariant,
+    });
+  }, [featureFlagKey, featureFlagVariant]);
 
   return null;
 };

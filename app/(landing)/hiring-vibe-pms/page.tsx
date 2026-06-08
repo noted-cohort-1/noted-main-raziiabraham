@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { notFound } from "next/navigation";
 import {
   ArrowRight,
   Bot,
@@ -16,6 +17,11 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  FEATURE_FLAGS,
+  getBooleanFeatureFlag,
+  hiringVibePmsPageDefault,
+} from "@/lib/feature-flags";
 
 import { Footer } from "../_components/footer";
 import {
@@ -219,10 +225,22 @@ const faqs = [
   },
 ];
 
-export default function HiringVibePMsPage() {
+export default async function HiringVibePMsPage() {
+  const isPageEnabled = await getBooleanFeatureFlag(
+    FEATURE_FLAGS.hiringVibePmsPage,
+    hiringVibePmsPageDefault(),
+  );
+
+  if (!isPageEnabled) {
+    notFound();
+  }
+
   return (
     <div className="flex min-h-full flex-col bg-white text-neutral-950 dark:bg-neutral-950 dark:text-white">
-      <HiringVibePmsPageVisitTracker />
+      <HiringVibePmsPageVisitTracker
+        featureFlagKey={FEATURE_FLAGS.hiringVibePmsPage}
+        featureFlagVariant="on"
+      />
       <div className="flex-1">
         <section className="border-b border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950">
           <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-16 pt-10 sm:px-6 md:pb-24 md:pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8">
