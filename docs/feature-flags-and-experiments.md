@@ -8,8 +8,9 @@ The goal is to keep launch control and measurement in one place so PMs can see t
 
 - Use `@amplitude/analytics-browser` for client-side analytics events.
 - Use `@amplitude/experiment-node-server` for server-side feature flag evaluation.
+- Use `@amplitude/experiment-js-client` for client-side feature flag evaluation.
 - Do not add another flagging or experimentation vendor without an explicit architecture decision.
-- Do not call Amplitude Experiment directly from product routes or components. Route flag checks through `lib/feature-flags.ts`.
+- Do not call Amplitude Experiment directly from product routes or components. Server checks go through `lib/feature-flags.ts`; client checks go through `lib/client-feature-flags.ts` or `hooks/use-client-feature-flag.ts`.
 - Do not call Amplitude Analytics directly from product components. Add typed helpers in `lib/analytics.ts`.
 
 ## Required Environment Variables
@@ -17,6 +18,7 @@ The goal is to keep launch control and measurement in one place so PMs can see t
 ```env
 NEXT_PUBLIC_AMPLITUDE_API_KEY=
 AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=
+NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY=
 HIRING_VIBE_PMS_PAGE_DEFAULT=true
 ```
 
@@ -24,7 +26,14 @@ HIRING_VIBE_PMS_PAGE_DEFAULT=true
 
 `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` is private and evaluates server-side flags. Do not expose it with a `NEXT_PUBLIC_` prefix.
 
+`NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY` is public and evaluates client-side flags after the app has loaded.
+
 `HIRING_VIBE_PMS_PAGE_DEFAULT` is the local and outage fallback for the `hiring-vibe-pms-page` flag.
+
+Create two Amplitude Experiment deployments per environment:
+
+- `server`, type **Server-side**: route gates, server components, API routes, backend logic.
+- `client`, type **Client-side**: browser UI variations, component-level experiments, modal/banner/CTA tests.
 
 ## Naming
 
@@ -82,6 +91,25 @@ const enabled = await getBooleanFeatureFlag(
 if (!enabled) notFound();
 ```
 
+Client-rendered UI variants should use `useClientFeatureFlag`:
+
+```tsx
+"use client";
+
+import { useClientFeatureFlag } from "@/hooks/use-client-feature-flag";
+import { FEATURE_FLAGS } from "@/lib/feature-flag-keys";
+
+export function ExampleCta() {
+  const enabled = useClientFeatureFlag(FEATURE_FLAGS.hiringVibePmsPage, false);
+
+  return enabled ? (
+    <button>Try the new flow</button>
+  ) : (
+    <button>Get started</button>
+  );
+}
+```
+
 Client-side behavior should emit explicit analytics through a typed helper:
 
 ```ts
@@ -92,7 +120,11 @@ trackHiringVibePmsPageVisited({
 });
 ```
 
-For new flags, add the key to `FEATURE_FLAGS` and add any required fallback helper. Do not hardcode flag strings throughout the app.
+For client components, import shared keys from `@/lib/feature-flag-keys` instead of `@/lib/feature-flags` because `feature-flags.ts` owns server-side evaluation.
+
+For new flags, add the key to `FEATURE_FLAGS` in `lib/feature-flag-keys.ts` and add any required fallback helper. Do not hardcode flag strings throughout the app.
+
+Use server-side evaluation when the user should not receive the route, data, or restricted code path if the flag is off. Use client-side evaluation when it is acceptable for the page to load and only the rendered UI changes.
 
 ## Analytics Requirements
 

@@ -4,9 +4,7 @@ import {
   type RemoteEvaluationClient,
 } from "@amplitude/experiment-node-server";
 
-export const FEATURE_FLAGS = {
-  hiringVibePmsPage: "hiring-vibe-pms-page",
-} as const;
+export { FEATURE_FLAGS } from "./feature-flag-keys";
 
 const DEFAULT_EXPERIMENT_USER: ExperimentUser = {
   user_id: process.env.AMPLITUDE_EXPERIMENT_USER_ID ?? "noted-server",
