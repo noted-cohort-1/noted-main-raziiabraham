@@ -71,6 +71,10 @@ export interface AmplitudeEventProperties {
     cta_label?: string;
     /** Explicit route path for page visit events. */
     page_path?: string;
+    /** Feature flag key that influenced the surfaced experience. */
+    feature_flag_key?: string;
+    /** Variant served for the flagged experience. */
+    feature_flag_variant?: string;
 }
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY;
@@ -255,7 +259,8 @@ export const trackLandingFeaturePageVisited = (
 
 /** Landing: a user viewed the Vibe PM hiring page. */
 export const trackHiringVibePmsPageVisited = (
-    properties: Required<Pick<AmplitudeEventProperties, "page_path">>,
+    properties: Required<Pick<AmplitudeEventProperties, "page_path">> &
+        Pick<AmplitudeEventProperties, "feature_flag_key" | "feature_flag_variant">,
 ) => trackPageEvent("Hiring Vibe PMs Page Visited", properties);
 
 /** Landing: a user clicked a CTA on the Vibe PM hiring page. */

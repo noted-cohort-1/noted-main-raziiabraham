@@ -1,6 +1,6 @@
 ---
 name: prd-new
-description: Codex-compatible mirror of `/prd-new`. Use when the user asks for `/prd-new`, `$prd-new`, or wants the repo's new-PRD drafting workflow. Read `.ai/commands/prd-new.md` and follow it as the source of truth.
+description: Codex-compatible mirror of `/prd-new`. Use when the user asks for `/prd-new`, `$prd-new`, or wants the repo's hand-off PRD drafting workflow. Read `.ai/commands/prd-new.md` and follow it as the source of truth.
 ---
 
 # PRD New
