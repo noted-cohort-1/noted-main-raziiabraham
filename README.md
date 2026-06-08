@@ -76,6 +76,13 @@ CLERK_SECRET_KEY=
 # EdgeStore File Storage (can use same for local/staging/production)
 EDGE_STORE_ACCESS_KEY=
 EDGE_STORE_SECRET_KEY=
+
+# Amplitude Analytics (free Starter project)
+NEXT_PUBLIC_AMPLITUDE_API_KEY=
+
+# LaunchDarkly Feature Flags (free Developer project)
+LAUNCHDARKLY_SDK_KEY=
+HIRING_VIBE_PMS_PAGE_DEFAULT=true
 ```
 
 **Why use staging services for local development?**
@@ -125,6 +132,42 @@ EDGE_STORE_SECRET_KEY=
    - `EDGE_STORE_ACCESS_KEY`
    - `EDGE_STORE_SECRET_KEY`
 
+#### Amplitude (Analytics)
+
+Each cohort student should create their own Amplitude project so Week 3 and Week 4 data work happens inside their own workspace.
+
+1. Go to [https://amplitude.com](https://amplitude.com) and create a free Starter account
+2. Create a project called `noted-<your-handle>`
+3. Copy the project's API key into `.env.local`:
+   - `NEXT_PUBLIC_AMPLITUDE_API_KEY`
+4. Restart `npm run dev` after adding the key
+
+The app silently drops events when `NEXT_PUBLIC_AMPLITUDE_API_KEY` is missing, so local setup still works before analytics is configured.
+
+Seed the sample Amplitude events after your project exists:
+
+```bash
+npm run seed:amplitude:plan
+AMPLITUDE_API_KEY=<your-amplitude-api-key> npm run seed:amplitude
+```
+
+The seeder emits synthetic product events that line up with the Convex cohort sample. Use them for Week 3 data memos and Week 4 starter-project planning.
+
+#### LaunchDarkly (Feature Flags)
+
+Each cohort student should create their own LaunchDarkly Developer account so they can practice flagging and rollout decisions.
+
+1. Go to [https://launchdarkly.com](https://launchdarkly.com) and create a free Developer account
+2. Create a project called `noted-<your-handle>`
+3. Create a boolean flag with this exact key:
+   - `hiring-vibe-pms-page`
+4. Copy your environment's **server-side SDK key** into `.env.local`:
+   - `LAUNCHDARKLY_SDK_KEY`
+5. Keep this local fallback unless you intentionally want the page hidden when LaunchDarkly is not configured:
+   - `HIRING_VIBE_PMS_PAGE_DEFAULT=true`
+
+The `/hiring-vibe-pms` page is served only when the LaunchDarkly flag evaluates to `true`. If `LAUNCHDARKLY_SDK_KEY` is missing or LaunchDarkly cannot initialize, the app falls back to `HIRING_VIBE_PMS_PAGE_DEFAULT`.
+
 ### 5. Configure Convex Authentication
 
 The `convex/auth.config.js` file should already be configured with your Clerk domain. Verify it matches your Clerk Frontend API URL:
@@ -158,12 +201,35 @@ npm run dev
 
 The application will be available at [http://localhost:3000](http://localhost:3000)
 
+### 7. Seed the cohort sample data
+
+After Convex is connected and `npx convex dev` has run successfully, seed your own Convex deployment:
+
+```bash
+npm run seed:convex:plan
+npm run seed:convex
+npm run seed:convex:clean
+```
+
+The Convex seeder temporarily writes `convex/cohortSampleSeed.ts`, pushes it to your Convex deployment, runs the seed mutation, and prints a summary. The cleanup command removes the temporary seed module from your working tree.
+
+After Amplitude is configured, seed matching analytics events:
+
+```bash
+npm run seed:amplitude:plan
+AMPLITUDE_API_KEY=<your-amplitude-api-key> npm run seed:amplitude
+```
+
+Use your Amplitude project API key for `AMPLITUDE_API_KEY`. This is the same value you put in `NEXT_PUBLIC_AMPLITUDE_API_KEY`, but the seeder uses the non-public name because it runs from your terminal.
+
 ### Troubleshooting
 
 - **404 Error when logging in**: Make sure your Clerk JWT template is named exactly `convex` (lowercase)
 - **Convex not connecting**: Ensure `npx convex dev` is running and shows "Convex functions ready!"
 - **Environment variables not loading**: Restart your Next.js dev server after adding/changing `.env.local`
 - **Clerk authentication errors**: Verify your Clerk domain in `convex/auth.config.js` matches your Clerk Dashboard Frontend API URL
+- **No Amplitude events**: Confirm `NEXT_PUBLIC_AMPLITUDE_API_KEY` is set, restart `npm run dev`, and use `AMPLITUDE_API_KEY=... npm run seed:amplitude` for synthetic sample data
+- **`/hiring-vibe-pms` hidden unexpectedly**: Confirm LaunchDarkly flag `hiring-vibe-pms-page` is on, `LAUNCHDARKLY_SDK_KEY` is set, or set `HIRING_VIBE_PMS_PAGE_DEFAULT=true` for local fallback
 
 **Testing Production Locally:**
 

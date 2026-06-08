@@ -1,0 +1,38 @@
+{
+  "generatedPlan": {
+    "seed": 20260518,
+    "personaCounts": {
+      "power_users": 5,
+      "casual_users": 30,
+      "churned_users": 10,
+      "trial_users": 5
+    }
+  },
+  "insights": [
+    {
+      "name": "chat_to_publish_gap",
+      "studentQuestion": "Which synthetic users have high Coworker usage but no published documents?",
+      "expectedPattern": "Churn-risk and a meaningful minority of casual users have high Coworker message counts with zero published documents."
+    },
+    {
+      "name": "power_user_publish_rate",
+      "studentQuestion": "Do power users publish at a higher rate than casual users?",
+      "expectedPattern": "Power users own more documents, publish more often, attach more files, and are more likely to create Squad agents."
+    },
+    {
+      "name": "squad_agent_onboarding_cliff",
+      "studentQuestion": "How many users create or configure Squad agents compared with users who send Coworker messages?",
+      "expectedPattern": "Squad agent rows are sparse compared with Coworker message usage, matching the course narrative that Squad has high interest but lower activation."
+    },
+    {
+      "name": "draft_review_pressure",
+      "studentQuestion": "How many active users create multiple private drafts but never publish?",
+      "expectedPattern": "Several users have multiple non-archived unpublished documents and high chat activity, suggesting a draft-review bridge problem rather than low engagement."
+    }
+  ],
+  "notes": [
+    "The seeder expands this scenario into deterministic schema-valid rows.",
+    "There is no user table in the current Convex schema, so persona is encoded in userId and duplicated in the seeder summary.",
+    "The data is synthetic but designed to support realistic Week 3 and Week 4 product-discovery queries."
+  ]
+}

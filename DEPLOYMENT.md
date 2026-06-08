@@ -29,6 +29,8 @@ Before you begin, make sure you have:
    - Both deployments can be in the same Convex project (recommended, similar to Clerk setup)
 4. ✅ Clerk application set up with Development and Production instances (recommended)
 5. ✅ EdgeStore account with access keys (can use same for both production and staging)
+6. ✅ Amplitude project API key for analytics
+7. ✅ LaunchDarkly project with the `hiring-vibe-pms-page` boolean flag
 
 ---
 
@@ -123,6 +125,27 @@ Clerk allows you to have both **Development** and **Production** instances withi
 
 ---
 
+## Step 3.5: Set Up Amplitude and LaunchDarkly
+
+### Amplitude
+
+1. Create an Amplitude project for the environment
+2. Copy the project API key
+3. Use that value for `NEXT_PUBLIC_AMPLITUDE_API_KEY`
+
+### LaunchDarkly
+
+1. Create a LaunchDarkly project for the environment
+2. Create a boolean flag with this exact key:
+   ```
+   hiring-vibe-pms-page
+   ```
+3. Copy the environment's **server-side SDK key**
+4. Use that value for `LAUNCHDARKLY_SDK_KEY`
+5. Set `HIRING_VIBE_PMS_PAGE_DEFAULT=true` unless you want the page hidden when LaunchDarkly is unavailable
+
+---
+
 ## Step 4: Deploy to Render
 
 ### Method 1: Using render.yaml (Recommended)
@@ -151,6 +174,9 @@ Render can automatically detect and use the `render.yaml` file in your repositor
      CLERK_SECRET_KEY=<your-clerk-production-secret-key>  # sk_live_... from Production instance
      EDGE_STORE_ACCESS_KEY=<your-edgestore-access-key>
      EDGE_STORE_SECRET_KEY=<your-edgestore-secret-key>
+     NEXT_PUBLIC_AMPLITUDE_API_KEY=<your-production-amplitude-api-key>
+     LAUNCHDARKLY_SDK_KEY=<your-production-launchdarkly-server-side-sdk-key>
+     HIRING_VIBE_PMS_PAGE_DEFAULT=true
      ```
    
    **For Staging Service** (`noted-staging`) - **Free Tier Alternative**:
@@ -163,6 +189,9 @@ Render can automatically detect and use the `render.yaml` file in your repositor
      CLERK_SECRET_KEY=<your-clerk-development-secret-key>  # sk_test_... from Development instance
      EDGE_STORE_ACCESS_KEY=<your-edgestore-access-key>  # Can use same as production
      EDGE_STORE_SECRET_KEY=<your-edgestore-secret-key>  # Can use same as production
+     NEXT_PUBLIC_AMPLITUDE_API_KEY=<your-staging-amplitude-api-key>
+     LAUNCHDARKLY_SDK_KEY=<your-staging-launchdarkly-server-side-sdk-key>
+     HIRING_VIBE_PMS_PAGE_DEFAULT=true
      ```
    
 5. **Deploy**:
@@ -559,4 +588,3 @@ After successful deployment:
 ---
 
 **Happy Deploying! 🚀**
-

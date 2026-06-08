@@ -1,0 +1,16 @@
+{
+  "cohortName": "Cohort 1 Sample",
+  "windowDays": 30,
+  "userCountTarget": 50,
+  "dashboardNames": [
+    "Chat-to-Publish Funnel",
+    "DAU by Persona",
+    "Leaky Bucket Activation Funnel"
+  ],
+  "queryGoals": [
+    "Quantify chat-to-publish gap",
+    "Compare publish behavior across persona groups",
+    "Visualize the leaky-bucket drop-off from visitor to publish/share",
+    "Support Week 3 data memo and Week 4 starter-project planning"
+  ]
+}

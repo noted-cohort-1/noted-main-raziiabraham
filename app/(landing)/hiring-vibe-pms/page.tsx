@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { notFound } from "next/navigation";
 import {
   ArrowRight,
   Bot,
@@ -16,6 +17,11 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  FEATURE_FLAGS,
+  getBooleanFeatureFlag,
+  hiringVibePmsPageDefault,
+} from "@/lib/feature-flags";
 
 import { Footer } from "../_components/footer";
 import {
@@ -219,7 +225,16 @@ const faqs = [
   },
 ];
 
-export default function HiringVibePMsPage() {
+export default async function HiringVibePMsPage() {
+  const isPageEnabled = await getBooleanFeatureFlag(
+    FEATURE_FLAGS.hiringVibePmsPage,
+    hiringVibePmsPageDefault(),
+  );
+
+  if (!isPageEnabled) {
+    notFound();
+  }
+
   return (
     <div className="flex min-h-full flex-col bg-white text-neutral-950 dark:bg-neutral-950 dark:text-white">
       <HiringVibePmsPageVisitTracker />

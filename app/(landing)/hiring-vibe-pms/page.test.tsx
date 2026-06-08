@@ -32,8 +32,8 @@ jest.mock("@/app/(landing)/_components/landing-analytics", () => ({
 }));
 
 describe("HiringVibePMsPage", () => {
-  it("renders the 4-week first-30-days framing", () => {
-    render(<HiringVibePMsPage />);
+  it("renders the 4-week first-30-days framing", async () => {
+    render(await HiringVibePMsPage());
 
     expect(
       screen.getByRole("heading", {
