@@ -8,6 +8,7 @@ import {
   trackUserLoggedIn,
   trackUserLoggedOut,
 } from "@/lib/analytics";
+import { fetchAmplitudeExperimentVariants } from "@/lib/client-feature-flags";
 
 /**
  * Boots the Amplitude SDK once at app load and keeps the Amplitude user
@@ -19,6 +20,9 @@ import {
  *   `lib/analytics.ts` and the `event-tracking` skill.
  * - On sign-out, `identifyAmplitudeUser(null)` resets the device ID so
  *   the next session is a clean visitor.
+ * - When `NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY` is
+ *   set, client-side flags/experiments are fetched after Clerk identity
+ *   is known.
  */
 export const AmplitudeProvider = ({ children }: { children: ReactNode }) => {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -35,9 +39,19 @@ export const AmplitudeProvider = ({ children }: { children: ReactNode }) => {
     const wasSignedIn = previousSignedInRef.current;
 
     if (isCurrentlySignedIn && user) {
+      const emailDomain =
+        user.primaryEmailAddress?.emailAddress.split("@")[1] ?? undefined;
+
       identifyAmplitudeUser(user.id, {
         email: user.primaryEmailAddress?.emailAddress,
         firstName: user.firstName ?? undefined,
+      });
+      void fetchAmplitudeExperimentVariants({
+        user_id: user.id,
+        user_properties: {
+          signed_in: true,
+          ...(emailDomain ? { email_domain: emailDomain } : {}),
+        },
       });
 
       if (wasSignedIn === false) {
@@ -49,6 +63,11 @@ export const AmplitudeProvider = ({ children }: { children: ReactNode }) => {
       }
 
       identifyAmplitudeUser(null);
+      void fetchAmplitudeExperimentVariants({
+        user_properties: {
+          signed_in: false,
+        },
+      });
     }
 
     previousSignedInRef.current = isCurrentlySignedIn;

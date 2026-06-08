@@ -32,7 +32,7 @@ Before you begin, make sure you have:
 4. ✅ Clerk application set up with Development and Production instances (recommended)
 5. ✅ EdgeStore account with access keys (can use same for both production and staging)
 6. ✅ Amplitude project API key for analytics
-7. ✅ Amplitude Experiment server deployment with the `hiring-vibe-pms-page` flag
+7. ✅ Amplitude Experiment `server` and `client` deployments
 
 ---
 
@@ -135,13 +135,17 @@ Clerk allows you to have both **Development** and **Production** instances withi
 4. Go to **Experiment** → **Deployments**
 5. Create a **Server-side** deployment named `server`
 6. Use that deployment key for `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY`
-7. Go to **Experiment** → **Feature Flags**
-8. Create a feature flag with this exact key:
-   ```
-   hiring-vibe-pms-page
-   ```
-9. Use `on` as the enabled variant and `off` as the disabled/default variant
-10. Set `HIRING_VIBE_PMS_PAGE_DEFAULT=true` unless you want the page hidden when Amplitude Experiment is unavailable
+7. Create a **Client-side** deployment named `client`
+8. Use that deployment key for `NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY`
+9. Go to **Experiment** → **Feature Flags**
+10. Create a feature flag with this exact key:
+
+```
+hiring-vibe-pms-page
+```
+
+11. Assign that flag to the `server` deployment for the current route-level gate
+12. Use `on` as the enabled variant and `off` as the disabled/default variant — when Amplitude Experiment is unavailable the page defaults to hidden
 
 ---
 
@@ -175,7 +179,7 @@ Render can automatically detect and use the `render.yaml` file in your repositor
      EDGE_STORE_SECRET_KEY=<your-edgestore-secret-key>
      NEXT_PUBLIC_AMPLITUDE_API_KEY=<your-production-amplitude-api-key>
      AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=<your-production-amplitude-experiment-server-deployment-key>
-     HIRING_VIBE_PMS_PAGE_DEFAULT=true
+     NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY=<your-production-amplitude-experiment-client-deployment-key>
      ```
 
    **For Staging Service** (`noted-staging`) - **Free Tier Alternative**:
@@ -190,7 +194,7 @@ Render can automatically detect and use the `render.yaml` file in your repositor
      EDGE_STORE_SECRET_KEY=<your-edgestore-secret-key>  # Can use same as production
      NEXT_PUBLIC_AMPLITUDE_API_KEY=<your-staging-amplitude-api-key>
      AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=<your-staging-amplitude-experiment-server-deployment-key>
-     HIRING_VIBE_PMS_PAGE_DEFAULT=true
+     NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY=<your-staging-amplitude-experiment-client-deployment-key>
      ```
 
 5. **Deploy**:
@@ -435,7 +439,7 @@ Here's a checklist of all environment variables you need:
 - [ ] `EDGE_STORE_SECRET_KEY` - EdgeStore secret key
 - [ ] `NEXT_PUBLIC_AMPLITUDE_API_KEY` - Production Amplitude project API key
 - [ ] `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` - Production Amplitude Experiment server deployment key
-- [ ] `HIRING_VIBE_PMS_PAGE_DEFAULT` - Local/outage fallback for the hiring page flag
+- [ ] `NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY` - Production Amplitude Experiment client deployment key
 
 ### Staging Service (Free Tier Alternative - Render):
 
@@ -446,7 +450,7 @@ Here's a checklist of all environment variables you need:
 - [ ] `EDGE_STORE_SECRET_KEY` - EdgeStore secret key (can be same as production)
 - [ ] `NEXT_PUBLIC_AMPLITUDE_API_KEY` - Staging Amplitude project API key
 - [ ] `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` - Staging Amplitude Experiment server deployment key
-- [ ] `HIRING_VIBE_PMS_PAGE_DEFAULT` - Local/outage fallback for the hiring page flag
+- [ ] `NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY` - Staging Amplitude Experiment client deployment key
 
 **Important**: Configure these at the service level in Render dashboard for the staging service.
 
@@ -467,7 +471,7 @@ EDGE_STORE_ACCESS_KEY=...
 EDGE_STORE_SECRET_KEY=...
 NEXT_PUBLIC_AMPLITUDE_API_KEY=...
 AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=...
-HIRING_VIBE_PMS_PAGE_DEFAULT=true
+NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY=...
 ```
 
 **Why use staging for local development?**
@@ -491,7 +495,7 @@ If you need to test against production services from your local machine:
    CLERK_SECRET_KEY=sk_live_...  # From Production instance
    NEXT_PUBLIC_AMPLITUDE_API_KEY=...
    AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=...
-   HIRING_VIBE_PMS_PAGE_DEFAULT=true
+   NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY=...
    EDGE_STORE_ACCESS_KEY=...
    EDGE_STORE_SECRET_KEY=...
    ```

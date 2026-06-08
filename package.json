@@ -33,6 +33,7 @@
     "@ai-sdk/openai": "^3.0.19",
     "@ai-sdk/react": "^3.0.51",
     "@amplitude/analytics-browser": "^2.42.1",
+    "@amplitude/experiment-js-client": "^1.21.1",
     "@amplitude/experiment-node-server": "^1.13.6",
     "@blocknote/core": "^0.46.1",
     "@blocknote/mantine": "^0.46.1",
