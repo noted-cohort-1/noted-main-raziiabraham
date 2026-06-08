@@ -1,50 +1,64 @@
-import { init, type LDClient, type LDContext } from "@launchdarkly/node-server-sdk";
+import {
+  Experiment,
+  type ExperimentUser,
+  type RemoteEvaluationClient,
+} from "@amplitude/experiment-node-server";
 
 export const FEATURE_FLAGS = {
   hiringVibePmsPage: "hiring-vibe-pms-page",
 } as const;
 
-const DEFAULT_CONTEXT: LDContext = {
-  kind: "user",
-  key: process.env.LAUNCHDARKLY_CONTEXT_KEY ?? "noted-server",
-  name: process.env.LAUNCHDARKLY_CONTEXT_NAME ?? "Noted Server",
+const DEFAULT_EXPERIMENT_USER: ExperimentUser = {
+  user_id: process.env.AMPLITUDE_EXPERIMENT_USER_ID ?? "noted-server",
+  device_id: process.env.AMPLITUDE_EXPERIMENT_DEVICE_ID ?? "noted-server",
+  user_properties: {
+    app: "noted",
+    surface: "server",
+  },
 };
 
-let launchDarklyClient: LDClient | null = null;
-let launchDarklyInitPromise: Promise<LDClient | null> | null = null;
+let amplitudeExperimentClient: RemoteEvaluationClient | null = null;
 
 function booleanEnv(value: string | undefined, fallback: boolean): boolean {
   if (value === undefined) return fallback;
   return ["1", "true", "yes", "on"].includes(value.toLowerCase());
 }
 
-async function getLaunchDarklyClient(): Promise<LDClient | null> {
-  const sdkKey = process.env.LAUNCHDARKLY_SDK_KEY;
-  if (!sdkKey) return null;
-  if (launchDarklyClient) return launchDarklyClient;
+function booleanVariant(value: string | undefined): boolean | null {
+  if (!value) return null;
+  const normalized = value.toLowerCase();
+  if (["1", "true", "yes", "on", "enabled"].includes(normalized)) return true;
+  if (["0", "false", "no", "off", "disabled"].includes(normalized)) {
+    return false;
+  }
+  return null;
+}
 
-  launchDarklyInitPromise ??= (async () => {
-    const client = init(sdkKey);
-    try {
-      await client.waitForInitialization({ timeout: 5 });
-      launchDarklyClient = client;
-      return client;
-    } catch {
-      return null;
-    }
-  })();
+function getAmplitudeExperimentClient(): RemoteEvaluationClient | null {
+  const deploymentKey =
+    process.env.AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY ??
+    process.env.AMPLITUDE_EXPERIMENT_DEPLOYMENT_KEY;
 
-  return launchDarklyInitPromise;
+  if (!deploymentKey) return null;
+
+  amplitudeExperimentClient ??= Experiment.initializeRemote(deploymentKey);
+  return amplitudeExperimentClient;
 }
 
 export async function getBooleanFeatureFlag(
   flagKey: string,
   defaultValue: boolean,
-  context: LDContext = DEFAULT_CONTEXT,
+  user: ExperimentUser = DEFAULT_EXPERIMENT_USER,
 ): Promise<boolean> {
-  const client = await getLaunchDarklyClient();
+  const client = getAmplitudeExperimentClient();
   if (!client) return defaultValue;
-  return await client.variation(flagKey, context, defaultValue);
+
+  try {
+    const variants = await client.fetchV2(user);
+    return booleanVariant(variants[flagKey]?.value) ?? defaultValue;
+  } catch {
+    return defaultValue;
+  }
 }
 
 export function hiringVibePmsPageDefault(): boolean {

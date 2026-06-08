@@ -77,11 +77,9 @@ CLERK_SECRET_KEY=
 EDGE_STORE_ACCESS_KEY=
 EDGE_STORE_SECRET_KEY=
 
-# Amplitude Analytics (free Starter project)
+# Amplitude Analytics, Feature Flags, and Experiments (free Starter project)
 NEXT_PUBLIC_AMPLITUDE_API_KEY=
-
-# LaunchDarkly Feature Flags (free Developer project)
-LAUNCHDARKLY_SDK_KEY=
+AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=
 HIRING_VIBE_PMS_PAGE_DEFAULT=true
 ```
 
@@ -132,17 +130,27 @@ HIRING_VIBE_PMS_PAGE_DEFAULT=true
    - `EDGE_STORE_ACCESS_KEY`
    - `EDGE_STORE_SECRET_KEY`
 
-#### Amplitude (Analytics)
+#### Amplitude (Analytics, Feature Flags, and Experiments)
 
-Each cohort student should create their own Amplitude project so Week 3 and Week 4 data work happens inside their own workspace.
+Each cohort student should create their own Amplitude project so Week 3 and Week 4 analytics, flagging, and experiment work happens inside their own workspace.
 
 1. Go to [https://amplitude.com](https://amplitude.com) and create a free Starter account
 2. Create a project called `noted-<your-handle>`
-3. Copy the project's API key into `.env.local`:
+3. Copy the project's API key into `.env.local` for analytics:
    - `NEXT_PUBLIC_AMPLITUDE_API_KEY`
-4. Restart `npm run dev` after adding the key
+4. Go to **Experiment** → **Deployments**
+5. Create a deployment named `server` with type **Server-side**
+6. Copy the deployment key into `.env.local`:
+   - `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY`
+7. Go to **Experiment** → **Feature Flags**
+8. Create a feature flag with this exact key:
+   - `hiring-vibe-pms-page`
+9. Use `on` as the enabled variant and `off` as the disabled/default variant
+10. Keep this local fallback unless you intentionally want the page hidden when Amplitude Experiment is not configured:
+    - `HIRING_VIBE_PMS_PAGE_DEFAULT=true`
+11. Restart `npm run dev` after adding or changing the keys
 
-The app silently drops events when `NEXT_PUBLIC_AMPLITUDE_API_KEY` is missing, so local setup still works before analytics is configured.
+The app silently drops events when `NEXT_PUBLIC_AMPLITUDE_API_KEY` is missing, so local setup still works before analytics is configured. The `/hiring-vibe-pms` page is served only when the Amplitude flag evaluates to `on`. If `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` is missing or Amplitude cannot evaluate the flag, the app falls back to `HIRING_VIBE_PMS_PAGE_DEFAULT`.
 
 Seed the sample Amplitude events after your project exists:
 
@@ -153,20 +161,7 @@ AMPLITUDE_API_KEY=<your-amplitude-api-key> npm run seed:amplitude
 
 The seeder emits synthetic product events that line up with the Convex cohort sample. Use them for Week 3 data memos and Week 4 starter-project planning.
 
-#### LaunchDarkly (Feature Flags)
-
-Each cohort student should create their own LaunchDarkly Developer account so they can practice flagging and rollout decisions.
-
-1. Go to [https://launchdarkly.com](https://launchdarkly.com) and create a free Developer account
-2. Create a project called `noted-<your-handle>`
-3. Create a boolean flag with this exact key:
-   - `hiring-vibe-pms-page`
-4. Copy your environment's **server-side SDK key** into `.env.local`:
-   - `LAUNCHDARKLY_SDK_KEY`
-5. Keep this local fallback unless you intentionally want the page hidden when LaunchDarkly is not configured:
-   - `HIRING_VIBE_PMS_PAGE_DEFAULT=true`
-
-The `/hiring-vibe-pms` page is served only when the LaunchDarkly flag evaluates to `true`. If `LAUNCHDARKLY_SDK_KEY` is missing or LaunchDarkly cannot initialize, the app falls back to `HIRING_VIBE_PMS_PAGE_DEFAULT`.
+Feature flag and experiment conventions live in [`docs/feature-flags-and-experiments.md`](docs/feature-flags-and-experiments.md).
 
 ### 5. Configure Convex Authentication
 
@@ -229,7 +224,7 @@ Use your Amplitude project API key for `AMPLITUDE_API_KEY`. This is the same val
 - **Environment variables not loading**: Restart your Next.js dev server after adding/changing `.env.local`
 - **Clerk authentication errors**: Verify your Clerk domain in `convex/auth.config.js` matches your Clerk Dashboard Frontend API URL
 - **No Amplitude events**: Confirm `NEXT_PUBLIC_AMPLITUDE_API_KEY` is set, restart `npm run dev`, and use `AMPLITUDE_API_KEY=... npm run seed:amplitude` for synthetic sample data
-- **`/hiring-vibe-pms` hidden unexpectedly**: Confirm LaunchDarkly flag `hiring-vibe-pms-page` is on, `LAUNCHDARKLY_SDK_KEY` is set, or set `HIRING_VIBE_PMS_PAGE_DEFAULT=true` for local fallback
+- **`/hiring-vibe-pms` hidden unexpectedly**: Confirm Amplitude flag `hiring-vibe-pms-page` serves the `on` variant, `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` is set, or set `HIRING_VIBE_PMS_PAGE_DEFAULT=true` for local fallback
 
 **Testing Production Locally:**
 
