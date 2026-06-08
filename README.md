@@ -84,6 +84,7 @@ HIRING_VIBE_PMS_PAGE_DEFAULT=true
 ```
 
 **Why use staging services for local development?**
+
 - ✅ Matches your preview environments (easier to test)
 - ✅ Safer - won't accidentally affect production data
 - ✅ Can test with real staging data
@@ -152,6 +153,14 @@ Each cohort student should create their own Amplitude project so Week 3 and Week
 
 The app silently drops events when `NEXT_PUBLIC_AMPLITUDE_API_KEY` is missing, so local setup still works before analytics is configured. The `/hiring-vibe-pms` page is served only when the Amplitude flag evaluates to `on`. If `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` is missing or Amplitude cannot evaluate the flag, the app falls back to `HIRING_VIBE_PMS_PAGE_DEFAULT`.
 
+Set the Amplitude keys in both local development and deployed environments:
+
+| Where                        | Why                                                   | Variables                                                                                                     |
+| ---------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `.env.local`                 | Runs analytics and feature flags on your local app    | `NEXT_PUBLIC_AMPLITUDE_API_KEY`, `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY`, `HIRING_VIBE_PMS_PAGE_DEFAULT` |
+| Render service → Environment | Runs analytics and feature flags on your deployed URL | `NEXT_PUBLIC_AMPLITUDE_API_KEY`, `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY`, `HIRING_VIBE_PMS_PAGE_DEFAULT` |
+| Terminal command only        | Seeds synthetic Amplitude events                      | `AMPLITUDE_API_KEY=<same project API key as NEXT_PUBLIC_AMPLITUDE_API_KEY>`                                   |
+
 Seed the sample Amplitude events after your project exists:
 
 ```bash
@@ -183,6 +192,7 @@ Replace `your-clerk-domain` with your actual Clerk domain (found in your Clerk D
 ### 6. Run the application
 
 **Terminal 1 - Start Convex:**
+
 ```bash
 npx convex dev
 ```
@@ -190,6 +200,7 @@ npx convex dev
 Wait until you see "Convex functions ready!" before proceeding.
 
 **Terminal 2 - Start Next.js:**
+
 ```bash
 npm run dev
 ```
@@ -231,10 +242,11 @@ Use your Amplitude project API key for `AMPLITUDE_API_KEY`. This is the same val
 If you need to test against production services from your local machine:
 
 1. **Create `.env.production.local`** file with production values:
+
    ```env
    # Production Convex URL
    NEXT_PUBLIC_CONVEX_URL=https://your-production-project.convex.cloud
-   
+
    # Production Clerk and EdgeStore (same as staging, or separate if you have them)
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...  # or pk_test_... if same
    CLERK_SECRET_KEY=sk_live_...  # or sk_test_... if same
@@ -243,11 +255,13 @@ If you need to test against production services from your local machine:
    ```
 
 2. **Install dotenv-cli** (if not already installed):
+
    ```bash
    npm install --save-dev dotenv-cli
    ```
 
 3. **Run with production env vars**:
+
    ```bash
    npm run dev:prod
    ```
@@ -259,6 +273,7 @@ If you need to test against production services from your local machine:
 **Alternative: Quick Switch Method**
 
 If you don't want to install dotenv-cli, you can temporarily:
+
 1. Rename `.env.local` to `.env.local.backup`
 2. Copy `.env.production.local` to `.env.local`
 3. Run `npm run dev`
