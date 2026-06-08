@@ -4,9 +4,7 @@ import {
   type RemoteEvaluationClient,
 } from "@amplitude/experiment-node-server";
 
-export const FEATURE_FLAGS = {
-  hiringVibePmsPage: "hiring-vibe-pms-page",
-} as const;
+export { FEATURE_FLAGS } from "./feature-flag-keys";
 
 const DEFAULT_EXPERIMENT_USER: ExperimentUser = {
   user_id: process.env.AMPLITUDE_EXPERIMENT_USER_ID ?? "noted-server",
@@ -18,11 +16,6 @@ const DEFAULT_EXPERIMENT_USER: ExperimentUser = {
 };
 
 let amplitudeExperimentClient: RemoteEvaluationClient | null = null;
-
-function booleanEnv(value: string | undefined, fallback: boolean): boolean {
-  if (value === undefined) return fallback;
-  return ["1", "true", "yes", "on"].includes(value.toLowerCase());
-}
 
 function booleanVariant(value: string | undefined): boolean | null {
   if (!value) return null;
@@ -62,5 +55,5 @@ export async function getBooleanFeatureFlag(
 }
 
 export function hiringVibePmsPageDefault(): boolean {
-  return booleanEnv(process.env.HIRING_VIBE_PMS_PAGE_DEFAULT, true);
+  return false;
 }
