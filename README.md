@@ -81,7 +81,6 @@ EDGE_STORE_SECRET_KEY=
 NEXT_PUBLIC_AMPLITUDE_API_KEY=
 AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=
 NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY=
-HIRING_VIBE_PMS_PAGE_DEFAULT=true
 ```
 
 **Why use staging services for local development?**
@@ -151,11 +150,9 @@ Each cohort student should create their own Amplitude project so Week 3 and Week
    - `hiring-vibe-pms-page`
 10. Assign the flag to the `server` deployment for the current `/hiring-vibe-pms` route gate
 11. Use `on` as the enabled variant and `off` as the disabled/default variant
-12. Keep this local fallback unless you intentionally want the page hidden when Amplitude Experiment is not configured:
-    - `HIRING_VIBE_PMS_PAGE_DEFAULT=true`
-13. Restart `npm run dev` after adding or changing the keys
+12. Restart `npm run dev` after adding or changing the keys
 
-The app silently drops events when `NEXT_PUBLIC_AMPLITUDE_API_KEY` is missing, so local setup still works before analytics is configured. The `/hiring-vibe-pms` page is served only when the Amplitude server-side flag evaluates to `on`. If `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` is missing or Amplitude cannot evaluate the flag, the app falls back to `HIRING_VIBE_PMS_PAGE_DEFAULT`.
+The app silently drops events when `NEXT_PUBLIC_AMPLITUDE_API_KEY` is missing, so local setup still works before analytics is configured. The `/hiring-vibe-pms` page is served only when the Amplitude server-side flag evaluates to `on`. If `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` is missing or Amplitude cannot evaluate the flag, the page stays hidden (the flag defaults to `off`).
 
 Use the deployment keys this way:
 
@@ -166,8 +163,8 @@ Set the Amplitude keys in both local development and deployed environments:
 
 | Where                        | Why                                                   | Variables                                                                                                                                                               |
 | ---------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.env.local`                 | Runs analytics and feature flags on your local app    | `NEXT_PUBLIC_AMPLITUDE_API_KEY`, `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY`, `NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY`, `HIRING_VIBE_PMS_PAGE_DEFAULT` |
-| Render service → Environment | Runs analytics and feature flags on your deployed URL | `NEXT_PUBLIC_AMPLITUDE_API_KEY`, `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY`, `NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY`, `HIRING_VIBE_PMS_PAGE_DEFAULT` |
+| `.env.local`                 | Runs analytics and feature flags on your local app    | `NEXT_PUBLIC_AMPLITUDE_API_KEY`, `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY`, `NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY` |
+| Render service → Environment | Runs analytics and feature flags on your deployed URL | `NEXT_PUBLIC_AMPLITUDE_API_KEY`, `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY`, `NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY` |
 | Terminal command only        | Seeds synthetic Amplitude events                      | `AMPLITUDE_API_KEY=<same project API key as NEXT_PUBLIC_AMPLITUDE_API_KEY>`                                                                                             |
 
 Seed the sample Amplitude events after your project exists:
@@ -244,7 +241,7 @@ Use your Amplitude project API key for `AMPLITUDE_API_KEY`. This is the same val
 - **Environment variables not loading**: Restart your Next.js dev server after adding/changing `.env.local`
 - **Clerk authentication errors**: Verify your Clerk domain in `convex/auth.config.js` matches your Clerk Dashboard Frontend API URL
 - **No Amplitude events**: Confirm `NEXT_PUBLIC_AMPLITUDE_API_KEY` is set, restart `npm run dev`, and use `AMPLITUDE_API_KEY=... npm run seed:amplitude` for synthetic sample data
-- **`/hiring-vibe-pms` hidden unexpectedly**: Confirm Amplitude flag `hiring-vibe-pms-page` serves the `on` variant, `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` is set, or set `HIRING_VIBE_PMS_PAGE_DEFAULT=true` for local fallback
+- **`/hiring-vibe-pms` hidden unexpectedly**: Confirm Amplitude flag `hiring-vibe-pms-page` serves the `on` variant and `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` is set — the page defaults to hidden whenever Amplitude can't evaluate the flag
 
 **Testing Production Locally:**
 

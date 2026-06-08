@@ -2,6 +2,21 @@ import * as React from "react";
 import { render, screen } from "@testing-library/react";
 
 import HiringVibePMsPage from "@/app/(landing)/hiring-vibe-pms/page";
+import { getBooleanFeatureFlag } from "@/lib/feature-flags";
+
+jest.mock("@/lib/feature-flags", () => ({
+  FEATURE_FLAGS: { hiringVibePmsPage: "hiring-vibe-pms-page" },
+  getBooleanFeatureFlag: jest.fn().mockResolvedValue(true),
+  hiringVibePmsPageDefault: jest.fn().mockReturnValue(false),
+}));
+
+jest.mock("next/navigation", () => ({
+  notFound: jest.fn(() => {
+    throw new Error("NEXT_NOT_FOUND");
+  }),
+}));
+
+const mockGetBooleanFeatureFlag = jest.mocked(getBooleanFeatureFlag);
 
 jest.mock("@/app/(landing)/_components/footer", () => ({
   Footer: () => <footer data-testid="mock-footer">Footer</footer>,
@@ -32,6 +47,10 @@ jest.mock("@/app/(landing)/_components/landing-analytics", () => ({
 }));
 
 describe("HiringVibePMsPage", () => {
+  beforeEach(() => {
+    mockGetBooleanFeatureFlag.mockResolvedValue(true);
+  });
+
   it("renders the 4-week first-30-days framing", async () => {
     render(await HiringVibePMsPage());
 
@@ -50,5 +69,11 @@ describe("HiringVibePMsPage", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByTestId("mock-footer")).toBeInTheDocument();
+  });
+
+  it("calls notFound when the feature flag is off", async () => {
+    mockGetBooleanFeatureFlag.mockResolvedValue(false);
+
+    await expect(HiringVibePMsPage()).rejects.toThrow("NEXT_NOT_FOUND");
   });
 });

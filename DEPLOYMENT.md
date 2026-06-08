@@ -145,8 +145,7 @@ hiring-vibe-pms-page
 ```
 
 11. Assign that flag to the `server` deployment for the current route-level gate
-12. Use `on` as the enabled variant and `off` as the disabled/default variant
-13. Set `HIRING_VIBE_PMS_PAGE_DEFAULT=true` unless you want the page hidden when Amplitude Experiment is unavailable
+12. Use `on` as the enabled variant and `off` as the disabled/default variant — when Amplitude Experiment is unavailable the page defaults to hidden
 
 ---
 
@@ -181,7 +180,6 @@ Render can automatically detect and use the `render.yaml` file in your repositor
      NEXT_PUBLIC_AMPLITUDE_API_KEY=<your-production-amplitude-api-key>
      AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=<your-production-amplitude-experiment-server-deployment-key>
      NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY=<your-production-amplitude-experiment-client-deployment-key>
-     HIRING_VIBE_PMS_PAGE_DEFAULT=true
      ```
 
    **For Staging Service** (`noted-staging`) - **Free Tier Alternative**:
@@ -197,7 +195,6 @@ Render can automatically detect and use the `render.yaml` file in your repositor
      NEXT_PUBLIC_AMPLITUDE_API_KEY=<your-staging-amplitude-api-key>
      AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=<your-staging-amplitude-experiment-server-deployment-key>
      NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY=<your-staging-amplitude-experiment-client-deployment-key>
-     HIRING_VIBE_PMS_PAGE_DEFAULT=true
      ```
 
 5. **Deploy**:
@@ -443,7 +440,6 @@ Here's a checklist of all environment variables you need:
 - [ ] `NEXT_PUBLIC_AMPLITUDE_API_KEY` - Production Amplitude project API key
 - [ ] `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` - Production Amplitude Experiment server deployment key
 - [ ] `NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY` - Production Amplitude Experiment client deployment key
-- [ ] `HIRING_VIBE_PMS_PAGE_DEFAULT` - Local/outage fallback for the hiring page flag
 
 ### Staging Service (Free Tier Alternative - Render):
 
@@ -455,7 +451,6 @@ Here's a checklist of all environment variables you need:
 - [ ] `NEXT_PUBLIC_AMPLITUDE_API_KEY` - Staging Amplitude project API key
 - [ ] `AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY` - Staging Amplitude Experiment server deployment key
 - [ ] `NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY` - Staging Amplitude Experiment client deployment key
-- [ ] `HIRING_VIBE_PMS_PAGE_DEFAULT` - Local/outage fallback for the hiring page flag
 
 **Important**: Configure these at the service level in Render dashboard for the staging service.
 
@@ -477,7 +472,6 @@ EDGE_STORE_SECRET_KEY=...
 NEXT_PUBLIC_AMPLITUDE_API_KEY=...
 AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=...
 NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY=...
-HIRING_VIBE_PMS_PAGE_DEFAULT=true
 ```
 
 **Why use staging for local development?**
@@ -502,7 +496,6 @@ If you need to test against production services from your local machine:
    NEXT_PUBLIC_AMPLITUDE_API_KEY=...
    AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=...
    NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY=...
-   HIRING_VIBE_PMS_PAGE_DEFAULT=true
    EDGE_STORE_ACCESS_KEY=...
    EDGE_STORE_SECRET_KEY=...
    ```

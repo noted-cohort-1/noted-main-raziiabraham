@@ -17,11 +17,6 @@ const DEFAULT_EXPERIMENT_USER: ExperimentUser = {
 
 let amplitudeExperimentClient: RemoteEvaluationClient | null = null;
 
-function booleanEnv(value: string | undefined, fallback: boolean): boolean {
-  if (value === undefined) return fallback;
-  return ["1", "true", "yes", "on"].includes(value.toLowerCase());
-}
-
 function booleanVariant(value: string | undefined): boolean | null {
   if (!value) return null;
   const normalized = value.toLowerCase();
@@ -60,5 +55,5 @@ export async function getBooleanFeatureFlag(
 }
 
 export function hiringVibePmsPageDefault(): boolean {
-  return booleanEnv(process.env.HIRING_VIBE_PMS_PAGE_DEFAULT, true);
+  return false;
 }

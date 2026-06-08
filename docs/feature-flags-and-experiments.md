@@ -19,7 +19,6 @@ The goal is to keep launch control and measurement in one place so PMs can see t
 NEXT_PUBLIC_AMPLITUDE_API_KEY=
 AMPLITUDE_EXPERIMENT_SERVER_DEPLOYMENT_KEY=
 NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY=
-HIRING_VIBE_PMS_PAGE_DEFAULT=true
 ```
 
 `NEXT_PUBLIC_AMPLITUDE_API_KEY` is public and initializes browser analytics.
@@ -28,7 +27,7 @@ HIRING_VIBE_PMS_PAGE_DEFAULT=true
 
 `NEXT_PUBLIC_AMPLITUDE_EXPERIMENT_CLIENT_DEPLOYMENT_KEY` is public and evaluates client-side flags after the app has loaded.
 
-`HIRING_VIBE_PMS_PAGE_DEFAULT` is the local and outage fallback for the `hiring-vibe-pms-page` flag.
+The `hiring-vibe-pms-page` flag defaults to `off` (page hidden) whenever Amplitude Experiment is unavailable or cannot evaluate it — Amplitude is the only control that turns the page on.
 
 Create two Amplitude Experiment deployments per environment:
 
