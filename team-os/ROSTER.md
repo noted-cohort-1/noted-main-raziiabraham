@@ -8,7 +8,7 @@ Small team. Keep this file current — `feature-index.yaml` references owners by
 |---|---|---|---|
 | *(code owner)* | `@avidx-app` | Organization / primary code owner | Everything outside `team-os/` — required reviewer on all non-docs PRs |
 | *(maintainer)* | `@raz-ii` | Product + engineering | Cross-functional work, can merge under `team-os/` |
-| *(maintainer)* | `@raziiabraham` | Product + engineering | Cross-functional work, can merge under `team-os/` |
+| *(maintainer)* | `@raziiabraham` | Product + engineering + chief everything officer | Cross-functional work, can merge under `team-os/` |
 
 *Add additional teammates below as they join. Include GitHub handle, role, and what they own.*
 
